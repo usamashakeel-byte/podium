@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Brief Detail</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:#6B4EFF!important;box-shadow:0 0 0 4px rgba(107,78,255,0.18)}
+  .ai-banner{background:radial-gradient(80% 100% at 0% 50%,rgba(107,78,255,0.10) 0%,transparent 70%),#F6F2FF;border:1px solid #DCD3FF}
+  .section-card{background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(26,26,46,0.04),0 4px 12px rgba(26,26,46,0.04)}
+  .q-row{border-bottom:1px solid #E2E2EE;padding:12px 16px;display:flex;align-items:flex-start;gap:12px;transition:background .14s}
+  .q-row:last-child{border-bottom:none}
+  .q-row:hover{background:#FAFAFC}
+  .disc-item{padding:10px 16px;border-bottom:1px solid #E2E2EE;display:flex;align-items:flex-start;gap:10px}
+  .disc-item:last-child{border-bottom:none}
+  @keyframes successPop{0%{transform:scale(0.8);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+  .success-pop{animation:successPop .35s ease both}
+  @keyframes shimmer-bg{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+  .agent-shimmer{background:linear-gradient(135deg,#F7F4FF 0%,#FFFFFF 52%,#EDE9FF 100%)}
+  .agent-thread{scrollbar-width:thin;scrollbar-color:#D8D3F5 transparent}
+  .agent-thread::-webkit-scrollbar{width:6px}.agent-thread::-webkit-scrollbar-thumb{background:#D8D3F5;border-radius:999px}
+  @keyframes dot-bounce{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-4px);opacity:1}}
+  .dot-bounce{animation:dot-bounce 1.2s ease-in-out infinite}
+  .dot-bounce:nth-child(2){animation-delay:.15s}.dot-bounce:nth-child(3){animation-delay:.3s}
+  .editable-hover:hover{background:#F5F3FF;border-radius:4px;box-shadow:inset 0 -1px 0 #C4B5FD}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,chevL:<path d="M15 18l-6-6 6-6"/>,chevDown:<path d="M6 9l6 6 6-6"/>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  mic:<><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,video:<><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/></>,share2:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8-3M8.6 10.5l6.8 3"/></>,studio:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 8l5 3-5 3V8z"/></>,voice:<><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></>,
+  edit:<><path d="M11 4H4v16h16v-7"/><path d="M18.5 2.5a2.1 2.1 0 113 3L12 15l-4 1 1-4z"/></>,
+  mail:<><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"/><path d="M22 6l-10 7L2 6"/></>,
+  eye:<><path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></>,
+  calendar:<><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></>,
+  check:<path d="M5 12l5 5L20 7"/>,
+  plus:<path d="M12 5v14M5 12h14"/>,
+  search:<><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></>,
+  send:<><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></>,
+  copy:<><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></>,
+  image:<><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></>,
+  download:<><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>,
+};
+const Logo=()=>(<a href="CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const RoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>Content Marketer</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="brief"})=>{const [menu,setMenu]=useState(false);const u={name:"Fizza Asad",role:"Content Marketer"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="CMDashboard.html"/><NavItem icon={I.ideation} label="Ideation" active={active==="ideation"} href="IdeationList.html"/><NavItem icon={I.mic} label="Episode Topics" active={active==="episodes"} href="EpisodeTopics.html"/><NavItem icon={I.brief} label="Brief Builder" active={active==="brief"} href="BriefList.html"/></div><SectionLabel>Production</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.video} label="Recordings" active={active==="recordings"} href="RecordingsList.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.sliders} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="relative"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>e.stopPropagation()}><Icon d={I.moreV} size={16}/></button></div>{menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}</div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}><span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span>{i<items.length-1&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}</React.Fragment>))}</nav>);
+const Topbar=({breadcrumb})=>(<header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0"><div className="flex-1 min-w-0"><Crumb items={breadcrumb}/></div><button className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink"><Icon d={I.bell} size={18}/></button><RoleBadge/></header>);
+</script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ── Prototype data ──────────────────────────────────────────── */
+const QUESTION_SECTION_META = {
+  origin:{label:"Origin",helper:"Where the story starts",bg:"#EDE9FF",fg:"#5A3FE0"},
+  thesis:{label:"Thesis",helper:"What's the claim",bg:"#FFE0DA",fg:"#B92E22"},
+  proof:{label:"Proof",helper:"Why we should believe it",bg:"#D9F1E2",fg:"#1E7E34"},
+  challenge:{label:"Challenge",helper:"What could go wrong",bg:"#FFE9C0",fg:"#A86A00"},
+};
+
+const makeQuestion = (text, section="proof", vir=82, flags=[]) => ({ text, section, vir, flags });
+
+const INIT_QUESTIONS = [
+  makeQuestion("You've described procurement as the 'silent killer' of AI POCs — what's the most common failure mode you've seen firsthand?","origin",88),
+  makeQuestion("Walk me through a deal where the technology was solid but the procurement process killed it. What happened?","origin",84),
+  makeQuestion("How do you advise companies to structure their AI vendor evaluation to avoid the security review death spiral?","thesis",91),
+  makeQuestion("What's the difference between how a 500-person company and a 5,000-person company buys AI tooling?","proof",79),
+  makeQuestion("If you could change one thing about how enterprise procurement works today, what would it be?","challenge",72,["Low — re-hook"]),
+];
+
+const INIT_AREAS = [
+  "The anatomy of a failed AI POC: typical timeline and where deals die",
+  "Procurement vs. engineering alignment — who should own the AI vendor decision?",
+  "Security reviews for AI: what's actually reasonable vs. security theater",
+  "How to build an internal business case that survives the CFO review",
+  "Emerging patterns: which companies are getting AI procurement right and why",
+];
+
+const REVIEW_PERSONAS = {
+  host:{
+    name:"Haseeb",
+    label:"Configured host",
+    fit:"92% fit",
+    detail:"Calm, strategic, commercially sharp. Best for CIO-level procurement framing and budget tradeoff follow-ups.",
+  },
+  guest:{
+    name:"CIO persona",
+    label:"Guest persona",
+    fit:"95% fit",
+    detail:"Chief Information Officer / Head of AI at Series B-D SaaS. Owns AI tooling budget, security review, and vendor selection.",
+  },
+};
+
+const PERSONA_RESEARCH_ANGLES = [
+  {
+    id:"budget",
+    label:"Budget ownership",
+    finding:"CIO personas respond well to questions that clarify where AI spend actually lives once a pilot moves toward production.",
+    question:"Where does AI tooling budget usually sit after the pilot — IT, the business unit, or a shared transformation budget?",
+    area:"Budget ownership for AI tooling after pilot success",
+  },
+  {
+    id:"security",
+    label:"Security review",
+    finding:"For this persona, security review is not a checkbox. It is where legal, compliance, data governance, and vendor trust collide.",
+    question:"What does a good AI vendor security review answer before procurement even starts negotiating?",
+    area:"Security review signals that separate credible AI vendors from risky experiments",
+  },
+  {
+    id:"cfo",
+    label:"CFO pressure",
+    finding:"CIOs are often translating technical urgency into finance language. A CFO-focused angle makes the brief more executive.",
+    question:"How do you explain AI vendor ROI to a CFO when the value shows up as workflow acceleration rather than direct headcount savings?",
+    area:"CFO objections to AI vendor spend and how CIOs build the business case",
+  },
+  {
+    id:"stakeholders",
+    label:"Stakeholder map",
+    finding:"Enterprise AI buying rarely has one owner. The strongest episodes expose the stakeholder map behind the buying decision.",
+    question:"Who quietly has veto power in AI procurement even when they are not the official decision-maker?",
+    area:"Hidden veto holders in enterprise AI procurement",
+  },
+];
+
+const AGENT_INSIGHTS = [
+  { id:1, text:"Hi Fizza — I've reviewed the brief. The strongest path is to keep this conversation concrete: failed deals, procurement mechanics, and advice for CIO buyers.", type:"agent" },
+  { id:2, text:"Questions 1 and 2 already use a strong war-story pattern. They ask the guest to recall a specific event instead of giving a generic opinion.", type:"agent" },
+  { id:3, text:"One useful improvement: add more around budget ownership. CIO listeners will care where AI spend lives after a pilot becomes production work.", type:"agent" },
+];
+
+/* ── Inline editable text (Notion-style) ────────────────────── */
+const InlineEdit = ({ value, onChange, placeholder="Click to edit…", className="" }) => {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (editing && ref.current) {
+      const ta = ref.current;
+      ta.focus();
+      ta.style.height = "auto";
+      ta.style.height = ta.scrollHeight + "px";
+      const len = ta.value.length;
+      ta.setSelectionRange(len, len);
+    }
+  }, [editing]);
+
+  const commit = () => {
+    setEditing(false);
+    const v = draft.trim();
+    if (v && v !== value) onChange(v); else setDraft(value);
+  };
+
+  if (editing) {
+    return (
+      <textarea ref={ref} value={draft}
+        onChange={e => { setDraft(e.target.value); const t=e.target; t.style.height="auto"; t.style.height=t.scrollHeight+"px"; }}
+        onBlur={commit}
+        onKeyDown={e => { if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();commit();} if(e.key==="Escape"){setDraft(value);setEditing(false);} }}
+        style={{overflow:"hidden",resize:"none",lineHeight:"inherit",background:"#FAFAFF",borderBottom:"2px solid #6B4EFF",borderRadius:"4px"}}
+        className={`w-full outline-none px-1 -mx-1 ${className}`}
+      />
+    );
+  }
+
+  return (
+    <span onClick={()=>{setDraft(value);setEditing(true);}}
+      title="Click to edit"
+      className={`block cursor-text px-1 -mx-1 py-0.5 rounded-[4px] transition-colors editable-hover ${className}`}>
+      {value||<span className="text-ink-3 italic">{placeholder}</span>}
+    </span>
+  );
+};
+
+/* ── Editable list with add / remove ────────────────────────── */
+const EditableList = ({ items, onChange, renderRow, addLabel="+ Add point", createItem=v=>v }) => {
+  const [adding, setAdding] = useState(false);
+  const [newVal, setNewVal] = useState("");
+  const addRef = useRef(null);
+
+  useEffect(()=>{ if(adding&&addRef.current) addRef.current.focus(); },[adding]);
+
+  const update = (i,v) => { const n=[...items]; n[i]=v; onChange(n); };
+  const remove = i => onChange(items.filter((_,j)=>j!==i));
+  const add    = () => { const v=newVal.trim(); if(v) onChange([...items,createItem(v,items)]); setNewVal(""); setAdding(false); };
+
+  return (
+    <div>
+      {items.map((item,i) => renderRow(item, i, v=>update(i,v), ()=>remove(i)))}
+      {adding ? (
+        <div className="px-5 py-3 border-t border-border" style={{background:"#FAFAFF"}}>
+          <textarea ref={addRef} value={newVal} rows={2}
+            onChange={e=>setNewVal(e.target.value)}
+            onBlur={()=>{ newVal.trim()?add():setAdding(false); }}
+            onKeyDown={e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();add();} if(e.key==="Escape")setAdding(false); }}
+            placeholder="Type and press Enter to add…"
+            className="w-full outline-none text-[13.5px] text-ink leading-relaxed resize-none bg-transparent placeholder:text-ink-3"
+            style={{borderBottom:"1px solid #6B4EFF"}}
+          />
+        </div>
+      ) : (
+        <button onClick={()=>setAdding(true)}
+          className="w-full px-5 py-2.5 flex items-center gap-1.5 text-[12px] text-ink-3 hover:text-primary hover:bg-lavender transition border-t border-border opacity-80 hover:opacity-100">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          {addLabel}
+        </button>
+      )}
+    </div>
+  );
+};
+
+const QuestionSectionHeader = ({ section }) => {
+  const meta = QUESTION_SECTION_META[section] || QUESTION_SECTION_META.proof;
+  return (
+    <div className="px-5 pt-5 pb-2 flex items-center gap-2">
+      <span className="px-2.5 py-1 rounded-pill mono text-[10px] uppercase tracking-[0.12em] font-semibold"
+        style={{background:meta.bg,color:meta.fg}}>
+        {meta.label}
+      </span>
+      <span className="mono text-[10px] uppercase tracking-[0.18em] text-ink-3">{meta.helper}</span>
+      <span className="h-px bg-border flex-1"/>
+    </div>
+  );
+};
+
+const QuestionTag = ({ children, tone }) => {
+  const styles = {
+    section:{background:"#EDE9FF",color:"#5A3FE0"},
+    vir:{background:"#FFE9C0",color:"#A86A00"},
+    flag:{background:"#FFE0DA",color:"#B92E22"},
+  };
+  return (
+    <span className="inline-flex items-center rounded-pill px-2 py-0.5 mono text-[10px] uppercase tracking-[0.08em] font-semibold"
+      style={styles[tone] || styles.section}>
+      {children}
+    </span>
+  );
+};
+
+const PersonaReviewItem = ({ title, persona }) => (
+  <div className="flex items-start gap-3">
+    <Avatar name={persona.name} size={30}/>
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <div className="mono text-[9.5px] uppercase tracking-[0.14em] text-ink-3">{title}</div>
+          <div className="text-[12.5px] font-semibold text-ink truncate mt-0.5">{persona.name}</div>
+        </div>
+        <span className="shrink-0 px-2 py-0.5 rounded-pill text-[10.5px] font-semibold" style={{background:"#EDE9FF",color:"#5A3FE0"}}>{persona.fit}</span>
+      </div>
+      <p className="text-[11.5px] text-ink-2 leading-relaxed mt-1.5">{persona.detail}</p>
+    </div>
+  </div>
+);
+
+/* ── Brief Agent ─────────────────────────────────────────────── */
+const AgentMark = ({ size=24 }) => (
+  <div className="rounded-full shrink-0 flex items-center justify-center" style={{width:size,height:size,background:"#1A1A2E"}}>
+    <svg viewBox="0 0 40 40" width={size*0.58} height={size*0.58} fill="none">
+      <rect x="10" y="9" width="5" height="22" rx="1.5" fill="#FFF"/>
+      <path d="M15 9h7a7 7 0 010 14h-7" stroke="#FFF" strokeWidth="5" strokeLinejoin="round" fill="none"/>
+      <circle cx="27.5" cy="30.5" r="2.4" fill="#6B4EFF"/>
+    </svg>
+  </div>
+);
+
+const AGENT_CHIPS = [
+  {id:"add-question",label:"Add question",icon:I.plus,prompt:"Add one more interview question for this CIO guest persona."},
+  {id:"discussion-areas",label:"Find discussion areas",icon:I.search,prompt:"Search for more discussion areas based on the CIO guest persona."},
+  {id:"persona-angle",label:"Persona angle",icon:I.search,prompt:"What is the strongest persona angle for this guest?"},
+  {id:"tighten-flow",label:"Tighten flow",icon:I.check,prompt:"How should I tighten the question flow?"},
+];
+
+const BriefAgent = ({ onAddQuestion, onAddArea }) => {
+  const [open,     setOpen]     = useState(true);
+  const [msgs,     setMsgs]     = useState(AGENT_INSIGHTS);
+  const [inputVal, setInputVal] = useState("");
+  const threadRef = useRef(null);
+  const inputRef = useRef(null);
+
+  const scrollThread = () => setTimeout(()=>{ if(threadRef.current) threadRef.current.scrollTop=threadRef.current.scrollHeight; },80);
+  const appendAgent = text => {
+    setMsgs(p=>[...p,{id:Date.now()+Math.random(),text,type:"agent"}]);
+    scrollThread();
+  };
+  const applyChip = chip => {
+    setInputVal(chip.prompt);
+    setTimeout(()=>inputRef.current?.focus(), 0);
+  };
+  const answerQuery = v => {
+    const lower = v.toLowerCase();
+    if(lower.includes("question")){
+      const angle = PERSONA_RESEARCH_ANGLES[0];
+      onAddQuestion(makeQuestion(angle.question,"proof",83));
+      appendAgent("I added a budget ownership question to Interview Questions. It gives the CIO a concrete way to explain what happens after an AI pilot succeeds.");
+      return;
+    }
+    if(lower.includes("discussion")){
+      const angle = PERSONA_RESEARCH_ANGLES[2];
+      onAddArea(angle.area);
+      appendAgent("I added a discussion area around CFO objections and the AI vendor business case. That should make the brief feel more executive and less generic.");
+      return;
+    }
+    if(lower.includes("persona") || lower.includes("angle")){
+      appendAgent("For this guest persona, the strongest angle is the tension between AI urgency and procurement risk. Keep the conversation around budget ownership, security review, and hidden veto holders.");
+      return;
+    }
+    if(lower.includes("flow") || lower.includes("tighten")){
+      appendAgent("The question flow is strongest if it moves from a concrete failed deal, into procurement mechanics, then into advice. Avoid opening with broad opinions.");
+      return;
+    }
+    appendAgent("I would keep this brief focused on concrete procurement stories, budget ownership, security review, and what a CIO would advise other buyers to do differently.");
+  };
+
+  const send = () => {
+    const v = inputVal.trim(); if(!v) return;
+    setMsgs(p=>[...p,
+      {id:Date.now(), text:v, type:"user"},
+    ]);
+    setInputVal("");
+    setTimeout(()=>answerQuery(v), 0);
+    scrollThread();
+  };
+
+  return (
+    <div className="bg-white rounded-card shadow-card overflow-hidden border border-[#E6E2FF]">
+      <button className="w-full flex items-start gap-3 px-4 py-4 border-b border-[#DDD8FF] text-left agent-shimmer"
+        onClick={()=>setOpen(o=>!o)}>
+        <AgentMark size={30}/>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <div className="text-[14px] font-semibold text-ink leading-tight display">Brief Agent</div>
+            <span className="inline-flex items-center gap-1 rounded-pill bg-white/80 px-2 py-0.5 text-[10.5px] font-semibold text-primary">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary"/>Live
+            </span>
+          </div>
+          <div className="text-[11.5px] text-ink-2 mt-1">{open?"Ask, refine, or add to the brief":"Click to expand"}</div>
+        </div>
+        <svg className="mt-1" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5F6368" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d={open?"M18 15l-6-6-6 6":"M6 9l6 6 6-6"}/>
+        </svg>
+      </button>
+
+      {open && (<>
+        {/* Suggested chips */}
+        <div className="px-4 pt-3 pb-3 border-b border-border">
+          <div className="flex flex-wrap gap-2">
+            {AGENT_CHIPS.map(chip=>(
+              <button key={chip.id} onClick={()=>applyChip(chip)}
+                className="h-8 px-3 rounded-pill border border-border bg-white text-[11.5px] font-medium text-ink-2 hover:text-primary hover:border-primary/40 hover:bg-primary-soft/40 transition inline-flex items-center gap-1.5">
+                <Icon d={chip.icon} size={12}/>
+                {chip.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Thread */}
+        <div ref={threadRef} className="agent-thread px-4 pt-4 pb-3 space-y-3 overflow-y-auto bg-[#FCFCFF]" style={{maxHeight:360}}>
+          {msgs.map(m => {
+            if (m.type==="user") return (
+              <div key={m.id} className="flex justify-end">
+                <div className="max-w-[86%] px-3 py-2 rounded-[14px] rounded-tr-[4px] text-[12.5px] leading-relaxed text-white shadow-[0_5px_14px_-10px_rgba(107,78,255,0.7)]" style={{background:"#6B4EFF"}}>{m.text}</div>
+              </div>
+            );
+            return (
+              <div key={m.id} className="flex items-start gap-2.5">
+                <AgentMark size={20}/>
+                <div className="flex-1 min-w-0 rounded-[14px] rounded-tl-[4px] bg-white border border-border px-3 py-2 shadow-[0_1px_2px_rgba(26,26,46,0.03)]">
+                  <p className="text-[12.5px] text-ink leading-relaxed">
+                    {m.text}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Input */}
+        <div className="px-4 py-3 border-t border-border bg-white">
+          <div className="flex items-center gap-2 rounded-pill border border-border bg-lavender/60 px-3 py-1.5 focus-within:border-primary focus-within:bg-white transition">
+          <input ref={inputRef} className="flex-1 text-[12.5px] outline-none bg-transparent text-ink placeholder:text-ink-3"
+            placeholder="Ask about this brief…"
+            value={inputVal}
+            onChange={e=>setInputVal(e.target.value)}
+            onKeyDown={e=>e.key==="Enter"&&send()}
+          />
+          <button onClick={send} disabled={!inputVal.trim()}
+            className="w-7 h-7 rounded-full grid place-items-center transition shrink-0"
+            style={{background:inputVal.trim()?"#6B4EFF":"#E2E2EE"}}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+          </div>
+        </div>
+      </>)}
+    </div>
+  );
+};
+
+/* ── Page ─────────────────────────────────────────────────────── */
+const BriefDetailPage = () => {
+  const [submitted,    setSubmitted]    = useState(false);
+  const [emailCopied,  setEmailCopied]  = useState(false);
+  const [recordDate,   setRecordDate]   = useState("2026-06-10");
+  const [recordTime,   setRecordTime]   = useState("14:00");
+  const [visualOpen,   setVisualOpen]   = useState(false);
+  const [episodeTitle, setEpisodeTitle] = useState("Inside the procurement black box: a CIO perspective");
+  const [questions,    setQuestions]    = useState(INIT_QUESTIONS);
+  const [discAreas,    setDiscAreas]    = useState(INIT_AREAS);
+  const [visualSections, setVisualSections] = useState([
+    {title:"Camera & Framing",items:["Position camera at eye level — laptop cameras tilted upward are not acceptable.","Frame yourself with 1–2 inches of headroom; shoulders and chest should be visible.","Camera should be centred — avoid extreme left/right offset.","Use a laptop stand or stack of books if your camera is too low."]},
+    {title:"Lighting",items:["Natural light from a window in front of you is ideal — never sit with a window behind you.","If recording in the evening, use a ring light or a desk lamp pointed at your face.","Avoid overhead lighting that casts shadows under your eyes.","Check your face is evenly lit before the session starts."]},
+    {title:"Background",items:["Use a clean, uncluttered background — a neutral wall or tidy bookshelf works well.","Avoid virtual backgrounds — they compress poorly and look unprofessional on video.","Remove distracting objects in the background before joining."]},
+    {title:"Audio",items:["Use headphones or earbuds to prevent echo — AirPods are fine.","A USB microphone or lapel mic is strongly preferred over built-in laptop audio.","Find a quiet room — close windows, silence your phone, and close the door.","Do a quick audio check at the start of the session before we begin recording."]},
+  ]);
+
+  const copyEmail = () => { setEmailCopied(true); setTimeout(()=>setEmailCopied(false), 2000); };
+
+  if (submitted) {
+    return (
+      <div className="h-full flex flex-col bg-lavender">
+        <Topbar breadcrumb={["Workspace","Brief Builder","Procurement Bottleneck","Submitted"]}/>
+        <main className="flex-1 overflow-y-auto flex items-center justify-center">
+          <div className="text-center max-w-[440px] px-8 success-pop">
+            <div className="w-20 h-20 rounded-full grid place-items-center mx-auto mb-6" style={{background:"rgba(52,168,83,0.10)"}}>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+            </div>
+            <h1 className="text-[26px] font-bold display mb-2">Brief Submitted</h1>
+            <p className="text-[13.5px] text-ink-2 mb-8">Your brief has been sent to the Marketing Manager for review. They'll reach out with any feedback.</p>
+            <div className="flex items-center justify-center gap-3">
+              <a href="BriefList.html" className="h-10 px-5 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13.5px] font-medium inline-flex items-center gap-2 transition" style={{boxShadow:"0 6px 14px -4px rgba(107,78,255,0.55)"}}>Back to Briefs</a>
+              <a href="EpisodeTopics.html" className="h-10 px-5 rounded-pill border border-border text-ink text-[13.5px] font-medium inline-flex items-center gap-2 hover:bg-lavender transition">Episode Topics</a>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar breadcrumb={["Workspace","Brief Builder","EP-006 · Procurement Bottleneck"]}/>
+
+      {/* Context bar */}
+      <div className="bg-white border-b border-border">
+        <div className="max-w-[1180px] mx-auto px-8 h-11 flex items-center gap-5 text-[12.5px]">
+          <div className="flex items-baseline gap-2"><span className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Episode</span><span className="font-medium text-ink">EP-006 · Ep 1 of 3</span></div>
+          <span className="w-px h-4 bg-border"/>
+          <div className="flex items-baseline gap-2"><span className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Topic</span><span className="font-medium text-ink">The Procurement Bottleneck</span></div>
+          <span className="w-px h-4 bg-border"/>
+          <div className="flex items-baseline gap-2"><span className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Segment</span><span className="font-medium" style={{color:"#6B4EFF"}}>Sweetspot</span></div>
+          <span className="w-px h-4 bg-border"/>
+          <div className="flex items-baseline gap-2"><span className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Audience</span><span className="font-medium text-ink">CIO / Head of AI · Enterprise</span></div>
+        </div>
+      </div>
+
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[1180px] mx-auto px-8 py-8">
+
+          {/* AI banner */}
+          <div className="ai-banner rounded-card px-5 py-4 mb-6 flex items-center gap-4">
+            <div className="w-9 h-9 rounded-input grid place-items-center shrink-0" style={{background:"#EDE9FF"}}>
+              <Icon d={I.ideation} size={18} className="text-primary"/>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[13px] font-semibold text-ink">Brief generated by AI</div>
+              <div className="text-[12px] text-ink-2">Based on your Sweetspot segment ICP, episode topic, and audience profile. <span className="text-primary font-medium">Click any text to edit inline.</span></div>
+            </div>
+            <span className="px-2.5 py-1 rounded-pill text-[10.5px] font-semibold" style={{background:"#EDE9FF",color:"#5A3FE0"}}>GPT-4o · 3.2s</span>
+          </div>
+
+          <div className="flex items-start gap-6">
+            <div className="flex-1 min-w-0 space-y-5">
+
+              {/* Episode title — read-only */}
+              <section className="section-card">
+                <div className="px-5 pt-4 pb-4 border-b border-border">
+                  <div className="mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3 mb-1.5">Episode title</div>
+                  <div className="text-[20px] font-bold display leading-snug text-ink">{episodeTitle}</div>
+                </div>
+              </section>
+
+              {/* Interview Questions — editable list */}
+              <section className="section-card">
+                <div className="px-5 pt-4 pb-3 border-b border-border">
+                  <div className="mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3 mb-0.5">AI-generated</div>
+                  <h2 className="text-[16px] font-semibold display">Interview Questions</h2>
+                </div>
+                <EditableList items={questions} onChange={setQuestions} addLabel="+ Add question"
+                  createItem={(text,items)=>makeQuestion(text,items[items.length-1]?.section||"proof",76)}
+                  renderRow={(q, i, update, remove) => (
+                    <React.Fragment key={i}>
+                    {(i===0 || questions[i-1]?.section!==q.section) && <QuestionSectionHeader section={q.section}/>}
+                    <div className="q-row group">
+                      <span className="mono text-[10.5px] font-semibold text-ink-3 w-7 shrink-0 mt-1.5">Q{String(i+1).padStart(2,"0")}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+                          <QuestionTag tone="section">{QUESTION_SECTION_META[q.section]?.label||"Proof"}</QuestionTag>
+                          <QuestionTag tone="vir">VIR {q.vir}</QuestionTag>
+                          {(q.flags||[]).map(flag=><QuestionTag key={flag} tone="flag">{flag}</QuestionTag>)}
+                        </div>
+                        <InlineEdit value={q.text} onChange={text=>update({...q,text})} className="text-[13.5px] text-ink leading-relaxed"/>
+                      </div>
+                      <button onClick={remove}
+                        className="w-6 h-6 rounded grid place-items-center text-ink-3 opacity-0 group-hover:opacity-100 transition shrink-0"
+                        onMouseEnter={e=>e.currentTarget.style.color="#EA4335"}
+                        onMouseLeave={e=>e.currentTarget.style.color=""}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                      </button>
+                    </div>
+                    </React.Fragment>
+                  )}
+                />
+              </section>
+
+              {/* Areas of Discussion — editable list */}
+              <section className="section-card">
+                <div className="px-5 pt-4 pb-3 border-b border-border">
+                  <div className="mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3 mb-0.5">AI-generated</div>
+                  <h2 className="text-[16px] font-semibold display">Areas of Discussion</h2>
+                </div>
+                <EditableList items={discAreas} onChange={setDiscAreas} addLabel="+ Add discussion area"
+                  renderRow={(area, i, update, remove) => (
+                    <div key={i} className="disc-item group">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-[9px]"/>
+                      <div className="flex-1">
+                        <InlineEdit value={area} onChange={update} className="text-[13.5px] text-ink leading-relaxed"/>
+                      </div>
+                      <button onClick={remove}
+                        className="w-6 h-6 rounded grid place-items-center text-ink-3 opacity-0 group-hover:opacity-100 transition shrink-0"
+                        onMouseEnter={e=>e.currentTarget.style.color="#EA4335"}
+                        onMouseLeave={e=>e.currentTarget.style.color=""}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                      </button>
+                    </div>
+                  )}
+                />
+              </section>
+
+              {/* Recording Schedule */}
+              <section className="section-card px-5 py-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Icon d={I.calendar} size={16} className="text-primary"/>
+                  <h2 className="text-[16px] font-semibold display">Recording Schedule</h2>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2 mb-1.5 block">Date</label>
+                    <input type="date" value={recordDate} onChange={e=>setRecordDate(e.target.value)}
+                      className="w-full h-11 px-3 rounded-input border border-border text-[14px] bg-white"/>
+                  </div>
+                  <div>
+                    <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2 mb-1.5 block">Time (EST)</label>
+                    <input type="time" value={recordTime} onChange={e=>setRecordTime(e.target.value)}
+                      className="w-full h-11 px-3 rounded-input border border-border text-[14px] bg-white"/>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2 mb-1.5 block">Format</label>
+                    <select className="w-full h-11 pl-3 pr-9 rounded-input border border-border text-[14px] bg-white appearance-none">
+                      <option>Remote — Riverside.fm</option><option>Remote — Zoom</option><option>In-person — Studio</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              {/* Outreach Email */}
+              <section className="section-card">
+                <div className="px-5 pt-4 pb-3 border-b border-border flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Icon d={I.mail} size={16} className="text-primary"/>
+                    <h2 className="text-[16px] font-semibold display">Outreach Email Draft</h2>
+                  </div>
+                  <button onClick={copyEmail}
+                    className="h-8 px-3 rounded-pill text-[12px] font-medium border border-border text-ink-2 hover:text-ink hover:border-ink-3 inline-flex items-center gap-1.5 transition">
+                    {emailCopied ? <><Icon d={I.check} size={13} className="text-success"/>Copied!</> : <><Icon d={I.copy} size={13}/>Copy</>}
+                  </button>
+                </div>
+                <div className="px-5 py-4">
+                  <textarea className="w-full rounded-input border border-border text-[13.5px] leading-relaxed px-4 py-3 bg-white resize-none" rows={12}
+                    defaultValue={"Subject: Podcast invitation — Inside the Procurement Black Box\n\nHi [Name],\n\nI'm reaching out from Podium AI — we produce a podcast for enterprise technology leaders on the topics that actually matter to CTOs and CIOs navigating AI adoption.\n\nWe're recording an episode called \"Inside the procurement black box: a CIO perspective\" and your experience at [Company] makes you exactly the kind of voice our audience needs to hear from.\n\nThe conversation would focus on:\n• How enterprise AI procurement actually works (vs. how it should work)\n• The most common failure modes you've seen derail AI POCs\n• What you'd change about how companies evaluate AI vendors\n\nIt's a ~40 minute recorded conversation, fully remote. We'd schedule it at your convenience.\n\nWould you be open to a quick 15-minute intro call to see if it's a good fit?\n\nBest,\nFizza Asad\nContent Lead, Podium AI"}
+                  />
+                </div>
+              </section>
+
+              {/* Visual Instructions */}
+              <section className="section-card overflow-hidden">
+                <div className="px-5 py-4 flex items-center gap-3">
+                  <button onClick={()=>setVisualOpen(v=>!v)} className="flex items-center gap-3 flex-1 min-w-0 text-left hover:opacity-80 transition">
+                    <div className="w-8 h-8 rounded-input grid place-items-center shrink-0" style={{background:"#EDE9FF"}}>
+                      <Icon d={I.image} size={16} className="text-primary"/>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-[16px] font-semibold display">Visual Instructions</h2>
+                      <p className="text-[12px] text-ink-2 mt-0.5">Recording setup, framing guide, lighting checklist for the guest</p>
+                    </div>
+                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button className="h-8 px-3 rounded-pill text-[12px] font-medium border border-border text-ink-2 hover:text-primary hover:border-primary inline-flex items-center gap-1.5 transition">
+                      <Icon d={I.download} size={13}/>Download
+                    </button>
+                    <button onClick={()=>setVisualOpen(v=>!v)} className="w-8 h-8 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-lavender transition">
+                      <Icon d={I.chevDown} size={16} className={`transition-transform ${visualOpen?"rotate-180":""}`}/>
+                    </button>
+                  </div>
+                </div>
+                {visualOpen && (
+                  <div className="border-t border-border px-5 py-5 space-y-5">
+                    {visualSections.map((sec,si)=>(
+                      <React.Fragment key={si}>
+                        {si>0&&<div className="h-px bg-border"/>}
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="w-5 h-5 rounded-full bg-primary-soft grid place-items-center shrink-0"><span className="text-[9px] font-bold text-primary">{si+1}</span></span>
+                            <h3 className="flex-1">
+                              <InlineEdit value={sec.title}
+                                onChange={title=>setVisualSections(prev=>prev.map((s,i)=>i===si?{...s,title}:s))}
+                                className="text-[13.5px] font-semibold text-ink leading-tight"/>
+                            </h3>
+                          </div>
+                          <EditableList items={sec.items}
+                            onChange={items=>setVisualSections(prev=>prev.map((s,i)=>i===si?{...s,items}:s))}
+                            addLabel="+ Add point"
+                            renderRow={(item, ii, update, remove)=>(
+                              <div key={ii} className="flex items-start gap-2.5 text-[13px] text-ink-2 group py-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-ink-3 shrink-0 mt-2"/>
+                                <div className="flex-1 min-w-0">
+                                  <InlineEdit value={item} onChange={update} className="text-[13px] text-ink-2 leading-relaxed"/>
+                                </div>
+                                <button onClick={remove}
+                                  className="w-6 h-6 rounded grid place-items-center text-ink-3 opacity-0 group-hover:opacity-100 transition shrink-0"
+                                  onMouseEnter={e=>e.currentTarget.style.color="#EA4335"}
+                                  onMouseLeave={e=>e.currentTarget.style.color=""}>
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                </button>
+                              </div>
+                            )}
+                          />
+                        </div>
+                      </React.Fragment>
+                    ))}
+                    <div className="rounded-input p-4" style={{background:"#F6F2FF",border:"1px solid #DCD3FF"}}>
+                      <div className="mono text-[10px] uppercase tracking-[0.14em] text-primary mb-2.5">Quick checklist to share with guest</div>
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
+                        {["Camera at eye level","Good front lighting","Headphones/earbuds","Quiet room","Clean background","Stable internet connection"].map((c,i)=>(
+                          <div key={i} className="flex items-center gap-2 text-[12.5px] text-ink">
+                            <Icon d={I.check} size={13} stroke={2.5} className="text-primary shrink-0"/>{c}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </section>
+            </div>
+
+            {/* Right sidebar */}
+            <aside className="w-[330px] shrink-0 self-start sticky top-6 space-y-4">
+
+              {/* Brief Agent */}
+              <BriefAgent
+                onAddQuestion={q=>setQuestions(prev=>[...prev,(typeof q==="string"?makeQuestion(q,"proof",76):q)])}
+                onAddArea={area=>setDiscAreas(prev=>[...prev,area])}
+              />
+
+              {/* Submit card */}
+              <div className="bg-white rounded-card shadow-card p-5">
+                <div className="mono text-[10.5px] uppercase tracking-[0.14em] text-ink-2 mb-1">Submit for Review</div>
+                <div className="text-[15px] font-semibold display mb-3">Send to Marketing Manager</div>
+                <div className="flex items-center gap-3 p-3 rounded-input bg-lavender mb-4">
+                  <Avatar name="Jen Mendoza" size={32}/>
+                  <div>
+                    <div className="text-[13px] font-semibold text-ink">Jen Mendoza</div>
+                    <div className="text-[11px] text-ink-2">Marketing Manager</div>
+                  </div>
+                </div>
+                <div className="rounded-input bg-lavender/70 p-3 mb-4">
+                  <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-3">Personas included</div>
+                  <div className="space-y-3">
+                    <PersonaReviewItem title="Host" persona={REVIEW_PERSONAS.host}/>
+                    <div className="h-px bg-border"/>
+                    <PersonaReviewItem title="Guest" persona={REVIEW_PERSONAS.guest}/>
+                  </div>
+                </div>
+                <div className="space-y-2 text-[12px] mb-4">
+                  {[
+                    ["Questions", questions.length + " generated"],
+                    ["Discussion areas", discAreas.length + " areas"],
+                    ["Personas", "Host + guest included"],
+                    ["Recording date", recordDate],
+                    ["Outreach email", "Ready to send"],
+                    ["Visual instructions", "Attached"],
+                  ].map(([k,v]) => (
+                    <div key={k} className="flex justify-between items-center">
+                      <span className="text-ink-3">{k}</span>
+                      <span className="font-medium text-ink">{v}</span>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={()=>setSubmitted(true)}
+                  className="w-full h-11 rounded-pill bg-primary hover:bg-primary-hover transition text-white text-[13.5px] font-medium inline-flex items-center justify-center gap-2"
+                  style={{boxShadow:"0 6px 14px -4px rgba(107,78,255,0.55)"}}>
+                  <Icon d={I.send} size={15} stroke={2}/>Submit for Review
+                </button>
+                <a href="BriefList.html" className="w-full h-10 mt-2 rounded-pill border border-border text-[13px] font-medium text-ink hover:bg-lavender transition inline-flex items-center justify-center">
+                  Back to Briefs
+                </a>
+              </div>
+
+              {/* Activity */}
+              <div className="bg-white rounded-card shadow-card p-5">
+                <div className="mono text-[10.5px] uppercase tracking-[0.12em] text-ink-3 mb-3">Brief activity</div>
+                <div className="space-y-2 text-[12px] text-ink-2">
+                  {[
+                    {dot:"bg-primary",text:<><span className="text-ink font-medium">AI</span> generated brief <span className="text-ink-3 mono">· 2m ago</span></>},
+                    {dot:"bg-success",text:<><span className="text-ink font-medium">Fizza</span> opened episode <span className="text-ink-3 mono">· 3m ago</span></>},
+                    {dot:"bg-ink-3",  text:<>Episode approved by manager <span className="text-ink-3 mono">· May 21</span></>},
+                  ].map((item,i)=>(
+                    <div key={i} className="flex items-start gap-2.5">
+                      <span className={`w-1.5 h-1.5 rounded-full ${item.dot} mt-1.5 shrink-0`}/>
+                      <span>{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </aside>
+          </div>
+          <div className="text-[11px] text-ink-3 mono mt-8">podium · content marketer · brief builder · EP-006</div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Brief Detail">
+      <Sidebar active="brief"/>
+      <div className="flex-1 min-w-0 flex flex-col"><BriefDetailPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Ideation Reviews</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  .row-hover{transition:background .12s}.row-hover:hover{background:#FAFAFC}
+  @keyframes slideDown{0%{opacity:0;transform:translateY(-8px)}100%{opacity:1;transform:translateY(0)}}
+  .slide-down{animation:slideDown .2s ease both}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,chevDown:<path d="M6 9l6 6 6-6"/>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  check:<path d="M5 12l5 5L20 7"/>,
+  x:<path d="M18 6L6 18M6 6l12 12"/>,
+  checkCircle:<><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>,
+  xCircle:<><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></>,
+  user:<><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
+  search:<><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></>,
+};
+const Logo=()=>(<a href="MMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const MMRoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#E3ECFF",color:"#1D4ED8"}}><span className="w-1.5 h-1.5 rounded-full bg-blue-600"/>Marketing Manager</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="ideation-reviews"})=>{const [menu,setMenu]=useState(false);const u={name:"Jen Mendoza",role:"Marketing Manager"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="MMDashboard.html"/><NavItem icon={I.ideation} label="Ideation Reviews" active={active==="ideation-reviews"} href="MMIdeations.html"/><NavItem icon={I.brief} label="Brief Reviews" active={active==="brief-reviews"} href="MMBriefs.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="relative"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>e.stopPropagation()}><Icon d={I.moreV} size={16}/></button></div>{menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}</div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}>{i>0&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}<span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span></React.Fragment>))}</nav>);
+const Topbar=()=>(<header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0"><div className="flex-1 min-w-0"><Crumb items={["Workspace","Ideation Reviews"]}/></div><div className="relative"><Icon d={I.search} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3"/><input className="w-[220px] pl-9 pr-3 h-9 rounded-input border border-border text-[13px] placeholder:text-ink-3 bg-white" placeholder="Search ideations…"/></div><button className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink"><Icon d={I.bell} size={18}/></button><MMRoleBadge/></header>);
+</script>
+
+<script type="text/babel">
+const { useState } = React;
+
+const SEG_COLOR = { Enterprise:"#6B4EFF", Sweetspot:"#6B4EFF", Potential:"#2A6FDB", Desired:"#34A853" };
+const STATUS_STYLE = {
+  "Pending Review": { bg:"#FFE9C0", fg:"#A86A00", dot:"#F9AB00" },
+  Reviewed:         { bg:"#E3DCFF", fg:"#5A3FE0", dot:"#6B4EFF" },
+  Approved:         { bg:"#D9F1E2", fg:"#1E7E34", dot:"#34A853" },
+  Rejected:         { bg:"#FFE0DA", fg:"#B92E22", dot:"#EA4335" },
+};
+
+const INIT_DATA = [
+  {
+    id:"ID-001", detailId:"ideation-1", title:"AI Strategy Series", segment:"Enterprise",
+    audience:"Enterprise AI decision makers", submittedBy:"Fizza", date:"2 hrs ago",
+    status:"Pending Review", recommendation:"Multi-episode series", approvalScope:"Topics and episodes",
+    topics:[
+      { id:"T-01", title:"AI strategy after the pilot", topicStatus:"Pending", subtopics:[
+        { title:"Why AI strategy fails after the first pilot", host:{name:"Marcus Reid",role:"Pricing Strategist"}, persona:{title:"CIO / Head of AI",fit:91} },
+        { title:"How teams decide which AI work belongs on the roadmap", host:{name:"Priya Nair",role:"Revenue Operations Lead"}, persona:{title:"VP Engineering",fit:87} },
+      ]},
+      { id:"T-02", title:"Enterprise operating model", topicStatus:"Pending", subtopics:[
+        { title:"The operating model shift behind enterprise AI adoption", host:{name:"Tom Blake",role:"Product CEO"}, persona:{title:"Chief of Staff / Head of Ops",fit:85} },
+      ]},
+      { id:"T-03", title:"ROI and measurement", topicStatus:"Pending", subtopics:[
+        { title:"Measuring ROI when AI changes the workflow, not just the tool", host:{name:"Aisha Patel",role:"Enterprise Sales Leader"}, persona:{title:"CFO / Finance Lead",fit:88} },
+      ]},
+    ],
+  },
+  {
+    id:"ID-002", detailId:"ideation-2", title:"Procurement Bottleneck Deep Dive", segment:"Sweetspot",
+    audience:"CIO / Head of AI evaluators", submittedBy:"Fizza", date:"4 hrs ago",
+    status:"Pending Review", recommendation:"Multi-episode series", approvalScope:"Topics and episodes",
+    topics:[
+      { id:"T-01", title:"Procurement failure modes", topicStatus:"Pending", subtopics:[
+        { title:"Why great AI demos die in procurement", host:{name:"Aisha Patel",role:"Enterprise Sales Leader"}, persona:{title:"Head of Procurement",fit:91} },
+      ]},
+      { id:"T-02", title:"Security and stakeholder review", topicStatus:"Pending", subtopics:[
+        { title:"Security review traps that stall AI pilots", host:{name:"Chris Yoon",role:"CISO / Security Advisor"}, persona:{title:"CTO / CISO",fit:88} },
+        { title:"How CIOs build internal urgency for AI vendor decisions", host:{name:"Marcus Reid",role:"Pricing Strategist"}, persona:{title:"CIO / Head of AI",fit:89} },
+      ]},
+    ],
+  },
+  {
+    id:"ID-003", detailId:"ideation-3", title:"Why SaaS is dead — and what replaces it", segment:"Sweetspot",
+    audience:"CTOs / Head of Engineering · SMB", submittedBy:"Fizza", date:"May 18",
+    status:"Approved", recommendation:"Multi-episode series", approvalScope:"Topics and episodes",
+    topics:[
+      { id:"T-01", title:"The pricing-page rebellion", topicStatus:"Approved", subtopics:[
+        { title:"What founders changed and why", host:{name:"Marcus Reid",role:"Pricing Strategist"}, persona:{title:"Series B CFO",fit:94} },
+        { title:"Usage-based vs seat-based: the CFO math reshaping deals", host:{name:"Priya Nair",role:"Revenue Operations Lead"}, persona:{title:"VP Finance",fit:89} },
+      ]},
+      { id:"T-02", title:"When SaaS becomes a service", topicStatus:"Approved", subtopics:[
+        { title:"The blurring line with managed offerings", host:{name:"Tom Blake",role:"Product CEO"}, persona:{title:"Founder / CEO",fit:82} },
+      ]},
+    ],
+  },
+  {
+    id:"ID-004", detailId:"ideation-4", title:"Roadmap planning in a world where AI ships features instantly", segment:"Potential",
+    audience:"Product Managers · Growth-stage", submittedBy:"Fizza", date:"May 15",
+    status:"Rejected", recommendation:"Standalone episode", approvalScope:"Topics and episodes",
+    topics:[
+      { id:"T-01", title:"Roadmap planning in an AI-native product team", topicStatus:"Rejected", subtopics:[
+        { title:"Why the quarterly roadmap is no longer a useful planning unit", host:{name:"Tom Blake",role:"Product CEO"}, persona:{title:"Head of Product",fit:79} },
+        { title:"How fast-shipping AI teams are replacing sprints with intent-driven cycles", host:{name:"Priya Nair",role:"Revenue Operations Lead"}, persona:{title:"VP Product",fit:76} },
+      ]},
+    ],
+  },
+];
+
+const FILTERS = ["All","Pending Review","Approved","Rejected"];
+
+const IdeationRow = ({ ideation }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [subtopicStatuses, setSubtopicStatuses] = useState(
+    Object.fromEntries(ideation.topics.map(t => [t.id, t.subtopics.map(() => t.topicStatus)]))
+  );
+  const [expandedTopics, setExpandedTopics] = useState({});
+  const [overallStatus, setOverallStatus] = useState(ideation.status);
+  const [saved, setSaved] = useState(false);
+
+  const getTopicStatus = id => {
+    const subs = subtopicStatuses[id] || [];
+    return subs.some(s => s === "Pending") ? "Pending Review" : "Reviewed";
+  };
+
+  const setAllSubtopics = (topicId, status) => {
+    const topic = ideation.topics.find(t => t.id === topicId);
+    setSubtopicStatuses(prev => ({ ...prev, [topicId]: topic.subtopics.map(() => status) }));
+    setSaved(false);
+  };
+
+  const setSubtopicStatus = (topicId, si, status) => {
+    setSubtopicStatuses(prev => {
+      const subs = [...(prev[topicId] || [])];
+      subs[si] = status;
+      return { ...prev, [topicId]: subs };
+    });
+    setSaved(false);
+  };
+
+  const approveAll = () => {
+    setSubtopicStatuses(Object.fromEntries(ideation.topics.map(t => [t.id, t.subtopics.map(() => "Approved")])));
+    setSaved(false);
+  };
+  const rejectAll = () => {
+    setSubtopicStatuses(Object.fromEntries(ideation.topics.map(t => [t.id, t.subtopics.map(() => "Rejected")])));
+    setSaved(false);
+  };
+
+  const saveReview = () => {
+    const allReviewed = ideation.topics.every(t => getTopicStatus(t.id) === "Reviewed");
+    setOverallStatus(allReviewed ? "Reviewed" : "Pending Review");
+    setSaved(true);
+  };
+
+  const toggleTopicExpand = (topicId, e) => {
+    e.stopPropagation();
+    setExpandedTopics(prev => ({ ...prev, [topicId]: !prev[topicId] }));
+  };
+
+  const ss = STATUS_STYLE[overallStatus];
+  const episodeCount = ideation.topics.reduce((sum,t)=>sum+t.subtopics.length,0);
+  const detailHref = `MMReviewDetail.html?kind=ideation&id=${ideation.detailId}`;
+
+  return (
+    <div className="bg-white rounded-card shadow-card overflow-hidden mb-3">
+      {/* Row */}
+      <div className="row-hover flex items-center gap-4 px-5 py-4 cursor-pointer" onClick={() => window.location.href = detailHref}>
+        <Avatar name={ideation.submittedBy} size={32}/>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="mono text-[11px] font-semibold text-ink">{ideation.id}</span>
+            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: SEG_COLOR[ideation.segment] || "#6B4EFF" }}/>
+            <span className="text-[12px] font-medium" style={{ color: SEG_COLOR[ideation.segment] }}>{ideation.segment}</span>
+            <span className="text-ink-3 text-[10px]">·</span>
+            <span className="text-[12px] text-ink-2 truncate">{ideation.audience}</span>
+          </div>
+          <div className="text-[14px] font-semibold text-ink display leading-snug mb-1">{ideation.title}</div>
+          <div className="flex items-center gap-3 text-[11.5px] text-ink-3">
+            <span>Submitted by <span className="text-ink-2 font-medium">{ideation.submittedBy}</span></span>
+            <span>·</span>
+            <span>{ideation.date}</span>
+            <span>·</span>
+            <span>{ideation.topics.length} topics</span>
+            <span>·</span>
+            <span>{episodeCount} episodes</span>
+          </div>
+          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-success"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>Host &amp; persona fits per episode</span>
+            <span className="w-px h-3 bg-border shrink-0"/>
+            <div className="flex" style={{gap:0}}>
+              {ideation.topics.flatMap(t=>t.subtopics).slice(0,5).map((sub,si)=>(
+                <div key={si} style={{marginLeft:si>0?-5:0,zIndex:10-si}}><Avatar name={sub.host.name} size={18}/></div>
+              ))}
+            </div>
+            <span className="text-[11px] text-ink-3">{ideation.topics.flatMap(t=>t.subtopics).map(s=>s.host.name).filter((v,i,a)=>a.indexOf(v)===i).join(", ")}</span>
+          </div>
+        </div>
+        {overallStatus==="Pending Review"&&(
+          <a href={detailHref} onClick={e=>e.stopPropagation()}
+            className="h-8 px-3.5 rounded-pill border border-border text-[12px] font-medium text-ink-2 hover:text-primary hover:border-primary/40 inline-flex items-center gap-1.5 transition shrink-0">
+            Review details<Icon d={I.chevR} size={13}/>
+          </a>
+        )}
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-[11px] font-semibold shrink-0" style={{ background:ss.bg, color:ss.fg }}>
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background:ss.dot }}/>{overallStatus}
+        </span>
+        <button onClick={e=>{e.stopPropagation();setExpanded(v=>!v);}} className="w-7 h-7 rounded-full grid place-items-center text-ink-3 hover:text-ink hover:bg-lavender transition shrink-0"><Icon d={I.chevDown} size={16} className={`transition-transform ${expanded?"rotate-180":""}`}/></button>
+      </div>
+
+      {/* Detail panel */}
+      {expanded && (
+        <div className="border-t border-border slide-down">
+          {/* Config summary */}
+          <div className="px-5 py-4 bg-lavender/50 border-b border-border">
+            <div className="grid grid-cols-5 gap-4 text-[12.5px]">
+              <div><span className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 block mb-0.5">Audience</span><span className="font-medium text-ink">{ideation.audience}</span></div>
+              <div><span className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 block mb-0.5">Segment</span><span className="font-medium" style={{color:SEG_COLOR[ideation.segment]}}>{ideation.segment}</span></div>
+              <div><span className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 block mb-0.5">Recommendation</span><span className="font-medium text-ink">{ideation.recommendation}</span></div>
+              <div><span className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 block mb-0.5">Approval Scope</span><span className="font-medium text-ink">{episodeCount} episodes</span></div>
+              <div><span className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 block mb-0.5">Host &amp; Persona Fits</span><span className="inline-flex items-center gap-1 font-medium text-success"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>Suggested fits per episode</span></div>
+            </div>
+          </div>
+
+          {/* Topics */}
+          <div className="px-5 py-4">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Topic Plan Approval</div>
+                <div className="text-[13px] font-semibold text-ink mt-0.5">Topics ({ideation.topics.length}) · Episodes ({episodeCount})</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={e=>{e.stopPropagation();approveAll();}}
+                  className="h-7 px-3 rounded-pill text-[11.5px] font-medium border border-success/40 text-success hover:bg-success/10 inline-flex items-center gap-1 transition">
+                  <Icon d={I.check} size={11} stroke={2.5}/>Approve All Episodes
+                </button>
+                <button onClick={e=>{e.stopPropagation();rejectAll();}}
+                  className="h-7 px-3 rounded-pill text-[11.5px] font-medium border border-danger/40 text-danger hover:bg-danger/10 inline-flex items-center gap-1 transition">
+                  <Icon d={I.x} size={11} stroke={2.5}/>Reject All Episodes
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {ideation.topics.map(t => {
+                const ts = getTopicStatus(t.id);
+                const topicOpen = !!expandedTopics[t.id];
+                return (
+                  <div key={t.id} className="rounded-input border border-border overflow-hidden">
+                    {/* Topic header row */}
+                    <div className="flex items-center gap-3 px-4 py-3 bg-lavender/60 cursor-pointer" onClick={e=>toggleTopicExpand(t.id,e)}>
+                      <span className="mono text-[10px] text-ink-3 w-10 shrink-0">{t.id}</span>
+                      <div className="flex-1 min-w-0 text-[13px] text-ink font-medium leading-snug">{t.title}</div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button onClick={e=>{e.stopPropagation();setAllSubtopics(t.id,"Approved");}}
+                          className="h-6 px-2.5 rounded-pill text-[10.5px] font-medium border border-success/40 text-success hover:bg-success/10 inline-flex items-center gap-1 transition">
+                          <Icon d={I.check} size={10} stroke={2.5}/>Approve episodes
+                        </button>
+                        <button onClick={e=>{e.stopPropagation();setAllSubtopics(t.id,"Rejected");}}
+                          className="h-6 px-2.5 rounded-pill text-[10.5px] font-medium border border-danger/40 text-danger hover:bg-danger/10 inline-flex items-center gap-1 transition">
+                          <Icon d={I.x} size={10} stroke={2.5}/>Reject episodes
+                        </button>
+                      </div>
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-pill shrink-0 w-[92px] text-center"
+                        style={ts==="Reviewed"?{background:"#E3DCFF",color:"#5A3FE0"}:{background:"#FFE9C0",color:"#A86A00"}}>
+                        {ts}
+                      </span>
+                      <button onClick={e=>toggleTopicExpand(t.id,e)}
+                        className="w-6 h-6 rounded grid place-items-center text-ink-3 hover:text-ink transition shrink-0">
+                        <Icon d={I.chevDown} size={14} className={`transition-transform ${topicOpen?"rotate-180":""}`}/>
+                      </button>
+                    </div>
+                    {/* Subtopics */}
+                    {topicOpen && (
+                      <div className="border-t border-border divide-y divide-border/60">
+                        {t.subtopics.map((sub, si) => {
+                          const subStatus = (subtopicStatuses[t.id] || [])[si] || "Pending";
+                          return (
+                            <div key={si} className="flex items-start gap-3 px-4 py-3 bg-white">
+                              <span className="mono text-[10px] font-semibold text-primary shrink-0 w-10 text-right mt-0.5">E{si+1}</span>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-[12.5px] text-ink-2 leading-snug">{sub.title}</div>
+                                <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="mono text-[9px] uppercase tracking-[0.1em] text-ink-3 shrink-0">Host fit</span>
+                                    <Avatar name={sub.host.name} size={16}/>
+                                    <span className="text-[11px] font-medium text-ink-2">{sub.host.name}</span>
+                                    <span className="text-[10.5px] text-ink-3">· {sub.host.role}</span>
+                                  </div>
+                                  <span className="w-px h-3 bg-border shrink-0"/>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="mono text-[9px] uppercase tracking-[0.1em] text-ink-3 shrink-0">Persona fit</span>
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ADADBE" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    <span className="text-[11px] font-medium text-ink-2">{sub.persona.title}</span>
+                                    <span className="mono text-[10px] font-bold text-success">{sub.persona.fit}% fit</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                                <button onClick={e=>{e.stopPropagation();setSubtopicStatus(t.id,si,"Approved");}}
+                                  className={["h-6 w-6 rounded grid place-items-center transition",
+                                    subStatus==="Approved"?"bg-success text-white":"border border-border text-ink-3 hover:border-success hover:text-success bg-white"].join(" ")}>
+                                  <Icon d={I.check} size={11} stroke={2.5}/>
+                                </button>
+                                <button onClick={e=>{e.stopPropagation();setSubtopicStatus(t.id,si,"Rejected");}}
+                                  className={["h-6 w-6 rounded grid place-items-center transition",
+                                    subStatus==="Rejected"?"bg-danger text-white":"border border-border text-ink-3 hover:border-danger hover:text-danger bg-white"].join(" ")}>
+                                  <Icon d={I.x} size={11} stroke={2.5}/>
+                                </button>
+                              </div>
+                              <span className="text-[10.5px] font-semibold px-2 py-0.5 rounded-pill shrink-0 w-[68px] text-center mt-0.5"
+                                style={subStatus==="Approved"?{background:"#D9F1E2",color:"#1E7E34"}:subStatus==="Rejected"?{background:"#FFE0DA",color:"#B92E22"}:{background:"#FFE9C0",color:"#A86A00"}}>
+                                {subStatus}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border">
+              {saved ? (
+                <div className="flex items-center gap-2 text-[13px] font-medium text-success">
+                  <Icon d={I.checkCircle} size={16} stroke={2}/>Review saved successfully
+                </div>
+              ) : (
+                <button onClick={e=>{e.stopPropagation();saveReview();}}
+                  className="h-10 px-6 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13px] font-medium transition inline-flex items-center gap-2 shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]">
+                  <Icon d={I.check} size={14}/>Save Topic Plan Review
+                </button>
+              )}
+              <button onClick={e=>{e.stopPropagation();setExpanded(false);}} className="h-10 px-4 rounded-pill border border-border text-[13px] font-medium text-ink-2 hover:text-ink transition">
+                Collapse
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const MMIdeationsPage = () => {
+  const [filter, setFilter] = useState("All");
+  const filtered = filter === "All" ? INIT_DATA : INIT_DATA.filter(d => d.status === filter);
+  const counts = f => f === "All" ? INIT_DATA.length : INIT_DATA.filter(d => d.status === f).length;
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar/>
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[1180px] mx-auto px-8 py-8">
+
+          <div className="mb-6">
+            <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1.5">Marketing Manager</div>
+            <h1 className="text-[28px] font-bold display">Ideation Reviews</h1>
+            <p className="text-[13.5px] text-ink-2 mt-1">Review AI-generated topic plans and approve or reject the suggested episodes before brief planning begins.</p>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-4 gap-3 mb-5">
+            {[
+              {label:"Total Submitted",value:INIT_DATA.length,color:"#1A1A2E"},
+              {label:"Pending Review",value:INIT_DATA.filter(d=>d.status==="Pending Review").length,color:"#A86A00"},
+              {label:"Approved",value:INIT_DATA.filter(d=>d.status==="Approved").length,color:"#34A853"},
+              {label:"Rejected",value:INIT_DATA.filter(d=>d.status==="Rejected").length,color:"#EA4335"},
+            ].map(s=>(
+              <div key={s.label} className="bg-white rounded-card shadow-card px-4 py-3">
+                <div className="text-[24px] font-bold display" style={{color:s.color}}>{s.value}</div>
+                <div className="text-[12px] text-ink-2 mt-0.5">{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Filters */}
+          <div className="flex items-center gap-2 mb-5">
+            {FILTERS.map(f=>(
+              <button key={f} onClick={()=>setFilter(f)}
+                className={["h-8 px-4 rounded-pill text-[12.5px] font-medium transition",
+                  filter===f?"bg-ink text-white":"bg-white border border-border text-ink-2 hover:text-ink hover:border-ink-3"].join(" ")}>
+                {f} <span className="opacity-60">({counts(f)})</span>
+              </button>
+            ))}
+          </div>
+
+          {filtered.map(ideation => (
+            <IdeationRow key={ideation.id} ideation={ideation}/>
+          ))}
+
+          <div className="text-[11px] text-ink-3 mono mt-6">podium · marketing manager · ideation reviews</div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+function App(){
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Ideation Reviews">
+      <Sidebar active="ideation-reviews"/>
+      <div className="flex-1 min-w-0 flex flex-col"><MMIdeationsPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

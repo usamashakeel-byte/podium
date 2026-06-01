@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Episode Detail</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  input:focus,textarea:focus{outline:none;border-color:#6B4EFF!important;box-shadow:0 0 0 3px rgba(107,78,255,0.15)}
+  .recommendation-card{transition:border-color .12s,box-shadow .12s,transform .12s}
+  .recommendation-card:hover{border-color:#C9C4F5;box-shadow:0 8px 24px rgba(26,26,46,0.06)}
+  @keyframes slideIn{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}
+  .slide-in{animation:slideIn .22s ease both}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,chevL:<path d="M15 18l-6-6 6-6"/>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  mic:<><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,video:<><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/></>,share2:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8-3M8.6 10.5l6.8 3"/></>,studio:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 8l5 3-5 3V8z"/></>,voice:<><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></>,
+  user:<><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
+  linkedin:<path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zM4 6a2 2 0 100-4 2 2 0 000 4z"/>,
+  mail:<><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"/><path d="M22 6l-10 7L2 6"/></>,
+  check:<path d="M5 12l5 5L20 7"/>,
+  lock:<><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></>,
+  upload:<><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></>,
+  refresh:<><path d="M21 12a9 9 0 01-15.5 6.2L3 15"/><path d="M3 21v-6h6"/><path d="M3 12A9 9 0 0118.5 5.8L21 9"/><path d="M21 3v6h-6"/></>,
+  sparkle:<path d="M9.9 1.5 9 9l-7.5.9L9 10.8l.9 7.5.9-7.5L18.3 9l-7.5-.9zm11.1 12-1 4-1-4-4-1 4-1 1-4 1 4 4 1z"/>,
+  x:<path d="M18 6L6 18M6 6l12 12"/>,
+};
+const Logo=()=>(<a href="CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const RoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>Content Marketer</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="episodes"})=>{const [menu,setMenu]=useState(false);const u={name:"Fizza Asad",role:"Content Marketer"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="CMDashboard.html"/><NavItem icon={I.ideation} label="Ideation" active={active==="ideation"} href="IdeationList.html"/><NavItem icon={I.mic} label="Episode Topics" active={active==="episodes"} href="EpisodeTopics.html"/><NavItem icon={I.brief} label="Brief Builder" active={active==="brief"} href="BriefList.html"/></div><SectionLabel>Production</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.video} label="Recordings" active={active==="recordings"} href="RecordingsList.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.sliders} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="relative"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>e.stopPropagation()}><Icon d={I.moreV} size={16}/></button></div>{menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}</div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}>{i>0&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}<span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span></React.Fragment>))}</nav>);
+const Topbar=({breadcrumb})=>(<header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0"><div className="flex-1 min-w-0"><Crumb items={breadcrumb}/></div><button className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink"><Icon d={I.bell} size={18}/></button><RoleBadge/></header>);
+</script>
+
+<script type="text/babel">
+const { useState } = React;
+
+const EPISODE = {
+  id:"EP-006", num:1, total:3,
+  title:"Inside the procurement black box: a CIO perspective",
+  topic:"The Procurement Bottleneck",
+  segment:"Sweetspot", status:"Approved",
+  audience:"CIO / Head of AI · Enterprise",
+};
+
+const fitColor = s => s>=80?{bg:"#D9F1E2",fg:"#1E7E34",bar:"#34A853"}:s>=65?{bg:"#FFE9C0",fg:"#A86A00",bar:"#F9AB00"}:{bg:"#FFE0DA",fg:"#B92E22",bar:"#EA4335"};
+const STATUS_STYLE={Pending:{bg:"#FFE9C0",fg:"#A86A00"},Approved:{bg:"#D9F1E2",fg:"#1E7E34"},Rejected:{bg:"#FFE0DA",fg:"#B92E22"}};
+
+const AI_RECOMMENDATION = {
+  confidence:94,
+  guestPersonas:[
+    {
+      fit:95,
+      title:"CIO / Chief Information Officer",
+      defaultTitle:"Chief Information Officer",
+      companyType:"Series B-D SaaS · 50-500 employees",
+      role:"Primary budget holder for AI tooling, security review, and vendor selection.",
+      why:"Best match for this procurement-focused episode because the persona owns the exact tension the story needs: AI urgency from business teams, security scrutiny, and the practical work of moving tools through review.",
+      signals:["Budget decision-maker","AI procurement experience","Sweetspot segment fit","Security review authority"],
+      interviewAngles:["Where AI pilots stall after technical approval","How CIOs judge vendor risk during procurement","What makes an AI tool credible enough for production use"],
+    },
+    {
+      fit:89,
+      title:"VP Engineering / Technology Buyer",
+      defaultTitle:"VP Engineering",
+      companyType:"Series A-C SaaS · 75-300 employees",
+      role:"Technical executive who owns vendor evaluation and influences procurement decisions.",
+      why:"Strong fallback when a CIO is unavailable. This persona can speak directly to tool evaluation, security handoff, and the internal friction between engineering urgency and procurement review.",
+      signals:["Technical buyer","Procurement influencer","AI tooling evaluator","Sweetspot company fit"],
+      interviewAngles:["How engineering teams build urgency for AI tools","Where security review slows technical adoption","What proof a vendor needs before procurement moves"],
+    },
+    {
+      fit:83,
+      title:"Head of AI / Automation",
+      defaultTitle:"Head of AI",
+      companyType:"Growth-stage SME · 50-300 employees",
+      role:"AI program owner responsible for turning pilots into adopted workflows.",
+      why:"Useful if the episode needs a more AI-specific operator. This persona brings direct experience with pilot failures, internal rollout pressure, and vendor selection criteria.",
+      signals:["AI program owner","Pilot-to-production experience","Workflow adoption lens","Vendor shortlisting"],
+      interviewAngles:["Why AI pilots fail after enthusiasm peaks","How AI owners evaluate risk and readiness","What adoption data makes procurement easier"],
+    },
+  ],
+  hosts:[
+    {
+      fit:92,
+      name:"Haseeb",
+      role:"Configured host",
+      tone:"Calm, strategic, commercially sharp",
+      why:"Haseeb is the strongest configured host for this episode because his profile is optimized for executive decision-making conversations and operational tradeoffs, not feature-level product talk.",
+      strengths:["CIO-level procurement framing","Board and budget language","Can push for concrete examples without sounding tactical"],
+    },
+    {
+      fit:86,
+      name:"Maya",
+      role:"Configured host",
+      tone:"Curious, precise, operator-focused",
+      why:"Maya is the next best host if Haseeb is unavailable. Her strength is translating technical adoption stories into practical operating lessons for product and engineering teams.",
+      strengths:["Strong technical follow-up questions","Good fit for engineering-led guests","Can keep the conversation concrete and practical"],
+    },
+    {
+      fit:79,
+      name:"Fizza",
+      role:"Configured host",
+      tone:"Direct, narrative-led, founder-friendly",
+      why:"Fizza works when the conversation needs a sharper market narrative. He is less executive-procurement focused, but can make the episode more accessible and story-driven.",
+      strengths:["Sharp opening framing","Useful for founder/operator guests","Good at turning complex topics into clear takeaways"],
+    },
+  ],
+  briefPlan:{
+    angle:"Turn procurement from a blocker story into a strategic operating lesson for AI buyers.",
+    outcome:"Generate a brief around host framing, guest prep, interview questions, and approval-ready talking points.",
+  },
+};
+
+const FitIcon=({fit})=>{
+  const fc=fitColor(fit);
+  return (
+    <span className="inline-flex items-center justify-center rounded-input shrink-0" style={{width:38,height:38,background:fc.bg}}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={fc.fg} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+    </span>
+  );
+};
+
+const FitBadge=({score})=>{
+  const fc=fitColor(score);
+  return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-[11px] font-bold shrink-0" style={{background:fc.bg,color:fc.fg}}><span className="w-1.5 h-1.5 rounded-full" style={{background:fc.bar}}/>{score}% fit</span>;
+};
+
+const FitMeter=({score})=>{
+  const fc=fitColor(score);
+  return (
+    <div className="h-1.5 bg-lavender rounded-full overflow-hidden">
+      <div className="h-full rounded-full" style={{width:score+"%",background:fc.bar}}/>
+    </div>
+  );
+};
+
+const SignalList=({items})=>(
+  <div className="flex flex-wrap gap-1.5">
+    {items.map(item=>(
+      <span key={item} className="text-[10.5px] px-2.5 py-1 rounded-pill bg-lavender text-ink-2 font-medium">{item}</span>
+    ))}
+  </div>
+);
+
+const DetailPoint=({children})=>(
+  <li className="flex gap-2 text-[12.5px] text-ink-2 leading-relaxed">
+    <Icon d={I.check} size={13} stroke={2.4} className="text-success shrink-0 mt-0.5"/>
+    <span>{children}</span>
+  </li>
+);
+
+const RegenerateButton=({onClick})=>(
+  <button type="button" onClick={onClick}
+    className="h-8 px-3 rounded-pill border border-border text-[12px] font-medium text-ink-2 hover:text-primary hover:border-primary/40 hover:bg-primary-soft/40 inline-flex items-center gap-1.5 transition">
+    <Icon d={I.refresh} size={13}/>Regenerate
+  </button>
+);
+
+const RecommendationCard=({label,title,sub,score,children,icon,action,optionText,nextText})=>(
+  <section className="recommendation-card bg-white rounded-card shadow-card border border-transparent overflow-hidden">
+    <div className="px-5 py-4 border-b border-border">
+      <div className="flex items-start gap-3">
+        {icon || <FitIcon fit={score}/>}
+        <div className="flex-1 min-w-0">
+          <div className="mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3 mb-1">{label}</div>
+          <h2 className="text-[17px] font-semibold text-ink display leading-snug">{title}</h2>
+          <div className="text-[12.5px] text-ink-2 mt-1">{sub}</div>
+        </div>
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <div className="flex items-center gap-2">
+            {optionText&&<span className="text-[10.5px] px-2 py-1 rounded-pill bg-lavender text-ink-2 font-semibold">{optionText}</span>}
+            <FitBadge score={score}/>
+          </div>
+          {action}
+        </div>
+      </div>
+      <div className="mt-3"><FitMeter score={score}/></div>
+      {nextText&&(
+        <div className="mt-3 inline-flex items-center gap-1.5 text-[11.5px] text-ink-3">
+          <Icon d={I.refresh} size={12}/>
+          {nextText}
+        </div>
+      )}
+    </div>
+    <div className="px-5 py-4">
+      {children}
+    </div>
+  </section>
+);
+
+const SummaryTile=({label,value})=>(
+  <div className="px-3.5 py-3 rounded-input bg-lavender min-w-0">
+    <div className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 mb-1">{label}</div>
+    <div className="text-[12.5px] font-semibold text-ink leading-snug">{value}</div>
+  </div>
+);
+
+const PackageSummary=({guest,host})=>(
+  <div className="px-6 py-5 border-t border-border">
+    <div className="flex items-center justify-between gap-3 mb-3">
+      <div className="mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3">Brief inputs</div>
+      <span className="inline-flex items-center gap-1.5 rounded-pill px-2.5 py-1 text-[11px] font-semibold bg-primary-soft text-primary">
+        <Icon d={I.sparkle} size={12}/>Ready
+      </span>
+    </div>
+    <div className="grid grid-cols-2 gap-3">
+      <SummaryTile label="Guest Persona" value={guest.title}/>
+      <SummaryTile label="Host" value={host?.name||"Not configured"}/>
+      <div className="col-span-2">
+        <SummaryTile label="Brief Angle" value={AI_RECOMMENDATION.briefPlan.angle}/>
+      </div>
+    </div>
+  </div>
+);
+
+const EMPTY_HOST_UPLOAD = { name:"", role:"", tone:"", expertise:"", notes:"" };
+
+const HostUploadPanel=({form,fileName,onChange,onFile,onCancel,onSave})=>(
+  <section className="bg-white rounded-card shadow-card border border-[#DCD3FF] overflow-hidden slide-in">
+    <div className="px-5 py-4 border-b border-border flex items-start justify-between gap-3">
+      <div>
+        <div className="mono text-[10.5px] uppercase tracking-[0.14em] text-primary mb-1">Host not added yet</div>
+        <h2 className="text-[17px] font-semibold text-ink display">Upload or add host profile</h2>
+        <p className="text-[12.5px] text-ink-2 mt-1 leading-relaxed">Add the host once here. This profile will be used as the selected host for brief generation.</p>
+      </div>
+      <button onClick={onCancel} className="w-8 h-8 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-lavender transition shrink-0">
+        <Icon d={I.x} size={14} stroke={2.4}/>
+      </button>
+    </div>
+    <div className="px-5 py-4 space-y-4">
+      <label className="block rounded-input border border-dashed border-[#CFC7FF] bg-primary-soft/40 px-4 py-4 cursor-pointer hover:bg-primary-soft/70 transition">
+        <input type="file" className="hidden" accept=".pdf,.doc,.docx,.txt" onChange={e=>onFile(e.target.files?.[0]?.name||"")}/>
+        <div className="flex items-center gap-3">
+          <span className="w-9 h-9 rounded-input bg-white grid place-items-center text-primary shrink-0"><Icon d={I.upload} size={16}/></span>
+          <div className="min-w-0">
+            <div className="text-[13px] font-semibold text-ink">{fileName||"Upload host bio, profile, or notes"}</div>
+            <div className="text-[11.5px] text-ink-2 mt-0.5">PDF, DOC, DOCX, or TXT. You can also fill the fields manually.</div>
+          </div>
+        </div>
+      </label>
+      <div className="grid grid-cols-2 gap-3">
+        <GuestField label="Host Name" value={form.name} onChange={v=>onChange("name",v)} placeholder="e.g. Aisha Khan"/>
+        <GuestField label="Host Role" value={form.role} onChange={v=>onChange("role",v)} placeholder="e.g. Executive host"/>
+      </div>
+      <GuestField label="Tone" value={form.tone} onChange={v=>onChange("tone",v)} placeholder="e.g. Strategic, warm, commercially sharp"/>
+      <div>
+        <label className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mb-2 block">Expertise / fit notes</label>
+        <textarea value={form.expertise} onChange={e=>onChange("expertise",e.target.value)} rows={3}
+          placeholder="What topics should this host cover?"
+          className="w-full px-3.5 py-3 rounded-input border border-border text-[13px] bg-white placeholder:text-ink-3 leading-relaxed"/>
+      </div>
+      <div className="flex items-center justify-between gap-3 pt-1">
+        <a href="Hosts.html" className="text-[12px] font-medium text-ink-2 hover:text-primary transition">Manage all hosts in Configuration</a>
+        <button onClick={onSave} disabled={!form.name.trim()}
+          className="h-9 px-4 rounded-pill bg-primary hover:bg-primary-hover disabled:bg-border disabled:text-ink-3 disabled:cursor-not-allowed text-white text-[12.5px] font-semibold inline-flex items-center gap-1.5 transition">
+          <Icon d={I.check} size={13} stroke={2.5}/>Use this host
+        </button>
+      </div>
+    </div>
+  </section>
+);
+
+const HostMissingState=({onUpload})=>(
+  <section className="bg-white rounded-card shadow-card border border-[#DCD3FF] overflow-hidden">
+    <div className="px-5 py-5">
+      <div className="w-10 h-10 rounded-input bg-primary-soft grid place-items-center text-primary mb-4"><Icon d={I.user} size={18}/></div>
+      <div className="mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3 mb-1">Configured host fit</div>
+      <h2 className="text-[18px] font-semibold text-ink display">No host configured yet</h2>
+      <p className="text-[13px] text-ink-2 leading-relaxed mt-2">Add or upload a host profile so an interviewer can be selected before generating the brief.</p>
+      <div className="flex items-center gap-2 mt-5">
+        <button onClick={onUpload} className="h-9 px-4 rounded-pill bg-primary hover:bg-primary-hover text-white text-[12.5px] font-semibold inline-flex items-center gap-1.5 transition">
+          <Icon d={I.upload} size={13}/>Upload host
+        </button>
+        <a href="Hosts.html" className="h-9 px-4 rounded-pill text-[12.5px] font-medium bg-ink text-white hover:bg-primary transition inline-flex items-center">Open Hosts</a>
+      </div>
+    </div>
+  </section>
+);
+
+const GuestField=({label,value,onChange,placeholder,type="text"})=>(
+  <div>
+    <label className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mb-2 block">{label}</label>
+    <input type={type} aria-label={label} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
+      className="w-full h-11 px-3.5 rounded-input border border-border text-[13px] bg-white placeholder:text-ink-3"/>
+  </div>
+);
+
+const GuestTextArea=({label,value,onChange,placeholder,rows=4})=>(
+  <div>
+    <label className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mb-2 block">{label}</label>
+    <textarea aria-label={label} value={value} onChange={e=>onChange(e.target.value)} rows={rows} placeholder={placeholder}
+      className="w-full px-3.5 py-3 rounded-input border border-border text-[13px] bg-white placeholder:text-ink-3 leading-relaxed resize-none"/>
+  </div>
+);
+
+const GuestProfilePhoto=({name,photo,onChange})=>{
+  const handleFile=file=>{
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=event=>onChange(event.target.result);
+    reader.readAsDataURL(file);
+  };
+  return (
+    <div>
+      <label className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mb-2 block">Profile picture</label>
+      <div className="rounded-input border border-border bg-lavender/40 px-3.5 py-3 flex items-center gap-3">
+        <div className="w-14 h-14 rounded-full overflow-hidden bg-white border border-border shrink-0 grid place-items-center">
+          {photo ? (
+            <img src={photo} alt="Guest profile preview" className="w-full h-full object-cover"/>
+          ) : (
+            <Avatar name={name||"Guest"} size={54}/>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[13px] font-semibold text-ink">{photo ? "Profile photo added" : "Add a guest photo"}</div>
+          <div className="text-[11.5px] text-ink-2 mt-0.5">Used in brief prep and guest-facing materials.</div>
+        </div>
+        <label className="h-8 px-3 rounded-pill bg-white border border-border text-[12px] font-medium text-ink-2 hover:text-primary hover:border-primary/40 transition inline-flex items-center cursor-pointer shrink-0">
+          Upload
+          <input type="file" className="hidden" accept="image/*" onChange={e=>handleFile(e.target.files?.[0])}/>
+        </label>
+      </div>
+    </div>
+  );
+};
+
+const EpisodeDetailPage=()=>{
+  const ss=STATUS_STYLE[EPISODE.status];
+  const [guestIndex,setGuestIndex]=useState(0);
+  const [hostIndex,setHostIndex]=useState(0);
+  const [uploadedHost,setUploadedHost]=useState(null);
+  const [hostUploadOpen,setHostUploadOpen]=useState(false);
+  const [hostUpload,setHostUpload]=useState(EMPTY_HOST_UPLOAD);
+  const [hostFileName,setHostFileName]=useState("");
+  const guest=AI_RECOMMENDATION.guestPersonas[guestIndex];
+  const hostOptions=uploadedHost?[uploadedHost,...AI_RECOMMENDATION.hosts]:AI_RECOMMENDATION.hosts;
+  const host=hostOptions[hostIndex]||null;
+  const nextGuest=AI_RECOMMENDATION.guestPersonas[(guestIndex+1)%AI_RECOMMENDATION.guestPersonas.length];
+  const nextHost=hostOptions.length?hostOptions[(hostIndex+1)%hostOptions.length]:null;
+  const [actualGuest,setActualGuest]=useState({
+    name:"",
+    title:AI_RECOMMENDATION.guestPersonas[0].defaultTitle,
+    company:"",
+    linkedin:"",
+    email:"",
+    photo:"",
+    bio:"",
+  });
+  const setGuestField=key=>value=>setActualGuest(prev=>({...prev,[key]:value}));
+  const guestReady=actualGuest.name.trim()&&actualGuest.company.trim();
+  const regenerateGuest=()=>{
+    setGuestIndex(prev=>{
+      const next=(prev+1)%AI_RECOMMENDATION.guestPersonas.length;
+      const nextCandidate=AI_RECOMMENDATION.guestPersonas[next];
+      setActualGuest(form=>({...form,title:nextCandidate.defaultTitle}));
+      return next;
+    });
+  };
+  const regenerateHost=()=>setHostIndex(prev=>hostOptions.length?(prev+1)%hostOptions.length:0);
+  const setHostUploadField=(key,value)=>setHostUpload(prev=>({...prev,[key]:value}));
+  const saveUploadedHost=()=>{
+    const name=hostUpload.name.trim();
+    if(!name)return;
+    const newHost={
+      fit:84,
+      name,
+      role:hostUpload.role.trim()||"Uploaded host",
+      tone:hostUpload.tone.trim()||"Profile uploaded",
+      why:`${name} was added from ${hostFileName?"an uploaded profile":"episode setup"} and selected for this brief. Their expertise, tone, and fit notes can now inform host framing.`,
+      strengths:[
+        hostUpload.expertise.trim()||"Newly added host profile available for AI matching",
+        hostFileName?`Profile source attached: ${hostFileName}`:"Manual host details added from episode setup",
+        "Can be refined later under Configuration > Hosts",
+      ],
+    };
+    setUploadedHost(newHost);
+    setHostIndex(0);
+    setHostUpload(EMPTY_HOST_UPLOAD);
+    setHostFileName("");
+    setHostUploadOpen(false);
+  };
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar breadcrumb={["Workspace","Episode Topics",EPISODE.id+" · AI Recommendation"]}/>
+
+      <div className="bg-white border-b border-border shrink-0">
+        <div className="px-8 h-11 flex items-center gap-5 text-[12.5px] overflow-x-auto">
+          <a href="EpisodeTopics.html" className="inline-flex items-center gap-1 text-ink-2 hover:text-ink transition shrink-0">
+            <Icon d={I.chevL} size={14}/>Back to Episodes
+          </a>
+          <span className="w-px h-4 bg-border shrink-0"/>
+          <div className="flex items-baseline gap-2 shrink-0"><span className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Episode</span><span className="font-medium text-ink mono">{EPISODE.id} · Ep {EPISODE.num} of {EPISODE.total}</span></div>
+          <span className="w-px h-4 bg-border shrink-0"/>
+          <div className="flex items-baseline gap-2 min-w-0"><span className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Topic</span><span className="font-medium text-ink truncate max-w-[300px]">{EPISODE.topic}</span></div>
+          <span className="w-px h-4 bg-border shrink-0"/>
+          <div className="flex items-baseline gap-2 shrink-0"><span className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Segment</span><span className="font-medium" style={{color:"#6B4EFF"}}>{EPISODE.segment}</span></div>
+          <span className="w-px h-4 bg-border shrink-0"/>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-[11px] font-semibold shrink-0" style={{background:ss.bg,color:ss.fg}}>{EPISODE.status}</span>
+        </div>
+      </div>
+
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[1180px] mx-auto px-8 py-8">
+          <section className="bg-white rounded-card shadow-card px-5 py-4 mb-5">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-[10px] bg-primary-soft grid place-items-center shrink-0">
+                <Icon d={I.sparkle} size={17} className="text-primary"/>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="mono text-[10.5px] uppercase tracking-[0.16em] text-ink-3">Podium Recommendation</div>
+                  <span className="text-[10.5px] px-2 py-0.5 rounded-pill bg-primary-soft text-primary font-semibold">{AI_RECOMMENDATION.confidence}% confidence</span>
+                </div>
+                <h1 className="text-[24px] font-bold display leading-tight">{EPISODE.title}</h1>
+                <p className="text-[13px] text-ink-2 mt-1.5 max-w-[760px] leading-relaxed">
+                  AI selected one guest persona and one host fit for this episode. If the host has not been added yet, upload a host profile here or add one under Configuration before generating the brief.
+                </p>
+              </div>
+              <span className="hidden md:inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-[11.5px] font-semibold" style={{background:"#D9F1E2",color:"#1E7E34"}}>
+                <Icon d={I.check} size={13} stroke={2.4}/>Ready for brief
+              </span>
+            </div>
+          </section>
+
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_460px] gap-5 items-start">
+            <div className="space-y-5 min-w-0">
+              <RecommendationCard
+                label="AI-selected guest persona"
+                title={guest.title}
+                sub={guest.companyType}
+                score={guest.fit}
+                optionText={`Option ${guestIndex+1} of ${AI_RECOMMENDATION.guestPersonas.length}`}
+                action={<RegenerateButton onClick={regenerateGuest}/>}
+                nextText={`Next option if unavailable: ${nextGuest.title} (${nextGuest.fit}% fit)`}
+              >
+                <p className="text-[13px] text-ink-2 leading-relaxed">{guest.why}</p>
+                <div className="mt-4">
+                  <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">Selection signals</div>
+                  <SignalList items={guest.signals}/>
+                </div>
+                <div className="mt-5 pt-4 border-t border-border">
+                  <div className="text-[13px] font-semibold text-ink mb-2">How this guest shapes the brief</div>
+                  <ul className="space-y-2">
+                    {guest.interviewAngles.map(angle=><DetailPoint key={angle}>{angle}</DetailPoint>)}
+                  </ul>
+                </div>
+              </RecommendationCard>
+
+              {host ? (
+                <RecommendationCard
+                  label={uploadedHost&&hostIndex===0?"Uploaded host fit":"Configured host fit"}
+                  title={host.name}
+                  sub={`${host.role} · ${host.tone}`}
+                  score={host.fit}
+                  icon={<Avatar name={host.name} size={38}/>}
+                  optionText={`Option ${hostIndex+1} of ${hostOptions.length}`}
+                  action={<div className="flex flex-col items-end gap-2"><RegenerateButton onClick={regenerateHost}/></div>}
+                  nextText={nextHost&&hostOptions.length>1?`Next option if unavailable: ${nextHost.name} (${nextHost.fit}% fit)`:"Add more hosts in Configuration to unlock alternatives"}
+                >
+                  <p className="text-[13px] text-ink-2 leading-relaxed">{host.why}</p>
+                  <div className="mt-4 rounded-input bg-lavender px-3.5 py-3">
+                    <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">{uploadedHost&&hostIndex===0?"Why this uploaded host works":"Why this host from app configuration"}</div>
+                    <ul className="space-y-2">
+                      {host.strengths.map(item=><DetailPoint key={item}>{item}</DetailPoint>)}
+                    </ul>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-3">
+                    <div className="text-[12px] text-ink-2">Host missing from configuration?</div>
+                    <a href="Hosts.html" className="h-8 px-3 rounded-pill text-[12px] font-medium bg-ink text-white hover:bg-primary transition inline-flex items-center">Open Hosts</a>
+                  </div>
+                </RecommendationCard>
+              ) : (
+                <HostMissingState onUpload={()=>setHostUploadOpen(true)}/>
+              )}
+
+              {hostUploadOpen&&(
+                <HostUploadPanel
+                  form={hostUpload}
+                  fileName={hostFileName}
+                  onChange={setHostUploadField}
+                  onFile={setHostFileName}
+                  onCancel={()=>setHostUploadOpen(false)}
+                  onSave={saveUploadedHost}
+                />
+              )}
+            </div>
+
+            <aside className="bg-white rounded-card shadow-card overflow-hidden sticky top-6">
+              <div className="px-6 py-5 border-b border-border">
+                <div className="flex items-start justify-between gap-3 mb-3.5">
+                  <div>
+                    <div className="mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3 mb-1">Add guest details</div>
+                    <h3 className="text-[17px] font-semibold text-ink display">Actual guest</h3>
+                  </div>
+                  <span className="text-[10.5px] px-2 py-0.5 rounded-pill bg-lavender text-ink-2 font-semibold">Required</span>
+                </div>
+                <p className="text-[13px] text-ink-2 leading-relaxed">Add the real person who matches the selected persona. The AI will use these details when generating the brief.</p>
+              </div>
+              <div className="px-6 py-5">
+                <div className="space-y-4">
+                  <GuestProfilePhoto name={actualGuest.name} photo={actualGuest.photo} onChange={setGuestField("photo")}/>
+                  <GuestField label="Full Name" value={actualGuest.name} onChange={setGuestField("name")} placeholder="e.g. Alex Morgan"/>
+                  <GuestField label="Job Title" value={actualGuest.title} onChange={setGuestField("title")} placeholder={guest.defaultTitle}/>
+                  <GuestField label="Company" value={actualGuest.company} onChange={setGuestField("company")} placeholder="e.g. Lattice"/>
+                  <div className="grid grid-cols-2 gap-3">
+                    <GuestField label="LinkedIn" value={actualGuest.linkedin} onChange={setGuestField("linkedin")} placeholder="linkedin.com/in/..."/>
+                    <GuestField label="Email" value={actualGuest.email} onChange={setGuestField("email")} placeholder="name@company.com" type="email"/>
+                  </div>
+                  <GuestTextArea label="Bio" value={actualGuest.bio} onChange={setGuestField("bio")} rows={4}
+                    placeholder="Short guest bio, credibility notes, or context the host should know before recording."/>
+                </div>
+              </div>
+              <PackageSummary guest={guest} host={host}/>
+              <div className="px-6 py-5 border-t border-border">
+                {guestReady && host ? (
+                  <a href="BriefDetail.html"
+                    className="w-full h-11 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13.5px] font-semibold transition inline-flex items-center justify-center gap-2 shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]">
+                    <Icon d={I.lock} size={15}/>Lock Guest and Generate Brief
+                  </a>
+                ) : (
+                  <button disabled
+                    className="w-full h-11 rounded-pill bg-border text-ink-3 text-[13.5px] font-semibold inline-flex items-center justify-center gap-2 cursor-not-allowed">
+                    <Icon d={I.lock} size={15}/>Lock Guest and Generate Brief
+                  </button>
+                )}
+                <div className="mt-3 flex items-center gap-2 text-[11.5px] text-ink-3 leading-snug">
+                  <Icon d={I.check} size={13} stroke={2.5} className="text-success shrink-0"/>
+                  Host comes from Configuration or an uploaded profile. Guest details anchor the AI persona to the real invitee.
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <section className="mt-5 bg-white rounded-card shadow-card px-5 py-4">
+            <div className="mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3 mb-3">AI inputs used for this decision</div>
+            <div className="grid md:grid-cols-4 gap-3">
+              {[
+                {label:"Episode",value:EPISODE.id+" · Ep "+EPISODE.num+" of "+EPISODE.total},
+                {label:"Segment",value:EPISODE.segment},
+                {label:"Target Title",value:"CIO / Head of AI"},
+                {label:"Company Size",value:"50-500 employees"},
+              ].map(item=>(
+                <div key={item.label} className="px-3 py-2.5 rounded-input bg-lavender">
+                  <div className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mb-1">{item.label}</div>
+                  <div className="font-semibold text-ink text-[13px] leading-snug">{item.value}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <div className="text-[11px] text-ink-3 mono mt-8">podium · episode topics · {EPISODE.id} · ai recommendation</div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+function App(){
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Episode Detail">
+      <Sidebar active="episodes"/>
+      <div className="flex-1 min-w-0 flex flex-col"><EpisodeDetailPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

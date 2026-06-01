@@ -1,0 +1,183 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - link "Podium AI." [ref=e6] [cursor=pointer]:
+      - /url: IdeationList.html
+      - img [ref=e8]
+      - generic [ref=e12]: Podium AI.
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - link "Ideation" [ref=e16] [cursor=pointer]:
+          - /url: IdeationList.html
+          - img [ref=e18]
+          - generic [ref=e20]: Ideation
+        - link "Episode Topics" [ref=e21] [cursor=pointer]:
+          - /url: EpisodeTopics.html
+          - img [ref=e22]
+          - generic [ref=e25]: Episode Topics
+        - link "Brief Builder" [ref=e26] [cursor=pointer]:
+          - /url: BriefList.html
+          - img [ref=e27]
+          - generic [ref=e30]: Brief Builder
+        - link "Brand Voice" [ref=e31] [cursor=pointer]:
+          - /url: BrandVoice.html
+          - img [ref=e32]
+          - generic [ref=e34]: Brand Voice
+      - generic [ref=e35]: Production
+      - generic [ref=e36]:
+        - link "Recordings" [ref=e37] [cursor=pointer]:
+          - /url: RecordingsList.html
+          - img [ref=e38]
+          - generic [ref=e41]: Recordings
+        - link "Social Content" [ref=e42] [cursor=pointer]:
+          - /url: SocialContentBuilder.html
+          - img [ref=e43]
+          - generic [ref=e48]: Social Content
+        - link "Studio" [ref=e49] [cursor=pointer]:
+          - /url: Studio.html
+          - img [ref=e50]
+          - generic [ref=e53]: Studio
+      - generic [ref=e54]: Account
+      - link "Settings" [ref=e56] [cursor=pointer]:
+        - /url: Settings.html
+        - img [ref=e57]
+        - generic [ref=e60]: Settings
+    - generic [ref=e62] [cursor=pointer]:
+      - generic [ref=e63]: RS
+      - generic [ref=e64]:
+        - generic [ref=e65]: Rohan Sharma
+        - generic [ref=e66]: Content Marketer
+      - button [ref=e67]:
+        - img [ref=e68]
+  - generic [ref=e73]:
+    - banner [ref=e74]:
+      - navigation [ref=e76]:
+        - generic [ref=e77] [cursor=pointer]: Workspace
+        - img [ref=e78]
+        - generic [ref=e80]: Ideation
+      - button [ref=e81] [cursor=pointer]:
+        - img [ref=e82]
+      - generic [ref=e85]: Content Marketer
+      - link "New Ideation" [ref=e87] [cursor=pointer]:
+        - /url: IdeationForm.html
+        - img [ref=e88]
+        - text: New Ideation
+    - main [ref=e90]:
+      - generic [ref=e91]:
+        - generic [ref=e92]:
+          - generic [ref=e93]: Content Marketer
+          - heading "My Ideations" [level=1] [ref=e94]
+          - paragraph [ref=e95]: Track and manage your ideation sessions from segment configuration to approval.
+        - generic [ref=e97]:
+          - img [ref=e99]
+          - generic [ref=e103]:
+            - generic [ref=e104]: Podium Agent
+            - generic [ref=e105]: Initialising…
+          - button "Dismiss" [ref=e106] [cursor=pointer]:
+            - img [ref=e107]
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - generic [ref=e112]: "4"
+            - generic [ref=e113]: Total Ideations
+          - generic [ref=e114]:
+            - generic [ref=e115]: "1"
+            - generic [ref=e116]: Pending Approval
+          - generic [ref=e117]:
+            - generic [ref=e118]: "1"
+            - generic [ref=e119]: Approved
+          - generic [ref=e120]:
+            - generic [ref=e121]: "59"
+            - generic [ref=e122]: Total Episodes
+        - generic [ref=e123]:
+          - button "All (4)" [ref=e124] [cursor=pointer]:
+            - text: All
+            - generic [ref=e125]: (4)
+          - button "Segment Configuration (1)" [ref=e126] [cursor=pointer]:
+            - text: Segment Configuration
+            - generic [ref=e127]: (1)
+          - button "Topics Generation (1)" [ref=e128] [cursor=pointer]:
+            - text: Topics Generation
+            - generic [ref=e129]: (1)
+          - button "Sent for Approval (1)" [ref=e130] [cursor=pointer]:
+            - text: Sent for Approval
+            - generic [ref=e131]: (1)
+          - button "Approved (1)" [ref=e132] [cursor=pointer]:
+            - text: Approved
+            - generic [ref=e133]: (1)
+        - generic [ref=e134]:
+          - generic [ref=e135]:
+            - generic [ref=e137]:
+              - generic [ref=e138]:
+                - generic [ref=e139]: ID-003
+                - generic [ref=e140]: ·
+                - generic [ref=e141]: Sweetspot
+              - generic [ref=e142]: SaaS Disruption & Replacement
+              - generic [ref=e143]: VP Eng / CTO at Series B–D SaaS
+              - generic [ref=e144]:
+                - generic [ref=e145]: Reddit
+                - generic [ref=e146]: LinkedIn
+                - generic [ref=e147]: Gartner
+                - generic [ref=e148]: 5 topics · 18 ep
+            - generic [ref=e149]:
+              - generic [ref=e150]: Sent for Approval
+              - generic [ref=e152]: May 20
+              - link "View" [ref=e153] [cursor=pointer]:
+                - /url: IdeationSubmit.html
+                - text: View
+                - img [ref=e154]
+          - generic [ref=e156]:
+            - generic [ref=e158]:
+              - generic [ref=e159]:
+                - generic [ref=e160]: ID-002
+                - generic [ref=e161]: ·
+                - generic [ref=e162]: Potential
+              - generic [ref=e163]: Enterprise AI Infrastructure
+              - generic [ref=e164]: CIO / Head of AI at Enterprise
+              - generic [ref=e165]:
+                - generic [ref=e166]: CIO.com
+                - generic [ref=e167]: LinkedIn
+                - generic [ref=e168]: 3 topics · 9 ep
+            - generic [ref=e169]:
+              - generic [ref=e170]: Topics Generation
+              - generic [ref=e172]: May 18
+              - link "Continue" [ref=e173] [cursor=pointer]:
+                - /url: TopicGeneration.html
+                - text: Continue
+                - img [ref=e174]
+          - generic [ref=e176]:
+            - generic [ref=e178]:
+              - generic [ref=e179]:
+                - generic [ref=e180]: ID-001
+                - generic [ref=e181]: ·
+                - generic [ref=e182]: Desired
+              - generic [ref=e183]: Procurement Pain Points
+              - generic [ref=e184]: Head of Procurement at F500
+              - generic [ref=e186]: Reddit
+            - generic [ref=e187]:
+              - generic [ref=e188]: Segment Configuration
+              - generic [ref=e190]: May 15
+              - link "Continue" [ref=e191] [cursor=pointer]:
+                - /url: IdeationForm.html
+                - text: Continue
+                - img [ref=e192]
+          - generic [ref=e194]:
+            - generic [ref=e196]:
+              - generic [ref=e197]:
+                - generic [ref=e198]: ID-004
+                - generic [ref=e199]: ·
+                - generic [ref=e200]: Sweetspot
+              - generic [ref=e201]: DevTools & Developer Productivity
+              - generic [ref=e202]: Senior IC / Staff Eng at growth-stage SaaS
+              - generic [ref=e203]:
+                - generic [ref=e204]: Reddit
+                - generic [ref=e205]: HN
+                - generic [ref=e206]: LinkedIn
+                - generic [ref=e207]: Podcasts
+                - generic [ref=e208]: 8 topics · 32 ep
+            - generic [ref=e209]:
+              - generic [ref=e210]: Approved
+              - generic [ref=e212]: May 12
+              - link "View" [ref=e213] [cursor=pointer]:
+                - /url: IdeationSubmit.html
+                - text: View
+                - img [ref=e214]
+        - generic [ref=e216]: podium · content marketer · ideation

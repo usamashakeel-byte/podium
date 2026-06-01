@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs sed:*)",
+      "Bash(sed -n '183,188p' screens/RecordingDetail.html)",
+      "Bash(sed -n '183,188p' screens/IdeationList.html)",
+      "Bash(python3 -c \":*)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//Users/usama.shakeel/Downloads/codex podium 8/**)",
+      "Bash(__NEW_LINE_3587bf78cd9c9387__ done:*)",
+      "Bash(sed -n '124,160p' screens/Settings.html)",
+      "Bash(sed -n '140,165p' screens/extra/BriefReady.html)",
+      "Bash(python3:*)"
+    ]
+  }
+}

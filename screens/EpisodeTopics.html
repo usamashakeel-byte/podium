@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Episode Topics</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  .ep-row{transition:background .14s}.ep-row:hover{background:#FAFAFC}
+  input:focus{outline:none;border-color:#6B4EFF!important;box-shadow:0 0 0 3px rgba(107,78,255,0.15)}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,chevDown:<path d="M6 9l6 6 6-6"/>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  mic:<><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,video:<><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/></>,share2:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8-3M8.6 10.5l6.8 3"/></>,studio:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 8l5 3-5 3V8z"/></>,voice:<><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></>,
+  search:<><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></>,
+  filter:<path d="M3 4h18l-7 9v7l-4-2v-5z"/>,
+  lock:<><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></>,
+  check:<path d="M5 12l5 5L20 7"/>,
+  x:<path d="M18 6L6 18M6 6l12 12"/>,
+  plus:<path d="M12 5v14M5 12h14"/>,
+  edit:<><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></>,
+  send:<><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></>,
+  sparkle:<><path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z"/><path d="M19 3l.9 2.7L22 7l-2.1.3L19 10l-.9-2.7L16 7l2.1-.3z"/></>,
+};
+const Logo=()=>(<a href="CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const RoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>Content Marketer</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="episodes"})=>{const [menu,setMenu]=useState(false);const u={name:"Fizza Asad",role:"Content Marketer"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="CMDashboard.html"/><NavItem icon={I.ideation} label="Ideation" active={active==="ideation"} href="IdeationList.html"/><NavItem icon={I.mic} label="Episode Topics" active={active==="episodes"} href="EpisodeTopics.html"/><NavItem icon={I.brief} label="Brief Builder" active={active==="brief"} href="BriefList.html"/></div><SectionLabel>Production</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.video} label="Recordings" active={active==="recordings"} href="RecordingsList.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.sliders} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="relative"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>e.stopPropagation()}><Icon d={I.moreV} size={16}/></button></div>{menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}</div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}><span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span>{i<items.length-1&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}</React.Fragment>))}</nav>);
+const Topbar=({breadcrumb})=>(<header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0"><div className="flex-1 min-w-0"><Crumb items={breadcrumb}/></div><div className="relative"><Icon d={I.search} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3"/><input className="w-[240px] pl-9 pr-3 h-9 rounded-input border border-border text-[13px] placeholder:text-ink-3 bg-white" placeholder="Search episodes…"/></div><button className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink"><Icon d={I.bell} size={18}/></button><RoleBadge/></header>);
+</script>
+
+<script type="text/babel">
+const { useState } = React;
+
+const STATUS_STYLE = {
+  Pending:  { bg:"#FFE9C0", fg:"#A86A00", dot:"#F9AB00" },
+  Approved: { bg:"#D9F1E2", fg:"#1E7E34", dot:"#34A853" },
+  Rejected: { bg:"#FFE0DA", fg:"#B92E22", dot:"#EA4335" },
+  Draft:    { bg:"#EDE9FF", fg:"#5A3FE0", dot:"#6B4EFF" },
+};
+
+const TOPIC_GROUPS = [
+  {
+    id:"TG-001", segment:"Sweetspot", ideation:"ID-003",
+    parentTopic:"Why SaaS is dead — and what replaces it",
+    approvalState:"Approved",
+    episodes:[
+      { id:"EP-001", num:1, title:"The pricing flip: how SaaS companies are abandoning subscriptions", status:"Approved", guestConfirmed:false },
+      { id:"EP-002", num:2, title:"Usage-based pricing war stories from founders who made the switch", status:"Approved", guestConfirmed:false },
+      { id:"EP-003", num:3, title:"The bundling trap: why feature bloat is killing SaaS retention", status:"Pending" },
+      { id:"EP-004", num:4, title:"AI-native companies vs SaaS incumbents: who wins the next 5 years", status:"Pending" },
+      { id:"EP-005", num:5, title:"How open-source is eating SaaS from below", status:"Rejected" },
+    ]
+  },
+  {
+    id:"TG-002", segment:"Sweetspot", ideation:"ID-003",
+    parentTopic:"The procurement bottleneck: why your AI POC died",
+    approvalState:"Approved",
+    episodes:[
+      { id:"EP-006", num:1, title:"Inside the procurement black box: a CIO perspective", status:"Approved", guestConfirmed:false },
+      { id:"EP-007", num:2, title:"How to run an AI POC that actually reaches production", status:"Pending" },
+      { id:"EP-008", num:3, title:"Security review as a POC killer: what no one tells you", status:"Pending" },
+    ]
+  },
+  {
+    id:"TG-003", segment:"Sweetspot", ideation:"ID-004",
+    parentTopic:"DevTools & Developer Productivity",
+    approvalState:"Approved",
+    episodes:[
+      { id:"EP-009", num:1, title:"AI pair programming: measuring actual productivity gains", status:"Approved", guestConfirmed:false },
+      { id:"EP-010", num:2, title:"The IDE wars: Cursor vs Copilot vs Claude in real codebases", status:"Pending" },
+    ]
+  },
+];
+
+const AI_EPISODE_ADDITIONS = {
+  "TG-001":[
+    "Services-as-software: when SaaS turns into managed outcomes",
+    "The board conversation after abandoning per-seat pricing",
+    "How AI agents change expansion revenue and retention math",
+  ],
+  "TG-002":[
+    "The procurement packet: documents that unblock AI vendor approval",
+    "What security teams need before an AI POC becomes production",
+    "How to write an AI contract procurement will actually sign",
+  ],
+  "TG-003":[
+    "Measuring developer experience when AI writes half the code",
+    "The code review bottleneck after AI pair programming",
+    "How engineering leaders prevent AI-assisted codebase drift",
+  ],
+};
+
+const FILTERS = ["All","Pending","Approved","Rejected","Draft"];
+const SEG_COLOR = { Sweetspot:"#6B4EFF", Potential:"#2A6FDB", Desired:"#34A853" };
+
+const applyGroupRevisionState = (group, episodes) => ({
+  ...group,
+  episodes,
+  approvalState: episodes.some(e=>e.status==="Draft") ? "Draft revision" : group.approvalState,
+});
+
+const EpisodeRow = ({ ep, isEditing, onTitleChange, onUndoRevision }) => {
+  const ss = STATUS_STYLE[ep.status];
+  const statusLabel = ep.status === "Pending" && ep.revisionKind ? "Pending approval" : ep.status === "Draft" ? `${ep.revisionKind || "Draft"} revision` : ep.status;
+  const canProduce = ep.status === "Approved" && !isEditing;
+  const isLocked = isEditing && ep.status === "Approved";
+  return (
+    <div className={`ep-row flex items-center gap-4 px-5 py-3 border-b border-border last:border-0 ${isLocked?"bg-success/5":""}`}>
+      <span className="mono text-[11px] text-ink-3 w-8 shrink-0">EP{ep.num}</span>
+      <div className="flex-1 min-w-0">
+        {isEditing && !isLocked ? (
+          <input value={ep.title} onChange={e=>onTitleChange(ep.id,e.target.value)}
+            className="w-full rounded-input border border-border bg-white px-3 py-2 text-[13.5px] font-medium text-ink"/>
+        ) : (
+          <a href="EpisodeDetail.html" className="text-[13.5px] font-medium text-ink hover:text-primary truncate block transition">{ep.title}</a>
+        )}
+        <div className="text-[11px] text-ink-3 mono mt-0.5">{ep.id}</div>
+      </div>
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-[11px] font-semibold shrink-0" style={{ background:ss.bg, color:ss.fg }}>
+        <span className="w-1.5 h-1.5 rounded-full" style={{ background:ss.dot }}/>
+        {statusLabel}
+      </span>
+      {isLocked && (
+        <span className="inline-flex items-center gap-1 text-[10.5px] text-ink-3 shrink-0">
+          <Icon d={I.lock} size={11}/>Locked
+        </span>
+      )}
+      {isEditing && ep.status === "Draft" && (
+        <button onClick={()=>onUndoRevision(ep.id)}
+          className="h-8 px-3 rounded-pill border border-border text-[12px] font-medium text-ink-2 hover:text-danger hover:border-danger/40 inline-flex items-center gap-1.5 transition shrink-0">
+          <Icon d={I.x} size={12} stroke={2.4}/>Undo
+        </button>
+      )}
+      {!isEditing && ep.status !== "Approved" && (
+        <a href="EpisodeDetail.html" className="h-8 px-3.5 rounded-pill text-[12px] font-medium bg-ink text-white hover:bg-primary inline-flex items-center gap-1.5 transition shrink-0">
+          View<Icon d={I.chevR} size={12} stroke={2}/>
+        </a>
+      )}
+      {canProduce && ep.guestConfirmed && (
+        <a href="BriefDetail.html" className="h-8 px-3.5 rounded-pill bg-primary hover:bg-primary-hover text-white text-[12px] font-medium inline-flex items-center gap-1.5 transition shrink-0 shadow-[0_3px_8px_-2px_rgba(107,78,255,0.45)]">
+          Build Brief<Icon d={I.chevR} size={12} stroke={2.25}/>
+        </a>
+      )}
+      {canProduce && !ep.guestConfirmed && (
+        <a href="EpisodeDetail.html" className="h-8 px-3.5 rounded-pill bg-primary hover:bg-primary-hover text-white text-[12px] font-medium inline-flex items-center gap-1.5 transition shrink-0 shadow-[0_3px_8px_-2px_rgba(107,78,255,0.45)]">
+          Add Guest<Icon d={I.chevR} size={12} stroke={2.25}/>
+        </a>
+      )}
+    </div>
+  );
+};
+
+const TopicGroup = ({ group, filter, onChange }) => {
+  const [collapsed, setCollapsed] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const counts = {
+    Approved: group.episodes.filter(e=>e.status==="Approved").length,
+    Pending:  group.episodes.filter(e=>e.status==="Pending").length,
+    Rejected: group.episodes.filter(e=>e.status==="Rejected").length,
+    Draft:    group.episodes.filter(e=>e.status==="Draft").length,
+  };
+  const hasDrafts = counts.Draft > 0;
+  const revisionPending = group.approvalState === "Sent for Approval";
+  const filtered = isEditing ? group.episodes : filter === "All" ? group.episodes : group.episodes.filter(e => e.status === filter);
+  if (filtered.length === 0) return null;
+
+  const updateTitle = (episodeId, value) => {
+    onChange(current => {
+      const episodes = current.episodes.map(ep => {
+        if (ep.id !== episodeId) return ep;
+        if (ep.status === "Approved") return ep;
+        return {
+          ...ep,
+          title:value,
+          status:"Draft",
+          revisionKind: ep.revisionKind || "Edited",
+          originalStatus: ep.originalStatus || ep.status,
+          originalTitle: ep.originalTitle || ep.title,
+          guestConfirmed:false,
+        };
+      });
+      return applyGroupRevisionState(current, episodes);
+    });
+  };
+
+  const addEpisode = () => {
+    onChange(current => {
+      const nextNum = Math.max(...current.episodes.map(e=>e.num)) + 1;
+      const suggestions = AI_EPISODE_ADDITIONS[current.id] || [];
+      const suggestion = suggestions[(current.addedCount || 0) % suggestions.length] || `AI-generated follow-up episode ${nextNum}`;
+      const nextId = `REV-${current.id.replace("TG-","")}-${String((current.addedCount || 0) + 1).padStart(2,"0")}`;
+      const episodes = [
+        ...current.episodes,
+        { id:nextId, num:nextNum, title:suggestion, status:"Draft", revisionKind:"Added", guestConfirmed:false, aiGenerated:true },
+      ];
+      return { ...applyGroupRevisionState(current, episodes), addedCount:(current.addedCount || 0) + 1 };
+    });
+    setIsEditing(true);
+    setCollapsed(false);
+  };
+
+  const undoRevision = episodeId => {
+    onChange(current => {
+      const episodes = current.episodes.flatMap(ep => {
+        if (ep.id !== episodeId) return [ep];
+        if (ep.revisionKind === "Added") return [];
+        return [{
+          ...ep,
+          title:ep.originalTitle || ep.title,
+          status:ep.originalStatus || "Approved",
+          revisionKind:undefined,
+          originalStatus:undefined,
+          originalTitle:undefined,
+        }];
+      }).map((ep,i)=>({...ep,num:i+1}));
+      return {
+        ...current,
+        episodes,
+        approvalState: episodes.some(e=>e.status==="Draft") ? "Draft revision" : "Approved",
+      };
+    });
+  };
+
+  const sendRevision = () => {
+    if (!hasDrafts) return;
+    setIsSending(true);
+    setTimeout(()=>{
+      onChange(current => ({
+        ...current,
+        approvalState:"Sent for Approval",
+        episodes: current.episodes.map(ep => ep.status === "Draft" ? { ...ep, status:"Pending", originalStatus:undefined, originalTitle:undefined } : ep),
+      }));
+      setIsEditing(false);
+      setIsSending(false);
+    }, 900);
+  };
+
+  return (
+    <div className="bg-white rounded-card shadow-card overflow-hidden mb-4">
+      <div className="px-5 py-4 border-b border-border flex items-center gap-4 cursor-pointer hover:bg-lavender/40 transition" onClick={() => setCollapsed(!collapsed)}>
+        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: SEG_COLOR[group.segment] || "#6B4EFF" }}/>
+        <div className="flex-1 min-w-0">
+          <div className="text-[14.5px] font-semibold display text-ink truncate">{group.parentTopic}</div>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-[11px] font-medium" style={{ color: SEG_COLOR[group.segment] }}>{group.segment}</span>
+            <span className="text-ink-3 text-[10px]">·</span>
+            <span className="mono text-[10.5px] text-ink-3">{group.ideation}</span>
+            <span className="text-ink-3 text-[10px]">·</span>
+            <span className="text-[11px] text-ink-2">{group.episodes.length} episodes</span>
+            <span className="text-ink-3 text-[10px]">·</span>
+            <span className="text-[11px] font-medium" style={{color:revisionPending ? "#A86A00" : hasDrafts ? "#5A3FE0" : "#1E7E34"}}>{group.approvalState}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {counts.Approved > 0 && <span className="px-2 py-0.5 rounded-pill text-[10px] font-semibold" style={{background:"#D9F1E2",color:"#1E7E34"}}>{counts.Approved} Approved</span>}
+          {counts.Pending  > 0 && <span className="px-2 py-0.5 rounded-pill text-[10px] font-semibold" style={{background:"#FFE9C0",color:"#A86A00"}}>{counts.Pending} Pending</span>}
+          {counts.Rejected > 0 && <span className="px-2 py-0.5 rounded-pill text-[10px] font-semibold" style={{background:"#FFE0DA",color:"#B92E22"}}>{counts.Rejected} Rejected</span>}
+          {counts.Draft > 0 && <span className="px-2 py-0.5 rounded-pill text-[10px] font-semibold" style={{background:"#EDE9FF",color:"#5A3FE0"}}>{counts.Draft} Draft</span>}
+          <button onClick={e=>{e.stopPropagation();setIsEditing(true);setCollapsed(false);}}
+            disabled={revisionPending}
+            className="h-7 px-3 rounded-pill border border-border text-[11.5px] font-medium text-ink-2 hover:text-primary hover:border-primary/40 hover:bg-primary-soft/40 inline-flex items-center gap-1.5 transition disabled:opacity-50 disabled:hover:text-ink-2 disabled:hover:border-border disabled:hover:bg-white disabled:cursor-not-allowed">
+            <Icon d={I.edit} size={12}/>{revisionPending ? "Revision pending" : "Add / revise"}
+          </button>
+          <Icon d={I.chevDown} size={16} className={`text-ink-3 transition-transform ${collapsed?"rotate-[-90deg]":""}`}/>
+        </div>
+      </div>
+      {!collapsed && (
+        <div>
+          {(isEditing || hasDrafts || revisionPending) && (
+            <div className="border-b border-border bg-primary-soft/35 px-5 py-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3 min-w-0">
+                  <span className="w-8 h-8 rounded-full bg-white text-primary grid place-items-center shrink-0 border border-primary/20">
+                    <Icon d={I.sparkle} size={15}/>
+                  </span>
+                  <div>
+                    <div className="text-[13.5px] font-semibold text-ink">{revisionPending ? "Revision sent for approval" : "Add or revise episodes"}</div>
+                    <p className="text-[12.5px] text-ink-2 leading-relaxed mt-1 max-w-[640px]">
+                      {revisionPending ? "Your revision is with the Marketing Manager. Approved episodes remain live while new ones await review." : "Approved episodes are locked and cannot be changed. Add new episodes or revise rejected ones — only new and revised episodes go back to the Manager for approval."}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {!revisionPending && (
+                    <>
+                      <button onClick={e=>{e.stopPropagation();addEpisode();}}
+                        className="h-8 px-3.5 rounded-pill bg-white border border-primary/25 text-primary text-[12px] font-medium inline-flex items-center gap-1.5 hover:bg-primary-soft transition">
+                        <Icon d={I.plus} size={12} stroke={2.4}/>Add AI episode
+                      </button>
+                      <button onClick={e=>{e.stopPropagation();sendRevision();}}
+                        disabled={!hasDrafts || isSending}
+                        className="h-8 px-3.5 rounded-pill bg-primary text-white text-[12px] font-medium inline-flex items-center gap-1.5 hover:bg-primary-hover transition disabled:bg-ink-3 disabled:cursor-not-allowed">
+                        <Icon d={I.send} size={12}/>{isSending ? "Sending..." : "Send revision"}
+                      </button>
+                    </>
+                  )}
+                  {isEditing && !hasDrafts && !revisionPending && (
+                    <button onClick={e=>{e.stopPropagation();setIsEditing(false);}}
+                      className="h-8 px-3 rounded-pill border border-border text-[12px] font-medium text-ink-2 hover:text-ink hover:bg-white transition">
+                      Done
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          {filtered.map(ep => (
+            <EpisodeRow
+              key={ep.id}
+              ep={ep}
+              isEditing={isEditing && !revisionPending}
+              onTitleChange={updateTitle}
+              onUndoRevision={undoRevision}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const EpisodeTopicsPage = () => {
+  const [filter, setFilter] = useState("All");
+  const [groups, setGroups] = useState(TOPIC_GROUPS);
+  const updateGroup = (groupId, updater) => {
+    setGroups(current => current.map(group => group.id === groupId ? updater(group) : group));
+  };
+  const allEpisodes = groups.flatMap(g => g.episodes);
+  const stats = {
+    total: allEpisodes.length,
+    approved: allEpisodes.filter(e=>e.status==="Approved").length,
+    pending:  allEpisodes.filter(e=>e.status==="Pending").length,
+    rejected: allEpisodes.filter(e=>e.status==="Rejected").length,
+    draft:    allEpisodes.filter(e=>e.status==="Draft").length,
+  };
+  const visibleGroups = filter === "All" ? groups : groups.filter(g => g.episodes.some(e => e.status === filter));
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar breadcrumb={["Workspace","Episode Topics"]}/>
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[1180px] mx-auto px-8 py-8">
+          <div className="mb-6">
+            <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1.5">Content Marketer</div>
+            <h1 className="text-[28px] font-bold display leading-tight">Episode Topics</h1>
+            <p className="text-[13.5px] text-ink-2 mt-1 max-w-[720px]">All generated episode topics from approved ideation sessions. Add the actual guest to build the brief.</p>
+          </div>
+
+          <div className="bg-white rounded-card shadow-card px-5 py-4 mb-6 flex items-start gap-3">
+            <span className="w-8 h-8 rounded-full bg-primary-soft text-primary grid place-items-center shrink-0">
+              <Icon d={I.sparkle} size={15}/>
+            </span>
+            <div className="flex-1 min-w-0">
+              <div className="text-[13.5px] font-semibold text-ink">Approved episodes are ready for guest details</div>
+              <p className="text-[12.5px] text-ink-2 leading-relaxed mt-1">
+                Click <span className="font-medium text-ink">Add Guest</span> to fill in the actual guest's details before building the brief. To add or revise episodes, use <span className="font-medium text-ink">Edit episodes</span> — changes go back to the Marketing Manager for approval.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 gap-3 mb-6">
+            {[
+              { label:"Total Episodes", value:stats.total, color:"#1A1A2E" },
+              { label:"Approved", value:stats.approved, color:"#34A853" },
+              { label:"Pending Review", value:stats.pending, color:"#A86A00" },
+              { label:"Rejected", value:stats.rejected, color:"#EA4335" },
+              { label:"Draft Revisions", value:stats.draft, color:"#6B4EFF" },
+            ].map(s => (
+              <div key={s.label} className="bg-white rounded-card shadow-card px-4 py-3">
+                <div className="text-[24px] font-bold display" style={{color:s.color}}>{s.value}</div>
+                <div className="text-[12px] text-ink-2 mt-0.5">{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 mb-5">
+            {FILTERS.map(f => {
+              const count = f==="All" ? allEpisodes.length : allEpisodes.filter(e=>e.status===f).length;
+              const label = f==="Draft" ? "Drafts" : f;
+              return (
+                <button key={f} onClick={() => setFilter(f)}
+                  className={["h-8 px-4 rounded-pill text-[12.5px] font-medium transition",
+                    filter===f ? "bg-ink text-white" : "bg-white border border-border text-ink-2 hover:text-ink hover:border-ink-3"].join(" ")}>
+                  {label} <span className={filter===f?"opacity-60":"opacity-50"}>({count})</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {visibleGroups.map(group => (
+            <TopicGroup key={group.id} group={group} filter={filter} onChange={updater=>updateGroup(group.id, updater)}/>
+          ))}
+
+          {visibleGroups.length === 0 && (
+            <div className="bg-white rounded-card shadow-card px-8 py-12 text-center">
+              <div className="w-11 h-11 rounded-full bg-lavender grid place-items-center mx-auto mb-3 text-ink-3">
+                <Icon d={I.filter} size={18}/>
+              </div>
+              <div className="text-[15px] font-semibold text-ink">No episodes in this state</div>
+              <p className="text-[13px] text-ink-2 mt-1">Use Edit episodes on an approved topic to create draft revisions or add AI-generated episodes.</p>
+            </div>
+          )}
+
+          <div className="text-[11px] text-ink-3 mono mt-6">podium · content marketer · episode topics</div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Episode Topics">
+      <Sidebar active="episodes"/>
+      <div className="flex-1 min-w-0 flex flex-col"><EpisodeTopicsPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

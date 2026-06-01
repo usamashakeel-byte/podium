@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Content Marketer Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  .agent-banner{background:radial-gradient(70% 130% at 0% 50%,rgba(107,78,255,0.14) 0%,transparent 72%),#F8F6FF;border:1px solid #DDD8FF}
+  .action-card{transition:transform .14s,box-shadow .14s,border-color .14s}
+  .action-card:hover{transform:translateY(-1px);border-color:#D6D2EE;box-shadow:0 2px 6px rgba(26,26,46,0.05),0 8px 20px rgba(26,26,46,0.06)}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  mic:<><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,
+  video:<><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/></>,
+  share2:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8-3M8.6 10.5l6.8 3"/></>,
+  studio:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 8l5 3-5 3V8z"/></>,
+  check:<path d="M5 12l5 5L20 7"/>,
+  clock:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
+  lock:<><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></>,
+  arrow:<path d="M5 12h14M13 5l7 7-7 7"/>,
+  sparkle:<><path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z"/><path d="M19 3l.9 2.7L22 7l-2.1.3L19 10l-.9-2.7L16 7l2.1-.3z"/></>,
+};
+const Logo=()=>(<a href="CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const RoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>Content Marketer</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="dashboard"})=>{const [menu,setMenu]=useState(false);const u={name:"Fizza Asad",role:"Content Marketer"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="CMDashboard.html"/><NavItem icon={I.ideation} label="Ideation" active={active==="ideation"} href="IdeationList.html"/><NavItem icon={I.mic} label="Episode Topics" active={active==="episodes"} href="EpisodeTopics.html"/><NavItem icon={I.brief} label="Brief Builder" active={active==="brief"} href="BriefList.html"/></div><SectionLabel>Production</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.video} label="Recordings" active={active==="recordings"} href="RecordingsList.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.sliders} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="relative"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>e.stopPropagation()}><Icon d={I.moreV} size={16}/></button></div>{menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}</div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}>{i>0&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}<span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span></React.Fragment>))}</nav>);
+const NOTIFS=[
+  {id:1,type:"approved",title:"Topic plan approved",desc:"Jen Mendoza approved your AI Strategy Series ideation.",time:"2 hrs ago",read:false},
+  {id:2,type:"action",title:"Brief ready to build",desc:"Episode 1 of AI Strategy Series is now unlocked for a brief.",time:"4 hrs ago",read:false},
+  {id:3,type:"rejected",title:"Ideation needs revision",desc:"Procurement Bottleneck was returned with feedback.",time:"Yesterday",read:true},
+  {id:4,type:"info",title:"Recording linked",desc:"Recording from 14 May was linked to Brief #EP-003.",time:"2 days ago",read:true},
+  {id:5,type:"reminder",title:"2 pending briefs",desc:"You have 2 draft briefs that haven't been submitted yet.",time:"3 days ago",read:true},
+];
+const NOTIF_STYLE={approved:{bg:"#D9F1E2",fg:"#1E7E34",path:<path d="M5 12l5 5L20 7"/>},rejected:{bg:"#FFE0DA",fg:"#B92E22",path:<path d="M18 6L6 18M6 6l12 12"/>},action:{bg:"#EDE9FF",fg:"#5A3FE0",path:<path d="M12 5v7M12 16h.01"/>},reminder:{bg:"#FFE9C0",fg:"#A86A00",path:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>},info:{bg:"#E8E8F8",fg:"#5F6368",path:<><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v5"/></>}};
+const NotifPanel=({notifs,onMarkAll,onClose})=>{const unread=notifs.filter(n=>!n.read).length;return(<><div className="fixed inset-0 z-40" onClick={onClose}/><div className="absolute right-0 top-full mt-2 w-[340px] bg-white rounded-card border border-border z-50 overflow-hidden" style={{boxShadow:"0 8px 32px rgba(26,26,46,0.14)"}}><div className="flex items-center justify-between px-4 py-3 border-b border-border"><div className="flex items-center gap-2"><span className="text-[14px] font-semibold text-ink">Notifications</span>{unread>0&&<span className="px-1.5 py-0.5 rounded-pill text-[10px] font-bold bg-primary text-white">{unread}</span>}</div>{unread>0&&<button onClick={onMarkAll} className="text-[11.5px] font-medium text-primary hover:underline">Mark all read</button>}</div><div className="divide-y divide-border/50 max-h-[420px] overflow-y-auto">{notifs.map(n=>{const s=NOTIF_STYLE[n.type]||NOTIF_STYLE.info;return(<div key={n.id} className={`flex items-start gap-3 px-4 py-3 cursor-pointer transition hover:bg-lavender/40 ${!n.read?"bg-primary-soft/20":""}`}><div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{background:s.bg}}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={s.fg} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">{s.path}</svg></div><div className="flex-1 min-w-0"><div className={`text-[12.5px] leading-snug ${!n.read?"font-semibold text-ink":"text-ink-2"}`}>{n.title}</div><div className="text-[11.5px] text-ink-3 mt-0.5 leading-snug">{n.desc}</div><div className="text-[10.5px] text-ink-3 mt-1">{n.time}</div></div>{!n.read&&<div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5"/>}</div>);})}</div><div className="px-4 py-3 border-t border-border text-center"><button className="text-[12px] font-medium text-ink-3 hover:text-primary transition">View all notifications</button></div></div></>);};
+const Topbar=()=>{
+  const [notifOpen,setNotifOpen]=useState(false);
+  const [notifs,setNotifs]=useState(NOTIFS);
+  const unread=notifs.filter(n=>!n.read).length;
+  return(
+    <header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0">
+      <div className="flex-1 min-w-0"><Crumb items={["Workspace","Dashboard"]}/></div>
+      <div className="relative">
+        <button onClick={()=>setNotifOpen(v=>!v)} className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink relative">
+          <Icon d={I.bell} size={18}/>
+          {unread>0&&<span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary border-2 border-white"/>}
+        </button>
+        {notifOpen&&<NotifPanel notifs={notifs} onMarkAll={()=>setNotifs(p=>p.map(n=>({...n,read:true})))} onClose={()=>setNotifOpen(false)}/>}
+      </div>
+      <RoleBadge/>
+    </header>
+  );
+};
+const AgentMark=({size=30})=>(
+  <div className="rounded-full shrink-0 flex items-center justify-center" style={{width:size,height:size,background:"#1A1A2E"}}>
+    <svg viewBox="0 0 40 40" width={size*0.58} height={size*0.58} fill="none">
+      <rect x="10" y="9" width="5" height="22" rx="1.5" fill="#FFF"/>
+      <path d="M15 9h7a7 7 0 010 14h-7" stroke="#FFF" strokeWidth="5" strokeLinejoin="round" fill="none"/>
+      <circle cx="27.5" cy="30.5" r="2.4" fill="#6B4EFF"/>
+    </svg>
+  </div>
+);
+
+const INITIAL_ACTIONS=[
+  {id:"guest",type:"Episode setup",title:"Add guest for EP-006",href:"EpisodeDetail.html",cta:"Add guest",priority:"Blocking",age:"Ready now",icon:I.lock,summary:"Approved episode cannot move into brief generation until the guest details and host fit are confirmed.",meta:["Approved topic","Guest needed","Host fit required"]},
+  {id:"topics",type:"Topic plan",title:"Review AI plan for Procurement Bottleneck",href:"TopicGeneration.html",cta:"Review topics",priority:"High",age:"Last updated 18m ago",icon:I.ideation,summary:"AI recommends a 3-episode series. Review the episode plan before sending for approval.",meta:["3 episodes","88% confidence","Strategic series"]},
+  {id:"submit",type:"Approval",title:"Send selected ideation topics for approval",href:"IdeationSubmit.html",cta:"Send approval",priority:"High",age:"Draft waiting",icon:I.check,summary:"Two selected topics are ready to send to the Marketing Manager once you confirm the approval package.",meta:["2 topics","Manager review","No manual episodes"]},
+  {id:"brief",type:"Brief",title:"Finish EP-006 brief details",href:"BriefDetail.html",cta:"Edit brief",priority:"Medium",age:"Needs cleanup",icon:I.brief,summary:"Questions and discussion areas are generated. Visual instructions and final review context still need attention.",meta:["5 questions","5 discussion areas","Inline editing"]},
+  {id:"hosts",type:"Configuration",title:"Add missing host profiles",href:"Hosts.html",cta:"Add hosts",priority:"Medium",age:"Recommended",icon:I.settings,summary:"More configured hosts will make future AI host recommendations stronger and reduce episode setup friction.",meta:["Configuration","Host fit","Reusable input"]},
+];
+const SUGGESTIONS=[
+  {id:"s1",title:"Add the guest first",confidence:"96%",text:"EP-006 is already approved, but the brief flow is intentionally blocked until the guest details and host fit are confirmed.",href:"EpisodeDetail.html",cta:"Open episode"},
+  {id:"s2",title:"Regenerate one low-confidence question",confidence:"84%",text:"The procurement brief has one challenge question that needs a sharper hook before manager review.",href:"BriefDetail.html",cta:"Refine brief"},
+  {id:"s3",title:"Submit the topic package next",confidence:"91%",text:"Your ideation package is clean: two topics selected, no empty episode forms, and approval context is ready.",href:"IdeationSubmit.html",cta:"Submit package"},
+  {id:"s4",title:"Add host profiles once",confidence:"78%",text:"Host configuration will let the agent recommend interviewers automatically across future episodes.",href:"Hosts.html",cta:"Configure hosts"},
+];
+const WORKFLOW=[
+  {label:"Configure",status:"done"},
+  {label:"Topic",status:"done"},
+  {label:"Guest",status:"active"},
+  {label:"Brief",status:"next"},
+  {label:"Approval",status:"next"},
+];
+const colorFor=priority=>priority==="Blocking"?{bg:"#FFE0DA",fg:"#B92E22"}:priority==="High"?{bg:"#FFE9C0",fg:"#A86A00"}:{bg:"#EDE9FF",fg:"#5A3FE0"};
+
+const SummaryTile=({label,value,detail,color})=>(
+  <div className="bg-white rounded-card shadow-card px-4 py-3">
+    <div className="text-[24px] font-bold display" style={{color}}>{value}</div>
+    <div className="text-[12px] text-ink-2 mt-0.5">{label}</div>
+    {detail&&<div className="text-[11px] text-ink-3 mt-1">{detail}</div>}
+  </div>
+);
+const AgentBanner=({count,next})=>{
+  const hasNext=count>0&&next;
+  const href=hasNext?next.href:"IdeationForm.html";
+  const message=hasNext
+    ? `You have ${count} pending action item${count===1?"":"s"}. ${next.title} is the highest-impact next step.`
+    : "You are caught up. The agent will surface new blockers here as soon as work enters the queue.";
+  return (
+  <div className="agent-banner rounded-card px-5 py-4 flex items-center gap-4">
+    <AgentMark/>
+    <div className="flex-1 min-w-0">
+      <div className="text-[13px] font-semibold text-ink">Podium Agent</div>
+      <div className="text-[13px] text-ink-2 mt-0.5">{message}</div>
+    </div>
+    <a href={href} className="h-9 px-3.5 rounded-pill bg-ink text-white text-[12px] font-semibold inline-flex items-center gap-1.5 shrink-0 hover:bg-primary transition">{hasNext?"Start next":"New ideation"}<Icon d={I.arrow} size={13}/></a>
+  </div>
+  );
+};
+const ActionCard=({item,onDone})=>{
+  const tone=colorFor(item.priority);
+  return (
+    <article className="action-card bg-white rounded-card shadow-card border border-transparent p-4">
+      <div className="flex items-start gap-3">
+        <div className="w-9 h-9 rounded-input grid place-items-center shrink-0" style={{background:"#EDE9FF",color:"#6B4EFF"}}><Icon d={item.icon} size={17}/></div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <span className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">{item.type}</span>
+            <span className="px-2 py-0.5 rounded-pill text-[10.5px] font-semibold" style={{background:tone.bg,color:tone.fg}}>{item.priority}</span>
+            <span className="text-[11.5px] text-ink-3 inline-flex items-center gap-1"><Icon d={I.clock} size={12}/>{item.age}</span>
+          </div>
+          <a href={item.href} className="text-[15px] font-semibold display leading-snug text-ink hover:text-primary transition block">{item.title}</a>
+          <p className="text-[12.5px] text-ink-2 leading-relaxed mt-2">{item.summary}</p>
+          <div className="flex flex-wrap gap-1.5 mt-3">{item.meta.map(m=><span key={m} className="px-2.5 py-1 rounded-pill bg-lavender text-[11px] font-medium text-ink-2">{m}</span>)}</div>
+        </div>
+      </div>
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <button onClick={()=>onDone(item.id)} className="h-8 px-3 rounded-pill border border-border text-[12px] font-medium text-ink-2 hover:text-success hover:border-success/40 hover:bg-success/10 transition inline-flex items-center gap-1.5"><Icon d={I.check} size={13} stroke={2.4}/>Mark done</button>
+        <a href={item.href} className="h-8 px-3.5 rounded-pill bg-primary hover:bg-primary-hover text-white text-[12px] font-medium inline-flex items-center gap-1.5 transition shadow-[0_3px_8px_-2px_rgba(107,78,255,0.45)]">{item.cta}<Icon d={I.chevR} size={12}/></a>
+      </div>
+    </article>
+  );
+};
+const SuggestionCard=({s})=>(
+  <a href={s.href} className="block rounded-input bg-white border border-border p-3 hover:border-primary/35 hover:bg-lavender/60 transition">
+    <div className="flex items-start gap-3">
+      <span className="w-7 h-7 rounded-input bg-primary-soft text-primary grid place-items-center shrink-0"><Icon d={I.sparkle} size={14}/></span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center justify-between gap-2">
+          <span className="text-[13px] font-semibold text-ink">{s.title}</span>
+          <span className="text-[10.5px] font-semibold text-primary">{s.confidence}</span>
+        </span>
+        <span className="block text-[12px] text-ink-2 leading-relaxed mt-1">{s.text}</span>
+        <span className="inline-flex items-center gap-1 text-[11.5px] font-medium text-primary mt-2">{s.cta}<Icon d={I.chevR} size={11}/></span>
+      </span>
+    </div>
+  </a>
+);
+const WorkflowStep=({step,idx})=>{
+  const active=step.status==="active", done=step.status==="done";
+  return (
+    <div className="flex items-center gap-2">
+      <span className="w-7 h-7 rounded-full grid place-items-center text-[11px] font-bold" style={{background:done?"#D9F1E2":active?"#6B4EFF":"#F1F1F8",color:done?"#1E7E34":active?"#FFF":"#ADADBE"}}>{done?<Icon d={I.check} size={13} stroke={2.5}/>:idx+1}</span>
+      <span className={["text-[12.5px] font-medium",active?"text-primary":done?"text-ink":"text-ink-3"].join(" ")}>{step.label}</span>
+    </div>
+  );
+};
+const CMDashboardPage=()=>{
+  const [actions,setActions]=useState(INITIAL_ACTIONS);
+  const done=id=>setActions(prev=>prev.filter(a=>a.id!==id));
+  const counts={
+    total:actions.length,
+    blocking:actions.filter(a=>a.priority==="Blocking").length,
+    episode:actions.filter(a=>a.type==="Episode setup").length,
+    brief:actions.filter(a=>a.type==="Brief").length,
+  };
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar/>
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[1180px] mx-auto px-8 py-8">
+          <div className="mb-6">
+            <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1.5">Content Marketer</div>
+            <h1 className="text-[28px] font-bold display leading-tight">Dashboard</h1>
+            <p className="text-[13.5px] text-ink-2 mt-1.5 max-w-[720px]">A unified view of what needs your attention, what the AI recommends next, and which actions unblock the podcast workflow.</p>
+          </div>
+          <AgentBanner count={counts.total} next={actions[0]}/>
+          <div className="grid grid-cols-4 gap-3 my-6">
+            <SummaryTile label="Pending actions" value={counts.total} detail="Across ideation, episodes, briefs" color="#1A1A2E"/>
+            <SummaryTile label="Blocking" value={counts.blocking} detail="Must happen before brief generation" color="#EA4335"/>
+            <SummaryTile label="Episode setup" value={counts.episode} detail="Guest or host work" color="#6B4EFF"/>
+            <SummaryTile label="Brief work" value={counts.brief} detail="Draft needs polish" color="#34A853"/>
+          </div>
+          <section className="bg-white rounded-card shadow-card p-4 mb-6">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="mono text-[10.5px] uppercase tracking-[0.16em] text-ink-3">Workflow context</div>
+                <div className="text-[14px] font-semibold text-ink mt-1">Current blocker: add guest before brief build</div>
+              </div>
+              <div className="flex items-center gap-4">
+                {WORKFLOW.map((step,idx)=><WorkflowStep key={step.label} step={step} idx={idx}/>)}
+              </div>
+            </div>
+          </section>
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_360px] gap-5 items-start">
+            <section>
+              <div className="flex items-end justify-between mb-3">
+                <div>
+                  <div className="mono text-[10.5px] uppercase tracking-[0.18em] text-ink-3">Pending action queue</div>
+                  <h2 className="text-[18px] font-semibold display mt-1">{counts.total} items need attention</h2>
+                </div>
+                <a href="EpisodeTopics.html" className="text-[12.5px] text-primary font-medium hover:underline">View episodes</a>
+              </div>
+              <div className="space-y-3">
+                {actions.length?actions.map(item=><ActionCard key={item.id} item={item} onDone={done}/>):(
+                  <div className="bg-white rounded-card shadow-card px-6 py-12 text-center">
+                    <div className="w-10 h-10 rounded-full bg-success/10 text-success grid place-items-center mx-auto mb-3"><Icon d={I.check} size={18} stroke={2.5}/></div>
+                    <div className="text-[14px] font-semibold text-ink">All caught up</div>
+                    <div className="text-[12.5px] text-ink-2 mt-1">No pending content marketer actions right now.</div>
+                  </div>
+                )}
+              </div>
+            </section>
+            <aside className="space-y-4 sticky top-6">
+              <section className="bg-white rounded-card shadow-card p-5">
+                <div className="flex items-center gap-3 mb-4">
+                  <AgentMark size={28}/>
+                  <div>
+                    <div className="text-[14px] font-semibold text-ink">AI suggestions</div>
+                    <div className="text-[11.5px] text-ink-3">Ranked by workflow impact</div>
+                  </div>
+                </div>
+                <div className="space-y-2.5">{SUGGESTIONS.map(s=><SuggestionCard key={s.id} s={s}/>)}</div>
+              </section>
+              <section className="bg-white rounded-card shadow-card p-5">
+                <div className="mono text-[10.5px] uppercase tracking-[0.16em] text-ink-3">Quick links</div>
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  {[
+                    ["New ideation","IdeationForm.html"],
+                    ["Topics","EpisodeTopics.html"],
+                    ["Briefs","BriefList.html"],
+                    ["Hosts","Hosts.html"],
+                  ].map(([label,href])=>(
+                    <a key={label} href={href} className="h-9 px-3 rounded-pill border border-border text-[12px] font-medium text-ink-2 hover:text-primary hover:border-primary/35 hover:bg-primary-soft/35 transition inline-flex items-center justify-center">{label}</a>
+                  ))}
+                </div>
+              </section>
+            </aside>
+          </div>
+          <div className="text-[11px] text-ink-3 mono mt-8">podium · content marketer · dashboard</div>
+        </div>
+      </main>
+    </div>
+  );
+};
+function App(){
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Content Marketer Dashboard">
+      <Sidebar active="dashboard"/>
+      <div className="flex-1 min-w-0 flex flex-col"><CMDashboardPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

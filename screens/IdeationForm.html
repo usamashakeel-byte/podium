@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Generate Idea</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:#6B4EFF!important;box-shadow:0 0 0 4px rgba(107,78,255,0.18)}
+  .field-host:focus-within{border-color:#6B4EFF;box-shadow:0 0 0 4px rgba(107,78,255,0.18)}
+  @keyframes shimmer-bg{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+  @keyframes step-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes reveal{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes dot-bounce{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-4px);opacity:1}}
+  .agent-shimmer{background:linear-gradient(110deg,#EDE9FF 0%,#F8F6FF 30%,#EDE9FF 60%,#E0D9FF 100%);background-size:200% 100%;animation:shimmer-bg 3s linear infinite}
+  .dot-bounce{animation:dot-bounce 1.2s ease-in-out infinite}
+  .dot-bounce:nth-child(2){animation-delay:.15s}
+  .dot-bounce:nth-child(3){animation-delay:.3s}
+  .step-animate{animation:step-in .32s ease forwards}
+  .reveal-animate{animation:reveal .4s ease forwards}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,chevL:<path d="M15 18l-6-6 6-6"/>,
+  plus:<><path d="M12 5v14M5 12h14"/></>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  mic:<><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,video:<><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/></>,share2:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8-3M8.6 10.5l6.8 3"/></>,studio:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 8l5 3-5 3V8z"/></>,voice:<><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></>,
+  check:<path d="M5 12l5 5L20 7"/>,
+  save:<><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></>,
+};
+const Logo=()=>(<a href="CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const RoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>Content Marketer</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="ideation"})=>{const [menu,setMenu]=useState(false);const u={name:"Fizza Asad",role:"Content Marketer"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="CMDashboard.html"/><NavItem icon={I.ideation} label="Ideation" active={active==="ideation"} href="IdeationList.html"/><NavItem icon={I.mic} label="Episode Topics" active={active==="episodes"} href="EpisodeTopics.html"/><NavItem icon={I.brief} label="Brief Builder" active={active==="brief"} href="BriefList.html"/></div><SectionLabel>Production</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.video} label="Recordings" active={active==="recordings"} href="RecordingsList.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.sliders} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="relative"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>e.stopPropagation()}><Icon d={I.moreV} size={16}/></button></div>{menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}</div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}><span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span>{i<items.length-1&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}</React.Fragment>))}</nav>);
+const Topbar=({breadcrumb,actions})=>(<header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0"><div className="flex-1 min-w-0"><Crumb items={breadcrumb}/></div><button className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink"><Icon d={I.bell} size={18}/></button><RoleBadge/>{actions}</header>);
+</script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ── Data ─────────────────────────────────────────────────────── */
+const SEGMENTS = [
+  { id:"potential", label:"Potential", desc:"Early-stage & boutique companies", subs:["Ideation","Boutiques"], color:"#2A6FDB", soft:"#DBEAFE" },
+  { id:"sweetspot", label:"Sweetspot", desc:"Growth-stage companies", subs:["Startups","SMB's","SMEs"], color:"#6B4EFF", soft:"#EDE9FF" },
+  { id:"desired",   label:"Desired",   desc:"Large enterprise accounts", subs:["Enterprise"], color:"#34A853", soft:"#D9F1E2" },
+];
+
+const IDEATION_SEGMENT_SUGGESTIONS = {
+  potential: {
+    audience:"Founders, CEOs, and boutique owners in early-stage US companies validating content-led demand",
+    painPoints:["Limited team bandwidth","Unclear ICP","Founder-led sales","Need quick validation"],
+    needs:["Practical topic ideas","Low-lift content plans","Clear buyer language"],
+    wants:["Founder examples","Simple playbooks","Fast experiments"],
+    context:"Keep topics practical and easy to validate. Avoid enterprise-heavy framing unless the angle is clearly relevant.",
+  },
+  sweetspot: {
+    audience:"CEOs, CTOs, CIOs, and Directors at US startups, SMBs, and SMEs scaling tech or AI initiatives",
+    painPoints:["AI adoption risk","Procurement drag","Budget pressure","Operational complexity"],
+    needs:["Executive-ready POVs","Implementation tradeoffs","Peer examples"],
+    wants:["Battle-tested patterns","Peer war stories","No-BS benchmarks"],
+    context:"Prioritize growth-stage operating tension, buyer pain, and topics with enough depth to become a series.",
+  },
+  desired: {
+    audience:"Directors, VPs of IT, CIOs, and enterprise technology leaders at US companies with 1000+ employees",
+    painPoints:["Complex procurement","Security review","Stakeholder alignment","Legacy system risk"],
+    needs:["Strategic executive framing","Risk-aware examples","Board-level business case"],
+    wants:["Enterprise proof points","CIO perspectives","Implementation frameworks"],
+    context:"Use senior, enterprise-ready framing. Focus on buying committees, risk, approval paths, and measurable business outcomes.",
+  },
+};
+
+const CONV = [
+  {
+    id:"audience",
+    agent:"Hi Fizza! Let's set up your ideation. Who is this content for?",
+    chips:["VP Eng / CTO at Series B–D SaaS","CIO / Head of AI at Enterprise","Head of Procurement at F500"],
+    placeholder:"Describe your target audience…",
+    field:"audience",
+  },
+  {
+    id:"segment",
+    agent:"Which segment do they fall into?",
+    chips:["Potential · Early-stage","Sweetspot · Growth-stage","Desired · Enterprise"],
+    chipValues:["potential","sweetspot","desired"],
+    field:"segment",
+  },
+  {
+    id:"painPoints",
+    agent:"What are their biggest pain points? Pick from below or type your own, then hit Done.",
+    chips:["LLM costs unpredictable","Vendor lock-in","Eval / test gap","Slow procurement"],
+    placeholder:"Add a pain point…",
+    field:"painPoints",
+    multi:true,
+  },
+  {
+    id:"context",
+    agent:"Any extra context for the AI? (angles to focus on, topics to avoid)",
+    chips:["Skip"],
+    placeholder:"e.g. Focus on CFO angles, avoid vendor lock-in…",
+    field:"context",
+    optional:true,
+  },
+];
+
+/* ── Shared agent logo mark ───────────────────────────────────── */
+const AgentMark = ({ size=24 }) => (
+  <div className="rounded-full shrink-0 flex items-center justify-center" style={{width:size,height:size,background:"#1A1A2E"}}>
+    <svg viewBox="0 0 40 40" width={size*0.6} height={size*0.6} fill="none">
+      <rect x="10" y="9" width="5" height="22" rx="1.5" fill="#FFF"/>
+      <path d="M15 9h7a7 7 0 010 14h-7" stroke="#FFF" strokeWidth="5" strokeLinejoin="round" fill="none"/>
+      <circle cx="27.5" cy="30.5" r="2.4" fill="#6B4EFF"/>
+    </svg>
+  </div>
+);
+
+/* ── Typing dots ──────────────────────────────────────────────── */
+const TypingBubble = () => (
+  <div className="flex items-end gap-2 mb-4">
+    <AgentMark size={24}/>
+    <div className="px-4 py-3 bg-white border border-border flex items-center gap-1.5" style={{borderRadius:14,borderTopLeftRadius:4}}>
+      <span className="w-2 h-2 rounded-full dot-bounce" style={{background:"#ADADBE"}}/>
+      <span className="w-2 h-2 rounded-full dot-bounce" style={{background:"#ADADBE"}}/>
+      <span className="w-2 h-2 rounded-full dot-bounce" style={{background:"#ADADBE"}}/>
+    </div>
+  </div>
+);
+
+/* ── Conversational agent panel (left) ────────────────────────── */
+const ConvAgent = ({ onUpdate }) => {
+  const [messages,     setMessages]     = useState([]);
+  const [showTyping,   setShowTyping]   = useState(false);
+  const [step,         setStep]         = useState(-1);
+  const [pendingTags,  setPendingTags]  = useState([]);
+  const [inputVal,     setInputVal]     = useState("");
+  const [done,         setDone]         = useState(false);
+  const threadRef = useRef(null);
+  const timers    = useRef([]);
+
+  const after  = (ms,fn) => { const t=setTimeout(fn,ms); timers.current.push(t); };
+  const scroll = () => { if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight; };
+  const pushAgent = (text, extra={}) => setMessages(p=>[...p,{type:"agent",text,...extra}]);
+  const pushUser  = (text)           => setMessages(p=>[...p,{type:"user", text}]);
+
+  useEffect(()=>{
+    after(500, ()=>setShowTyping(true));
+    after(1600,()=>{ setShowTyping(false); pushAgent(CONV[0].agent); setStep(0); });
+    return ()=>timers.current.forEach(clearTimeout);
+  },[]);
+
+  useEffect(()=>scroll(),[messages,showTyping,pendingTags]);
+
+  const advanceTo = nextStep => {
+    if (nextStep >= CONV.length) {
+      after(300, ()=>setShowTyping(true));
+      after(1400,()=>{ setShowTyping(false); pushAgent("All set! I've captured your ideation details. Ready to generate topic ideas?",{final:true}); setDone(true); });
+      return;
+    }
+    after(300, ()=>setShowTyping(true));
+    after(1400,()=>{ setShowTyping(false); pushAgent(CONV[nextStep].agent); setStep(nextStep); });
+  };
+
+  const handleChip = (chip, idx) => {
+    const cur = CONV[step];
+    if (cur.multi) {
+      if (chip==="Done →") {
+        if (pendingTags.length===0) return;
+        pushUser(pendingTags.join(", "));
+        onUpdate(cur.field, pendingTags);
+        setPendingTags([]);
+        advanceTo(step+1);
+      } else {
+        setPendingTags(p=>p.includes(chip)?p.filter(t=>t!==chip):[...p,chip]);
+      }
+      return;
+    }
+    if (chip==="Skip") { pushUser("Skip"); advanceTo(step+1); return; }
+    const val = cur.chipValues ? cur.chipValues[idx] : chip;
+    pushUser(chip);
+    onUpdate(cur.field, val);
+    advanceTo(step+1);
+  };
+
+  const handleSend = () => {
+    const v = inputVal.trim(); if (!v) return;
+    const cur = CONV[step];
+    if (cur.multi) { if (!pendingTags.includes(v)) setPendingTags(p=>[...p,v]); setInputVal(""); return; }
+    pushUser(v);
+    onUpdate(cur.field, v);
+    setInputVal("");
+    advanceTo(step+1);
+  };
+
+  const curStep   = step>=0 && step<CONV.length ? CONV[step] : null;
+  const showChips = curStep && !done && !showTyping;
+  const showInput = curStep && !done && curStep.placeholder && !showTyping;
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="agent-shimmer flex items-center gap-3 px-5 py-3.5 border-b border-[#DDD8FF] shrink-0">
+        <div className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{background:"#1A1A2E"}}>
+          <svg viewBox="0 0 40 40" width="24" height="24" fill="none">
+            <rect x="10" y="9" width="5" height="22" rx="1.5" fill="#FFF"/>
+            <path d="M15 9h7a7 7 0 010 14h-7" stroke="#FFF" strokeWidth="5" strokeLinejoin="round" fill="none"/>
+            <circle cx="27.5" cy="30.5" r="2.4" fill="#6B4EFF"/>
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-[14px] font-semibold text-ink leading-tight">Podium Agent</div>
+          <div className="text-[11.5px] text-ink-2 leading-tight mt-0.5">
+            {showTyping?"Typing…":done?"Ready to generate":step<0?"Starting…":`Question ${step+1} of ${CONV.length}`}
+          </div>
+        </div>
+        {done && (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-pill text-[11.5px] font-semibold shrink-0" style={{background:"#D9F1E2",color:"#1E7E34"}}>
+            <span className="w-1.5 h-1.5 rounded-full inline-block" style={{background:"#34A853"}}/>All set
+          </span>
+        )}
+        {!done && step>=0 && (
+          <div className="shrink-0 flex flex-col items-end gap-1">
+            <div className="w-28 h-1.5 rounded-full overflow-hidden" style={{background:"#E2E2EE"}}>
+              <div className="h-full rounded-full transition-all duration-500" style={{width:`${((step+1)/CONV.length)*100}%`,background:"#6B4EFF"}}/>
+            </div>
+            <span className="mono text-[9.5px] text-ink-3">{step+1} / {CONV.length}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Thread */}
+      <div ref={threadRef} className="flex-1 overflow-y-auto px-5 pt-5 pb-3" style={{scrollBehavior:"smooth"}}>
+        {messages.map((m,i)=>(
+          m.type==="agent" ? (
+            <div key={i} className="flex items-end gap-2.5 mb-4 step-animate">
+              <AgentMark size={26}/>
+              <div className="max-w-[88%]">
+                <div className="px-4 py-3 bg-white border border-border text-[13.5px] leading-relaxed text-ink" style={{borderRadius:14,borderTopLeftRadius:4,boxShadow:"0 1px 3px rgba(26,26,46,0.04)"}}>
+                  {m.text}
+                </div>
+                {m.final && (
+                  <div className="mt-2.5">
+                    <a href="TopicGeneration.html"
+                       className="h-9 px-5 rounded-pill text-[13px] font-semibold inline-flex items-center gap-2 text-white transition"
+                       style={{background:"#6B4EFF",boxShadow:"0 4px 14px -2px rgba(107,78,255,.50)"}}>
+                      Generate Topic Ideas
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div key={i} className="flex justify-end mb-4 step-animate">
+              <div className="max-w-[76%] px-4 py-3 text-[13.5px] leading-relaxed text-white font-medium" style={{background:"#6B4EFF",borderRadius:14,borderTopRightRadius:4}}>
+                {m.text}
+              </div>
+            </div>
+          )
+        ))}
+
+        {showTyping && <TypingBubble/>}
+
+        {/* Pending tags row */}
+        {curStep && curStep.multi && pendingTags.length>0 && !showTyping && (
+          <div className="flex flex-wrap gap-1.5 ml-8 mb-3">
+            {pendingTags.map(t=>(
+              <span key={t} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-[11.5px] font-medium step-animate" style={{background:"#EDE9FF",color:"#5A3FE0"}}>
+                {t}
+                <button onClick={()=>setPendingTags(p=>p.filter(x=>x!==t))} className="w-3.5 h-3.5 rounded-full grid place-items-center opacity-60 hover:opacity-100">
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Quick-reply chips */}
+        {showChips && (
+          <div className="flex flex-wrap gap-2 ml-8 mb-4 step-animate">
+            {curStep.chips.map((chip,idx)=>{
+              const sel = curStep.multi && pendingTags.includes(chip);
+              return (
+                <button key={chip} onClick={()=>handleChip(chip,idx)}
+                  className="h-8 px-3.5 rounded-pill text-[12.5px] font-medium border transition"
+                  style={{
+                    borderColor: sel?"transparent":"#6B4EFF",
+                    color:       sel?"#5A3FE0":"#6B4EFF",
+                    background:  sel?"#EDE9FF":"#FFFFFF",
+                  }}
+                  onMouseEnter={e=>{ if(!sel){ e.currentTarget.style.background="#EDE9FF"; }}}
+                  onMouseLeave={e=>{ if(!sel){ e.currentTarget.style.background="#FFFFFF"; }}}>
+                  {chip}
+                </button>
+              );
+            })}
+            {curStep.multi && pendingTags.length>0 && (
+              <button onClick={()=>handleChip("Done →",-1)}
+                className="h-8 px-4 rounded-pill text-[12.5px] font-semibold text-white transition step-animate"
+                style={{background:"#6B4EFF",boxShadow:"0 2px 8px -2px rgba(107,78,255,.4)"}}>
+                Done →
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Input bar */}
+      {showInput && (
+        <div className="flex items-center gap-2.5 px-5 py-3.5 border-t border-border shrink-0 bg-white">
+          <input
+            className="flex-1 text-[13.5px] outline-none bg-transparent text-ink placeholder-ink-3"
+            placeholder={curStep.placeholder}
+            value={inputVal}
+            onChange={e=>setInputVal(e.target.value)}
+            onKeyDown={e=>e.key==="Enter"&&handleSend()}
+          />
+          <button onClick={handleSend} disabled={!inputVal.trim()}
+            className="w-8 h-8 rounded-full grid place-items-center transition shrink-0"
+            style={{background:inputVal.trim()?"#6B4EFF":"#E2E2EE"}}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 6l6 6-6 6"/>
+            </svg>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ── Tag chip ─────────────────────────────────────────────────── */
+const TagChip = ({ children, onRemove }) => (
+  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-[11.5px] font-medium" style={{background:"#EDE9FF",color:"#5A3FE0"}}>
+    {children}
+    {onRemove && (
+      <button onClick={onRemove} className="w-3.5 h-3.5 rounded-full grid place-items-center opacity-60 hover:opacity-100">
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    )}
+  </span>
+);
+
+const TagInput = ({ tags, setTags, placeholder }) => {
+  const [val, setVal] = useState("");
+  const add = e => {
+    if (e.key === "Enter" && val.trim()) {
+      const next = val.trim();
+      if (!tags.includes(next)) setTags([...tags, next]);
+      setVal("");
+    }
+  };
+  return (
+    <div className="field-host w-full min-h-[44px] px-2 py-1.5 rounded-input border border-border bg-white flex flex-wrap items-center gap-1.5 transition">
+      {tags.map(t => (
+        <TagChip key={t} onRemove={() => setTags(tags.filter(x => x !== t))}>{t}</TagChip>
+      ))}
+      <input
+        className="flex-1 min-w-[140px] h-7 px-2 text-[13px] placeholder:text-ink-3 bg-transparent focus:outline-none"
+        placeholder={tags.length ? "Add another..." : placeholder}
+        value={val}
+        onChange={e => setVal(e.target.value)}
+        onKeyDown={add}
+      />
+    </div>
+  );
+};
+
+/* ── Form summary panel (right) ───────────────────────────────── */
+const FormSummary = ({ formData, onUpdate }) => {
+  const [editAudience, setEditAudience] = useState(false);
+  const [editContext,  setEditContext]  = useState(false);
+  const [tmpAudience,  setTmpAudience]  = useState("");
+  const [tmpContext,   setTmpContext]   = useState("");
+  const [addingTag,    setAddingTag]    = useState(false);
+  const [tagVal,       setTagVal]       = useState("");
+
+  const seg = SEGMENTS.find(s=>s.id===formData.segment);
+  const ready = seg && formData.audience && formData.painPoints.length>0;
+
+  const SectionHead = ({label, optional}) => (
+    <div className="flex items-center gap-2 mb-2">
+      <span className="text-[10.5px] mono uppercase tracking-[0.12em] text-ink-3">{label}</span>
+      {optional && <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold" style={{background:"#EDE9FF",color:"#5A3FE0"}}>Optional</span>}
+    </div>
+  );
+
+  const EmptySlot = ({label}) => (
+    <div className="px-3 py-2.5 rounded-[10px] flex items-center gap-2 text-[12.5px] text-ink-3" style={{background:"#F7F7F7",border:"1.5px dashed #DDDDE8"}}>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ADADBE" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      Waiting for {label}…
+    </div>
+  );
+
+  return (
+    <div className="h-full overflow-y-auto flex flex-col">
+      {/* Summary header */}
+      <div className="px-6 pt-5 pb-4 border-b border-border shrink-0">
+        <div className="text-[14px] font-semibold text-ink">Ideation Summary</div>
+        <div className="text-[12px] text-ink-2 mt-0.5">Fields fill as you chat — or edit directly.</div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+        {/* Segment */}
+        <div>
+          <SectionHead label="Segment"/>
+          {seg ? (
+            <div className="flex items-center gap-2 flex-wrap">
+              {SEGMENTS.map(s=>(
+                <button key={s.id} onClick={()=>onUpdate("segment",s.id)}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-pill text-[12.5px] font-semibold border-2 transition"
+                  style={{
+                    borderColor: s.id===formData.segment?"transparent":"transparent",
+                    background:  s.id===formData.segment?s.soft:"#F1F1F8",
+                    color:       s.id===formData.segment?s.color:"#5F6368",
+                    outline:     s.id===formData.segment?`2px solid ${s.color}`:"none",
+                    outlineOffset: "2px",
+                  }}>
+                  <span className="w-2 h-2 rounded-full" style={{background:s.color}}/>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          ) : <EmptySlot label="segment"/>}
+        </div>
+
+        {/* Audience */}
+        <div>
+          <SectionHead label="Target Audience"/>
+          {formData.audience ? (
+            editAudience ? (
+              <div className="flex gap-2">
+                <input autoFocus value={tmpAudience} onChange={e=>setTmpAudience(e.target.value)}
+                  className="flex-1 h-9 px-3 rounded-input border border-primary text-[13px] bg-white focus:outline-none"
+                  onKeyDown={e=>{if(e.key==="Enter"){onUpdate("audience",tmpAudience);setEditAudience(false);}}}/>
+                <button onClick={()=>{onUpdate("audience",tmpAudience);setEditAudience(false);}}
+                  className="h-9 px-3 rounded-input text-[12.5px] font-semibold text-white" style={{background:"#6B4EFF"}}>Save</button>
+                <button onClick={()=>setEditAudience(false)} className="h-9 px-3 rounded-input text-[12.5px] text-ink-2 hover:bg-lavender">Cancel</button>
+              </div>
+            ) : (
+              <div className="flex items-start gap-2">
+                <div className="flex-1 px-3 py-2.5 rounded-[10px] border border-border bg-white text-[13px] text-ink leading-snug">{formData.audience}</div>
+                <button onClick={()=>{setTmpAudience(formData.audience);setEditAudience(true);}}
+                  className="shrink-0 mt-0.5 text-[11.5px] text-primary font-medium hover:underline">Edit</button>
+              </div>
+            )
+          ) : <EmptySlot label="audience"/>}
+        </div>
+
+        {/* Pain points */}
+        <div>
+          <SectionHead label="Pain Points"/>
+          {formData.painPoints.length>0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {formData.painPoints.map(t=>(
+                <TagChip key={t} onRemove={()=>onUpdate("painPoints",formData.painPoints.filter(x=>x!==t))}>
+                  {t}
+                </TagChip>
+              ))}
+              {addingTag ? (
+                <div className="flex gap-1.5 items-center">
+                  <input autoFocus value={tagVal} onChange={e=>setTagVal(e.target.value)}
+                    className="h-7 px-2.5 rounded-pill border border-primary text-[11.5px] bg-white focus:outline-none w-36"
+                    placeholder="Add pain point…"
+                    onKeyDown={e=>{if(e.key==="Enter"&&tagVal.trim()){onUpdate("painPoints",[...formData.painPoints,tagVal.trim()]);setTagVal("");setAddingTag(false);}if(e.key==="Escape")setAddingTag(false);}}/>
+                </div>
+              ) : (
+                <button onClick={()=>setAddingTag(true)} className="h-7 px-3 rounded-pill text-[11px] border border-dashed border-border text-ink-3 hover:border-primary hover:text-primary transition">+ Add</button>
+              )}
+            </div>
+          ) : <EmptySlot label="pain points"/>}
+        </div>
+
+        {/* Additional context */}
+        <div>
+          <SectionHead label="Additional Context" optional/>
+          {formData.context && formData.context!=="Skip" ? (
+            editContext ? (
+              <div className="space-y-2">
+                <textarea autoFocus value={tmpContext} onChange={e=>setTmpContext(e.target.value)} rows={3}
+                  className="w-full px-3 py-2 rounded-[10px] border border-primary text-[13px] bg-white focus:outline-none resize-none"/>
+                <div className="flex gap-2">
+                  <button onClick={()=>{onUpdate("context",tmpContext);setEditContext(false);}}
+                    className="h-8 px-3 rounded-pill text-[12px] font-semibold text-white" style={{background:"#6B4EFF"}}>Save</button>
+                  <button onClick={()=>setEditContext(false)} className="h-8 px-3 rounded-pill text-[12px] text-ink-2 hover:bg-lavender">Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-start gap-2">
+                <div className="flex-1 px-3 py-2.5 rounded-[10px] border border-border bg-white text-[13px] text-ink-2 leading-relaxed">{formData.context}</div>
+                <button onClick={()=>{setTmpContext(formData.context);setEditContext(true);}}
+                  className="shrink-0 mt-0.5 text-[11.5px] text-primary font-medium hover:underline">Edit</button>
+              </div>
+            )
+          ) : <EmptySlot label="extra context"/>}
+        </div>
+      </div>
+
+      {/* CTA footer */}
+      <div className="px-6 py-4 border-t border-border shrink-0">
+        {ready ? (
+          <a href="TopicGeneration.html"
+             className="w-full h-10 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13.5px] font-semibold inline-flex items-center justify-center gap-2 transition"
+             style={{boxShadow:"0 6px 14px -4px rgba(107,78,255,0.5)"}}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/></svg>
+            Generate Topic Ideas
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
+        ) : (
+          <div className="w-full h-10 rounded-pill text-[13px] text-ink-3 font-medium inline-flex items-center justify-center gap-2 cursor-not-allowed" style={{background:"#F1F1F8"}}>
+            Complete the chat to continue
+          </div>
+        )}
+        <div className="text-[10.5px] text-ink-3 mono mt-3 text-center">podium · content marketer · ideation step 1</div>
+      </div>
+    </div>
+  );
+};
+
+/* ── Step bar ─────────────────────────────────────────────────── */
+const StepBar = ({ current }) => {
+  const steps = ["Configure","Topic Plan","Send for Approval"];
+  return (
+    <div className="bg-white rounded-card shadow-card px-6 py-4 mb-6 shrink-0">
+      <div className="flex items-center">
+        {steps.map((s,i)=>{
+          const done=i<current, active=i===current;
+          return (
+            <React.Fragment key={s}>
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-pill text-[12px] font-medium whitespace-nowrap ${active?"bg-primary text-white":done?"bg-success/10 text-success":"text-ink-3"}`}>
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${active?"bg-white text-primary":done?"bg-success text-white":"bg-lavender text-ink-3"}`}>
+                  {done?<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>:i+1}
+                </span>
+                {s}
+              </div>
+              {i<steps.length-1&&<div className={`flex-1 h-px mx-1.5 ${done?"bg-success":"bg-border"}`}/>}
+            </React.Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+/* ── Page ─────────────────────────────────────────────────────── */
+const IdeationFormPage = () => {
+  const [segment, setSegment] = useState("sweetspot");
+  const [audienceForm, setAudienceForm] = useState(() => ({...IDEATION_SEGMENT_SUGGESTIONS.sweetspot}));
+  const activeSegment = SEGMENTS.find(seg => seg.id === segment) || SEGMENTS[1];
+  const applySegment = id => {
+    setSegment(id);
+    setAudienceForm({...IDEATION_SEGMENT_SUGGESTIONS[id]});
+  };
+  const setAudienceField = (field, value) => setAudienceForm(current => ({...current, [field]: value}));
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar
+        breadcrumb={["Workspace","Ideation","New Ideation","Configure"]}
+        actions={
+          <button className="ml-1 inline-flex items-center gap-2 h-9 px-4 rounded-pill bg-white border border-border text-ink text-[13px] font-medium hover:bg-lavender transition">
+            <Icon d={I.save} size={14}/>Save draft
+          </button>
+        }
+      />
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[900px] mx-auto px-8 py-8">
+          <StepBar current={0}/>
+
+          <div className="flex items-end justify-between gap-4 mb-6">
+            <div>
+              <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1.5">Step 1 of 3</div>
+              <h1 className="text-[26px] font-bold display leading-tight">Configure your ideation</h1>
+              <p className="text-[13.5px] text-ink-2 mt-1">Select your target segment and define the audience profile for AI topic generation.</p>
+            </div>
+          </div>
+
+          <section className="bg-white rounded-card shadow-card mb-5">
+            <div className="px-6 pt-5 pb-3">
+              <h2 className="text-[17px] font-semibold display">Target Segment <span className="text-primary">*</span></h2>
+              <p className="text-[12.5px] text-ink-2 mt-1">Select the segment ICP for this ideation. This shapes topic relevance and audience fit scoring.</p>
+            </div>
+            <div className="px-6 pb-6">
+              <div className="grid grid-cols-3 gap-3">
+                {SEGMENTS.map(seg => {
+                  const active = segment === seg.id;
+                  return (
+                    <button key={seg.id} onClick={() => applySegment(seg.id)}
+                      className={["rounded-card p-4 text-left border-2 transition",
+                        active ? "border-primary bg-primary-soft" : "border-border bg-white hover:border-ink-3"].join(" ")}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ background:seg.color }}/>
+                        <span className={`text-[14px] font-bold ${active ? "text-primary" : "text-ink"}`}>{seg.label}</span>
+                        {active && <span className="ml-auto"><Icon d={I.check} size={14} stroke={3} className="text-primary"/></span>}
+                      </div>
+                      <div className="text-[12px] text-ink-2 mb-3">{seg.desc}</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {seg.subs.map(s => (
+                          <span key={s} className="px-2 py-0.5 rounded-pill text-[10.5px] font-medium" style={{ background: active ? seg.soft : "#F1F1F8", color: active ? seg.color : "#5F6368" }}>{s}</span>
+                        ))}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+
+          <section className="bg-white rounded-card shadow-card mb-5">
+            <div className="px-6 pt-5 pb-3">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-[17px] font-semibold display">Audience</h2>
+                  <p className="text-[12.5px] text-ink-2 mt-1">AI-suggested from the selected Brand Library audience segment. Edit anything before generating topics.</p>
+                </div>
+                <span className="shrink-0 rounded-pill px-2.5 py-1 text-[11px] font-bold" style={{background:activeSegment.soft,color:activeSegment.color}}>
+                  {activeSegment.label} suggested
+                </span>
+              </div>
+            </div>
+            <div className="px-6 pb-6 space-y-5">
+              <div>
+                <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2 mb-1.5 block">Target Audience <span className="text-primary">*</span></label>
+                <input type="text" value={audienceForm.audience} onChange={e=>setAudienceField("audience",e.target.value)}
+                  className="w-full h-11 px-3 rounded-input border border-border text-[14px] bg-white"/>
+              </div>
+              <div>
+                <div className="flex items-baseline justify-between mb-1.5">
+                  <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2">Pain Points</label>
+                  <span className="text-[11px] text-ink-3">Press Enter to add</span>
+                </div>
+                <TagInput tags={audienceForm.painPoints} setTags={tags=>setAudienceField("painPoints",tags)} placeholder="Add a pain point..."/>
+              </div>
+              <div>
+                <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2 mb-1.5 block">Audience Needs</label>
+                <TagInput tags={audienceForm.needs} setTags={tags=>setAudienceField("needs",tags)} placeholder="Add a need..."/>
+              </div>
+              <div>
+                <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2 mb-1.5 block">Audience Wants</label>
+                <TagInput tags={audienceForm.wants} setTags={tags=>setAudienceField("wants",tags)} placeholder="Add a want..."/>
+              </div>
+              <div>
+                <div className="flex items-baseline justify-between mb-1.5">
+                  <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2">Additional Context</label>
+                  <span className="text-[11px] text-ink-3">Optional</span>
+                </div>
+                <textarea
+                  rows={4}
+                  value={audienceForm.context}
+                  onChange={e=>setAudienceField("context",e.target.value)}
+                  placeholder="Add angles to focus on, topics to avoid, examples, or any extra context for topic generation..."
+                  className="w-full px-3 py-2.5 rounded-input border border-border text-[14px] bg-white resize-none leading-relaxed placeholder:text-ink-3"
+                ></textarea>
+              </div>
+            </div>
+          </section>
+
+          <div className="bg-white rounded-card shadow-card px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-[12.5px] text-ink-2">
+              <span className="inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-success"/>Autosaved 8s ago</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <a href="IdeationList.html" className="h-10 px-4 rounded-pill text-[13.5px] font-medium text-ink hover:bg-lavender transition inline-flex items-center">Back</a>
+              <a href="TopicGeneration.html" className="h-10 px-5 rounded-pill bg-primary hover:bg-primary-hover transition text-white text-[13.5px] font-medium inline-flex items-center gap-2 shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]">
+                <Icon d={I.ideation} size={15} stroke={2}/>Generate Topic Ideas
+                <Icon d={I.chevR} size={15} stroke={2.25}/>
+              </a>
+            </div>
+          </div>
+          <div className="text-[11px] text-ink-3 mono mt-6">podium · content marketer · ideation step 1</div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Ideation Form">
+      <Sidebar active="ideation"/>
+      <div className="flex-1 min-w-0 flex flex-col"><IdeationFormPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

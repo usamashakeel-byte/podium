@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Link Recordings to Briefs</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  @keyframes fadeIn{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}.fade-in{animation:fadeIn .2s ease both}
+  @keyframes flashGreen{0%,100%{background:transparent}20%,80%{background:#F0FBF3}}.flash-green{animation:flashGreen 1.8s ease}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,chevL:<path d="M15 18l-6-6 6-6"/>,chevDown:<path d="M6 9l6 6 6-6"/>,chevUp:<path d="M18 15l-6-6-6 6"/>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  mic:<><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,
+  video:<><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/></>,
+  share2:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8-3M8.6 10.5l6.8 3"/></>,
+  studio:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 8l5 3-5 3V8z"/></>,
+  voice:<><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></>,
+  play:<path d="M5 3l14 9-14 9V3z" fill="currentColor" stroke="none"/>,
+  clock:<><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></>,
+  check:<path d="M5 12l5 5L20 7"/>,
+  unlink:<><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/><line x1="2" y1="2" x2="22" y2="22"/></>,
+  link2:<><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></>,
+  search:<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>,
+};
+const Logo=()=>(<a href="CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const RoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>Content Marketer</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="recordings"})=>{const [menu,setMenu]=useState(false);const u={name:"Fizza Asad",role:"Content Marketer"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="CMDashboard.html"/><NavItem icon={I.ideation} label="Ideation" active={active==="ideation"} href="IdeationList.html"/><NavItem icon={I.mic} label="Episode Topics" active={active==="episodes"} href="EpisodeTopics.html"/><NavItem icon={I.brief} label="Brief Builder" active={active==="brief"} href="BriefList.html"/></div><SectionLabel>Production</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.video} label="Recordings" active={active==="recordings"} href="RecordingsList.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.sliders} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="relative"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>e.stopPropagation()}><Icon d={I.moreV} size={16}/></button></div>{menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}</div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}>{i>0&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}<span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span></React.Fragment>))}</nav>);
+const Topbar=({breadcrumb})=>(<header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0"><div className="flex-1 min-w-0"><Crumb items={breadcrumb}/></div><button className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink"><Icon d={I.bell} size={18}/></button><RoleBadge/></header>);
+</script>
+
+<script type="text/babel">
+const { useState, useMemo } = React;
+
+const RECORDINGS = [
+  { id:"REC-001", guest:"Alex Morgan",    title:"Inside the Procurement Black Box",              duration:"42:18", date:"2026-05-18" },
+  { id:"REC-002", guest:"Priya Nair",     title:"AI Tooling at Series B Scale",                  duration:"38:54", date:"2026-05-15" },
+  { id:"REC-003", guest:"Marcus Rivera",  title:"Building an AI Roadmap on a Shoestring",        duration:"51:23", date:"2026-05-12" },
+  { id:"REC-004", guest:"Soo-Jin Park",   title:"Security Reviews for AI Vendors",               duration:"44:07", date:"2026-05-10" },
+  { id:"REC-005", guest:"Carlos Fuentes", title:"The Founder's Take on Enterprise Procurement",  duration:"29:45", date:"2026-05-08" },
+  { id:"REC-006", guest:"Sarah Kim",      title:"DevTools and Developer Productivity",            duration:"37:22", date:"2026-05-05" },
+  { id:"REC-007", guest:"Daniel Park",    title:"SaaS Pricing in the AI Era",                    duration:"45:18", date:"2026-05-02" },
+  { id:"REC-008", guest:"Elena Torres",   title:"Open Source Eating SaaS from Below",             duration:"33:11", date:"2026-04-29" },
+];
+
+const AVAILABLE_BRIEFS = [
+  { id:"BR-001", episode:"The pricing flip: how SaaS companies are abandoning subscriptions", segment:"SaaS",        brandVoice:"The Revenue Engine",       status:"Approved"  },
+  { id:"BR-002", episode:"Enterprise AI adoption: lessons from the first wave",               segment:"Enterprise",  brandVoice:"The Revenue Engine",       status:"Approved"  },
+  { id:"BR-005", episode:"Why great demos die in procurement",                                segment:"Sweetspot",   brandVoice:"The Revenue Engine",       status:"Approved"  },
+  { id:"BR-006", episode:"Inside the Procurement Black Box",                                  segment:"Sweetspot",   brandVoice:"The Revenue Engine",       status:"Approved"  },
+  { id:"BR-007", episode:"AI Tooling at Series B Scale",                                      segment:"SaaS",        brandVoice:"The Revenue Engine",       status:"Approved"  },
+  { id:"BR-008", episode:"Building an AI Roadmap on a Shoestring",                            segment:"Startups",    brandVoice:"Founder Stories — Social", status:"In Review" },
+  { id:"BR-009", episode:"The Founder's Take on Enterprise Procurement",                      segment:"Sweetspot",   brandVoice:"The Revenue Engine",       status:"Draft"     },
+  { id:"BR-010", episode:"SaaS Pricing Models in the AI Era",                                 segment:"SaaS",        brandVoice:"The Revenue Engine",       status:"Draft"     },
+  { id:"BR-003", episode:"AI pair programming: measuring actual productivity gains",          segment:"Developers",  brandVoice:"The Revenue Engine",       status:"Draft"     },
+  { id:"BR-004", episode:"Security vendor evaluation framework",                              segment:"Security",    brandVoice:"The Revenue Engine",       status:"In Review" },
+];
+
+const INIT_LINKS = { "REC-001":"BR-006", "REC-002":"BR-007", "REC-003":"BR-008", "REC-005":"BR-009" };
+
+const STATUS_STYLE = {
+  "Approved":  { bg:"#D9F1E2", fg:"#1E7E34" },
+  "In Review": { bg:"#EDE9FF", fg:"#5A3FE0" },
+  "Draft":     { bg:"#FFE9C0", fg:"#A86A00" },
+};
+
+const FILTER_TABS = ["All", "Approved", "In Review", "Draft"];
+
+const RecordingLinkPage = () => {
+  const [links, setLinks]       = useState(INIT_LINKS);
+  const [expanded, setExpanded] = useState(null);
+  const [filter, setFilter]     = useState("All");
+  const [search, setSearch]     = useState("");
+  const [flash, setFlash]       = useState(null);
+
+  const doLink = (recId, briefId) => {
+    setLinks(p => ({ ...p, [recId]: briefId }));
+    setExpanded(null);
+    setSearch("");
+    setFlash(recId);
+    setTimeout(() => setFlash(null), 2000);
+  };
+
+  const doUnlink = (recId, e) => {
+    e.stopPropagation();
+    setLinks(p => { const n = { ...p }; delete n[recId]; return n; });
+    if (expanded === recId) setExpanded(null);
+  };
+
+  const toggle = (recId) => {
+    setExpanded(p => p === recId ? null : recId);
+    setFilter("All");
+    setSearch("");
+  };
+
+  const linkedCount = Object.keys(links).length;
+
+  const visibleBriefs = useMemo(() => {
+    let list = filter === "All" ? AVAILABLE_BRIEFS : AVAILABLE_BRIEFS.filter(b => b.status === filter);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(b => b.id.toLowerCase().includes(q) || b.episode.toLowerCase().includes(q) || b.segment.toLowerCase().includes(q));
+    }
+    return list;
+  }, [filter, search]);
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar breadcrumb={["Workspace","Recordings","Link Briefs"]}/>
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[1180px] mx-auto px-8 py-8">
+
+          {/* Header */}
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1.5">Content Marketer</div>
+              <h1 className="text-[28px] font-bold display leading-tight">Link Recordings to Briefs</h1>
+              <p className="text-[13.5px] text-ink-2 mt-1">Connect recordings to their episode briefs. This context is used in social content generation and studio.</p>
+            </div>
+            <a href="RecordingsList.html" className="h-9 px-4 rounded-pill border border-border bg-white text-[12.5px] font-medium text-ink-2 hover:text-ink hover:border-ink-3 inline-flex items-center gap-1.5 transition mt-2">
+              <Icon d={I.chevL} size={13}/>Back to Recordings
+            </a>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            {[
+              { label:"Total Recordings", value:RECORDINGS.length, color:"#1A1A2E" },
+              { label:"Linked to Brief",  value:linkedCount,        color:"#6B4EFF" },
+              { label:"Not Yet Linked",   value:RECORDINGS.length-linkedCount, color:"#A86A00" },
+            ].map(s => (
+              <div key={s.label} className="bg-white rounded-card shadow-card px-4 py-3">
+                <div className="text-[26px] font-bold display" style={{color:s.color}}>{s.value}</div>
+                <div className="text-[12px] text-ink-2 mt-0.5">{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tip */}
+          <div className="flex items-start gap-3 px-4 py-3 rounded-card mb-4" style={{background:"#F6F2FF",border:"1px solid #DCD3FF"}}>
+            <div className="w-7 h-7 rounded-[6px] grid place-items-center shrink-0" style={{background:"#EDE9FF"}}>
+              <Icon d={I.link2} size={14} className="text-primary"/>
+            </div>
+            <div className="text-[12.5px] text-ink-2 leading-relaxed">
+              <span className="font-semibold text-ink">Tip:</span> Briefs with <span className="font-medium" style={{color:"#1E7E34"}}>Approved</span> status provide the best context for social content generation. You can link any brief regardless of status — the status is shown as a reminder only.
+            </div>
+          </div>
+
+          {/* Recordings list */}
+          <div className="bg-white rounded-card shadow-card overflow-hidden">
+            {RECORDINGS.map((rec, idx) => {
+              const linkedBriefId = links[rec.id];
+              const linkedBrief   = linkedBriefId ? AVAILABLE_BRIEFS.find(b => b.id === linkedBriefId) : null;
+              const isExpanded    = expanded === rec.id;
+              const isFlashing    = flash === rec.id;
+
+              return (
+                <div key={rec.id} className={idx < RECORDINGS.length - 1 ? "border-b border-border" : ""}>
+
+                  {/* Row */}
+                  <div className={["flex items-center gap-4 px-5 py-3.5 transition-colors", isFlashing ? "bg-[#F0FBF3]" : isExpanded ? "bg-lavender/60" : ""].join(" ")}>
+
+                    {/* Thumbnail */}
+                    <div className="w-[68px] h-[40px] rounded-[6px] shrink-0 flex items-center justify-center relative" style={{background:"#1A1A2E"}}>
+                      <Icon d={I.play} size={13} className="text-white opacity-60"/>
+                      {linkedBrief && (
+                        <div className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{background:"#34A853"}}/>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13.5px] font-medium text-ink truncate">{rec.guest} — {rec.title}</div>
+                      <div className="flex items-center gap-2.5 mt-0.5">
+                        <span className="mono text-[11px] text-ink-3">{rec.id}</span>
+                        <span className="text-ink-3 text-[9px]">·</span>
+                        <span className="text-[12px] text-ink-2 inline-flex items-center gap-1">
+                          <Icon d={I.clock} size={11} className="text-ink-3"/>{rec.duration}
+                        </span>
+                        <span className="text-ink-3 text-[9px]">·</span>
+                        <span className="text-[12px] text-ink-2">{new Date(rec.date).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+                      </div>
+                    </div>
+
+                    {/* Brief badge */}
+                    {isFlashing ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-pill text-[12px] font-semibold shrink-0" style={{background:"#D9F1E2",color:"#1E7E34"}}>
+                        <Icon d={I.check} size={13} stroke={2.5}/>Linked!
+                      </span>
+                    ) : linkedBrief ? (
+                      <div className="flex flex-col items-end gap-0.5 shrink-0 max-w-[200px]">
+                        <div className="flex items-center gap-1.5">
+                          <span className="mono text-[11px] text-ink-3">{linkedBrief.id}</span>
+                          <span className="px-2 py-0.5 rounded-pill text-[10px] font-semibold" style={{background:STATUS_STYLE[linkedBrief.status]?.bg,color:STATUS_STYLE[linkedBrief.status]?.fg}}>{linkedBrief.status}</span>
+                        </div>
+                        <span className="text-[11px] text-ink-2 truncate w-full text-right">{linkedBrief.episode}</span>
+                      </div>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-[11px] font-semibold bg-lavender text-ink-3 shrink-0">
+                        <Icon d={I.link2} size={10}/>Not linked
+                      </span>
+                    )}
+
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {linkedBrief && !isExpanded && (
+                        <button onClick={(e) => doUnlink(rec.id, e)}
+                          className="h-8 px-3 rounded-pill border border-border text-[11.5px] font-medium text-ink-3 hover:text-danger hover:border-danger/50 hover:bg-[#FFF0EE] transition">
+                          Remove
+                        </button>
+                      )}
+                      <button onClick={() => toggle(rec.id)}
+                        className={["h-8 px-3.5 rounded-pill border text-[12px] font-medium inline-flex items-center gap-1.5 transition",
+                          isExpanded
+                            ? "border-primary bg-primary-soft text-primary"
+                            : linkedBrief
+                            ? "border-border text-ink-2 hover:text-ink hover:border-ink-3"
+                            : "border-[#F9AB00]/60 bg-[#FFF8E7] text-[#A86A00] hover:bg-[#FFE9C0]"].join(" ")}>
+                        <Icon d={I.brief} size={13}/>
+                        {isExpanded ? "Cancel" : linkedBrief ? "Change Brief" : "Link Brief"}
+                        <Icon d={isExpanded ? I.chevUp : I.chevDown} size={11}/>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Expanded brief picker */}
+                  {isExpanded && (
+                    <div className="px-5 pt-1 pb-5 fade-in border-t border-border" style={{background:"#F8F8FC"}}>
+
+                      {/* Picker header */}
+                      <div className="flex items-center justify-between py-3 gap-3">
+                        <div className="text-[13px] font-semibold text-ink">
+                          {linkedBrief ? `Change brief for "${rec.guest}"` : `Link a brief to "${rec.guest}"`}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {/* Search */}
+                          <div className="relative">
+                            <Icon d={I.search} size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-3"/>
+                            <input value={search} onChange={e=>setSearch(e.target.value)}
+                              placeholder="Search briefs…"
+                              className="h-8 pl-8 pr-3 rounded-input border border-border text-[12px] bg-white focus:outline-none focus:border-primary transition w-44"/>
+                          </div>
+                          {/* Filter tabs */}
+                          <div className="flex items-center gap-1">
+                            {FILTER_TABS.map(f=>(
+                              <button key={f} onClick={()=>setFilter(f)}
+                                className={["px-2.5 py-1 rounded-pill text-[11px] font-medium transition",
+                                  filter===f?"bg-ink text-white":"border border-border text-ink-2 hover:border-ink-3 hover:text-ink bg-white"].join(" ")}>
+                                {f}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Brief cards grid */}
+                      {visibleBriefs.length === 0 ? (
+                        <div className="text-center py-8 text-[13px] text-ink-3">No briefs match your filter.</div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-3">
+                          {visibleBriefs.map(brief => {
+                            const isCurrent = links[rec.id] === brief.id;
+                            const s = STATUS_STYLE[brief.status] || {};
+                            return (
+                              <div key={brief.id}
+                                onClick={() => !isCurrent && doLink(rec.id, brief.id)}
+                                className={["rounded-card border-2 p-4 transition",
+                                  isCurrent
+                                    ? "border-primary bg-primary-soft cursor-default"
+                                    : "border-border hover:border-primary hover:shadow-card bg-white cursor-pointer"].join(" ")}>
+                                <div className="flex items-start justify-between gap-2 mb-2">
+                                  <span className="mono text-[10.5px] text-ink-3">{brief.id}</span>
+                                  {isCurrent ? (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[10px] font-bold bg-primary text-white shrink-0">
+                                      <Icon d={I.check} size={9} stroke={2.5}/>Current
+                                    </span>
+                                  ) : (
+                                    <span className="px-2 py-0.5 rounded-pill text-[10px] font-semibold shrink-0" style={{background:s.bg,color:s.fg}}>{brief.status}</span>
+                                  )}
+                                </div>
+                                <div className="text-[12.5px] font-semibold text-ink leading-snug mb-2.5">{brief.episode}</div>
+                                <div className="flex flex-wrap gap-1.5 mb-2">
+                                  <span className="px-2 py-0.5 rounded-pill text-[10.5px] bg-lavender text-ink-2">{brief.segment}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <Icon d={I.voice} size={11} className="text-ink-3"/>
+                                  <span className="text-[11px] text-ink-2 truncate">{brief.brandVoice}</span>
+                                </div>
+                                {!isCurrent && (
+                                  <div className="mt-3 pt-3 border-t border-border">
+                                    <div className="w-full h-8 rounded-pill bg-primary/10 text-primary text-[12px] font-semibold flex items-center justify-center gap-1.5 hover:bg-primary hover:text-white transition">
+                                      <Icon d={I.link2} size={12}/>Link This Brief
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="text-[11px] text-ink-3 mono mt-8">podium · content marketer · recordings · link briefs</div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+function App(){
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Link Recordings to Briefs">
+      <Sidebar active="recordings"/>
+      <div className="flex-1 min-w-0 flex flex-col"><RecordingLinkPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

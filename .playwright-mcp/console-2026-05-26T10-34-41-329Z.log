@@ -1,0 +1,63 @@
+[    1023ms] [WARNING] cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation @ https://cdn.tailwindcss.com/:63
+[    1061ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js:29904
+[    1390ms] [WARNING] You are using the in-browser Babel transformer. Be sure to precompile your scripts for production - https://babeljs.io/docs/setup/ @ https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:2
+[    1552ms] SyntaxError: /Inline Babel script (2): Unexpected token, expected "," (13:210)
+
+  11 | const RECOMMENDATION = {
+  12 |   headline: "I found a high-impact opportunity for your pipeline.",
+> 13 |   body: "Based on your 4 active ideations, I'd recommend prioritising the <strong>Enterprise AI Infrastructure</strong> track. It has the highest combined relevance score (95) and your subscriber base clicked "production evals" more than any other term over the last 30 days — a strong signal for your next episode brief.",
+     |                                                                                                                                                                                                                   ^
+  14 |   tags: ["Enterprise AI","Eval-Driven Dev","Series B+"],
+  15 |   cta: { label:"Generate Topics", href:"TopicGeneration.html" },
+  16 |   meta: "Confidence: High · Sources: CIO.com, LinkedIn, Gartner Q1",
+    at e (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:260002)
+    at r.raise (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:312098)
+    at r.unexpected (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:312532)
+    at r.expect (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:317386)
+    at r.parseObjectLike (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:493471)
+    at r.parseExprAtom (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:483123)
+    at r.parseExprAtom (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:353993)
+    at r.parseExprSubscripts (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:477958)
+    at r.parseUpdate (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:477579)
+    at r.parseMaybeUnary (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:477193)
+    at r.parseMaybeUnaryOrPrivate (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:473986)
+    at r.parseExprOps (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:474096)
+    at r.parseMaybeConditional (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:473566)
+    at r.parseMaybeAssign (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:472472)
+    at r.parseMaybeAssign (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:393896)
+    at https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:472052
+    at r.allowInAnd (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:505219)
+    at r.parseMaybeAssignAllowIn (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:472021)
+    at r.parseVar (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:525109)
+    at r.parseVarStatement (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:521347)
+    at r.parseStatementContent (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:513480)
+    at r.parseStatementLike (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:511686)
+    at r.parseStatementLike (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:379262)
+    at r.parseModuleItem (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:511181)
+    at r.parseBlockOrModuleBlockBody (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:523506)
+    at r.parseBlockBody (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:523339)
+    at r.parseProgram (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:508590)
+    at r.parseTopLevel (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:507296)
+    at r.parseTopLevel (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:397777)
+    at r.parse (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:550298)
+    at aR (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:550496)
+    at https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:1117838
+    at Generator.<anonymous> (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:1068)
+    at Generator.next (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:1898)
+    at Generator.<anonymous> (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:826)
+    at Generator.next (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:1898)
+    at Generator.<anonymous> (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:826)
+    at Generator.next (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:1898)
+    at Generator.<anonymous> (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:826)
+    at Generator.next (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:1898)
+    at iF (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:945723)
+    at sync (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:943814)
+    at stopHiding - secret - don't use this - v1 (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:1069523)
+    at SV (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:1126275)
+    at FEe (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:3132179)
+    at https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:3127986
+    at SEe (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:3128384)
+    at n (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:3128645)
+    at PEe (https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:3129424)
+    at https://unpkg.com/@babel/standalone@7.29.0/babel.min.js:3:3133080
+[    1554ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/favicon.ico:0

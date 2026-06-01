@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Social Content Builder</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  textarea:focus,select:focus{outline:none;border-color:#6B4EFF!important;box-shadow:0 0 0 3px rgba(107,78,255,0.15)}
+  .ai-banner{background:radial-gradient(80% 100% at 0% 50%,rgba(107,78,255,0.10) 0%,transparent 70%),#F6F2FF;border:1px solid #DCD3FF}
+  @keyframes fadeIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+  .fade-in{animation:fadeIn .3s ease both}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,
+  mic:<><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,
+  video:<><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/></>,
+  share2:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8-3M8.6 10.5l6.8 3"/></>,
+  studio:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 8l5 3-5 3V8z"/></>,voice:<><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></>,
+  sparkle:<path d="M9.9 1.5 9 9l-7.5.9L9 10.8l.9 7.5.9-7.5L18.3 9l-7.5-.9zm11.1 12-1 4-1-4-4-1 4-1 1-4 1 4 4 1z"/>,
+  copy:<><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></>,
+  check:<path d="M5 12l5 5L20 7"/>,
+  youtube:<path d="M22.5 6.8a3 3 0 00-2-2C18.8 4.5 12 4.5 12 4.5s-6.8 0-8.5.4a3 3 0 00-2 2C1 8.5 1 12 1 12s0 3.5.5 5.2a3 3 0 002 2c1.7.4 8.5.4 8.5.4s6.8 0 8.5-.4a3 3 0 002-2C23 15.5 23 12 23 12s0-3.5-.5-5.2zM10 15.5v-7l6 3.5-6 3.5z"/>,
+  linkedin:<path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zM4 6a2 2 0 100-4 2 2 0 000 4z"/>,
+  twitter:<path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>,
+  instagram:<><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.4A4 4 0 1112.6 8M17.5 6.5h.01"/></>,
+  fileText:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 12h6M9 16h4"/></>,
+};
+const Logo=()=>(<a href="../CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const RoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>Content Marketer</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="social"})=>{const u={name:"Fizza Asad",role:"Content Marketer"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="../CMDashboard.html"/><NavItem icon={I.ideation} label="Ideation" active={active==="ideation"} href="../IdeationList.html"/><NavItem icon={I.mic} label="Episode Topics" active={active==="episodes"} href="../EpisodeTopics.html"/><NavItem icon={I.brief} label="Brief Builder" active={active==="brief"} href="../BriefList.html"/></div><SectionLabel>Production</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.video} label="Recordings" active={active==="recordings"} href="../RecordingsList.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.settings} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="../Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="../BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="../Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="../Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer"><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white"><Icon d={I.moreV} size={16}/></button></div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}>{i>0&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}<span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span></React.Fragment>))}</nav>);
+const Topbar=({breadcrumb})=>(<header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0"><div className="flex-1 min-w-0"><Crumb items={breadcrumb}/></div><button className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink"><Icon d={I.bell} size={18}/></button><RoleBadge/></header>);
+</script>
+
+<script type="text/babel">
+const { useState } = React;
+
+const RECORDINGS = [
+  { id:"REC-001", label:"Alex Morgan — Inside the Procurement Black Box (42:18)",               linkedBrief:{ id:"BR-006", episode:"Inside the Procurement Black Box",      segment:"Sweetspot", brandVoice:"The Revenue Engine",       status:"Approved"  } },
+  { id:"REC-002", label:"Priya Nair — AI Tooling at Series B Scale (38:54)",                    linkedBrief:{ id:"BR-007", episode:"AI Tooling at Series B Scale",          segment:"SaaS",      brandVoice:"The Revenue Engine",       status:"Approved"  } },
+  { id:"REC-003", label:"Marcus Rivera — Building an AI Roadmap on a Shoestring (51:23)",       linkedBrief:{ id:"BR-008", episode:"Building an AI Roadmap",                segment:"Startups",  brandVoice:"Founder Stories — Social", status:"In Review" } },
+  { id:"REC-005", label:"Carlos Fuentes — The Founder's Take on Enterprise Procurement (29:45)",linkedBrief:{ id:"BR-009", episode:"The Founder's Take on Procurement",     segment:"Sweetspot", brandVoice:"The Revenue Engine",       status:"Draft"     } },
+  { id:"REC-006", label:"Sarah Kim — DevTools and Developer Productivity (37:22)",               linkedBrief:null },
+];
+
+const TABS = [
+  { id:"notes",     label:"Show Notes",  icon:"fileText" },
+  { id:"youtube",   label:"YouTube",     icon:"youtube"  },
+  { id:"linkedin",  label:"LinkedIn",    icon:"linkedin" },
+  { id:"twitter",   label:"X Thread",   icon:"twitter"  },
+  { id:"instagram", label:"Instagram",   icon:"instagram"},
+];
+
+const CHAR_LIMITS = { notes:null, youtube:5000, linkedin:3000, twitter:280, instagram:2200 };
+
+const CONTENT_REC001 = {
+  notes:`In this episode, we sit down with Alex Morgan, CIO at Lattice, to pull back the curtain on how enterprise AI procurement actually works — and why so many promising POCs never reach production.\n\nAlex shares firsthand stories from evaluating 12+ AI tools, the surprising failure modes that killed deals despite strong technology, and the internal dynamics between engineering, procurement, and security teams that no one talks about publicly.\n\nKey topics covered:\n• Why most AI POCs fail at the procurement stage, not the technical stage\n• The hidden misalignment between engineering champions and budget holders\n• How to structure a security review process that doesn't kill deals\n• What a CIO actually looks for in an AI vendor pitch\n• The internal business case framework that survives CFO review\n\nGuest: Alex Morgan, CIO at Lattice (Series D)\nEpisode: EP-006 | Segment: Sweetspot | Voice: The Revenue Engine`,
+  youtube:`Inside the Procurement Black Box: A CIO Perspective | Podium AI Ep. 12\n\nAlex Morgan, CIO at Lattice, reveals the hidden mechanics of enterprise AI procurement — and why great technology alone doesn't close deals.\n\n⏱️ CHAPTERS\n00:00 Introduction & Alex's background at Lattice\n02:30 The anatomy of a failed AI POC\n08:15 Procurement vs. engineering: who should own AI decisions?\n14:40 Security reviews: reasonable scrutiny or security theater?\n22:00 Building an internal business case that survives finance review\n31:10 How Lattice evaluates AI vendors internally\n38:45 What Alex would change about enterprise procurement today\n41:50 Closing & resources\n\n🔗 CONNECT\nAlex Morgan on LinkedIn: linkedin.com/in/alexmorgan\nPodium AI: podlab.com\n\n🎙️ ABOUT PODLAB\nWe interview technology leaders at growth-stage companies about the decisions that shaped their teams. New episodes every Tuesday.\n\n#enterprise #AI #procurement #CIO #technology #saas #b2b`,
+  linkedin:`Most AI POCs fail for reasons that have nothing to do with the technology.\n\nI just finished a conversation with Alex Morgan, CIO at Lattice, and it reframed how I think about enterprise AI adoption entirely.\n\nKey insight: procurement is rarely the actual problem. The real issue is that engineering teams evaluate tools and procurement teams buy them — but neither side shares information with the other until it's too late.\n\nThree things Alex said that stuck with me:\n\n→ The security review isn't the blocker. Arriving at it unprepared is.\n→ Internal champions need a business case, not just a demo.\n→ Every failed POC has a procurement failure hiding inside a technology story.\n\nIf you're building for enterprise or trying to navigate vendor selection, this episode is worth your time.\n\nNew episode of Podium AI is live — link in the comments.\n\n#AI #Enterprise #Procurement #Technology #Leadership #Podcast`,
+  twitter:`1/7 I interviewed a CIO who has killed more AI POCs than he can count — not because the tech was bad, but because of what happens *after* the demo.\n\n2/7 The failure mode he sees most: engineering loves the tool, procurement stalls for 6 months, the vendor loses patience, deal dies. Classic enterprise pattern.\n\n3/7 Why does this happen? Engineering and procurement use completely different evaluation criteria and almost never talk to each other during the process.\n\n4/7 His fix: designate an internal champion who understands both sides. Usually the Head of Engineering Ops, not the CTO.\n\n5/7 On security reviews: "Every vendor knows to expect this. What kills deals is vendors who show up without documentation. Prep it before you're asked."\n\n6/7 On building an internal business case: stop using ROI projections. Use "time saved per week per person" — a number any CFO can verify.\n\n7/7 Full episode drops Tuesday. If you're selling into enterprise or navigating AI procurement, this one is worth the 42 minutes. 🎙️`,
+  instagram:`POV: You've got the best AI tool in the room, but the deal is dead. 🤯\n\nThat's the reality for more enterprises than anyone admits — and CIO Alex Morgan is finally telling the truth about why.\n\nNew episode out now: Inside the Procurement Black Box 🎙️\n\nWhat you'll learn:\n→ Why most AI POCs fail (hint: it's not the tech)\n→ How to build a business case that survives finance review\n→ The security review trap nobody prepares for\n→ What a CIO actually looks for in an AI vendor\n\nTap the link in bio to listen 🔗\n\n#podcast #AI #enterprise #procurement #cio #technology #saas #b2b #podlab #techleadership #contentmarketing #audiencegrowth`,
+};
+
+const CONTENT_REC002 = {
+  notes:`In this episode, Priya Nair, VP Engineering at CloudStack, breaks down how high-growth teams evaluate and adopt AI tooling at scale — without slowing the engineering organization down.\n\nKey topics covered:\n• How to build an AI tooling budget at Series B\n• The three criteria CloudStack uses to evaluate AI vendors\n• Why developer adoption matters more than executive buy-in\n• The hidden costs of AI tooling beyond the SaaS subscription\n• Priya's framework for measuring AI productivity gains\n\nGuest: Priya Nair, VP Engineering at CloudStack (Series B)\nEpisode: EP-007 | Segment: SaaS | Voice: The Revenue Engine`,
+  youtube:`AI Tooling at Series B Scale | Podium AI Ep. 13\n\nPriya Nair, VP Engineering at CloudStack, reveals how fast-growing engineering teams evaluate, adopt, and scale AI tooling — without chaos.\n\n⏱️ CHAPTERS\n00:00 Introduction\n03:15 The Series B engineering inflection point\n09:30 How to evaluate AI tools at scale\n17:00 Developer adoption vs. executive mandate\n24:40 Measuring real productivity gains\n33:20 Budget frameworks for AI tooling\n40:00 Closing thoughts\n\n🎙️ ABOUT PODLAB\nNew episodes every Tuesday.\n\n#engineering #AI #seriessb #startup #devtools`,
+  linkedin:`Most Series B engineering teams buy AI tools wrong.\n\nI spoke with Priya Nair, VP Engineering at CloudStack, and she had a very specific take on why AI tooling rollouts fail at growth-stage companies.\n\nThe pattern: executives mandate a tool. Engineers ignore it. $50k/year sits unused.\n\nPriya's fix:\n→ Bottom-up adoption first. Prove value at the IC level.\n→ Measure "time saved per sprint per engineer" — not vague productivity scores.\n→ Standardize only after 60% organic adoption.\n\nNew episode of Podium AI is live — link in the comments.\n\n#AI #Engineering #Startup #DevTools #Leadership`,
+  twitter:`1/6 VP Engineering at a Series B startup told me: "We wasted $200k on AI tools that nobody used." Here's what she learned.\n\n2/6 The mistake: buying top-down. Leadership mandated tools. Engineers didn't feel the pain the tool solved.\n\n3/6 The fix: start with one champion engineer per team. Let them prove value in a sprint. THEN expand.\n\n4/6 On measuring AI productivity: "ROI numbers are made up. Measure 'stories completed per sprint' before and after. That's real."\n\n5/6 Her AI evaluation framework: (1) Does it integrate with existing workflow? (2) Can an IC adopt it without IT? (3) Would I use it myself?\n\n6/6 Full conversation drops Tuesday. Worth it if you're scaling an engineering org. 🎙️`,
+  instagram:`VP Engineering said this about AI tools and it hit different 👇\n\n"We bought $200k of AI tooling in 2024. $150k went completely unused."\n\nNew episode: AI Tooling at Series B Scale 🎙️\n\nWhat you'll learn:\n→ Why top-down AI mandates fail\n→ The bottom-up adoption framework that actually works\n→ How to measure AI productivity (for real)\n→ Budget frameworks for Series B AI spend\n\nTap the link in bio 🔗\n\n#podcast #AI #engineering #startup #devtools #seriessb #podlab #contentmarketing`,
+};
+
+const SEED_SESSIONS = [
+  {
+    id:"SES-002", recId:"REC-001",
+    recLabel:"Alex Morgan — Inside the Procurement Black Box",
+    briefId:"BR-006", episode:"Inside the Procurement Black Box",
+    segment:"Sweetspot", brandVoice:"The Revenue Engine",
+    date:"2026-05-22", model:"GPT-4o", genTime:"4.1s",
+    content: CONTENT_REC001,
+  },
+  {
+    id:"SES-001", recId:"REC-002",
+    recLabel:"Priya Nair — AI Tooling at Series B Scale",
+    briefId:"BR-007", episode:"AI Tooling at Series B Scale",
+    segment:"SaaS", brandVoice:"The Revenue Engine",
+    date:"2026-05-18", model:"GPT-4o", genTime:"4.7s",
+    content: CONTENT_REC002,
+  },
+];
+
+const BriefContextCard = ({ selectedBrief, recording }) => {
+  if (!recording) return null;
+  const approved = selectedBrief?.status === "Approved";
+  const inReview = selectedBrief?.status === "In Review";
+  return (
+    <div className={["rounded-input px-4 py-3 mb-4 flex items-start gap-3",
+      !selectedBrief ? "bg-[#FFF8E7] border border-[#F9AB00]/30"
+      : approved ? "bg-[#F0FBF3] border border-[#34A853]/20"
+      : "bg-lavender border border-border"].join(" ")}>
+      <div className="w-7 h-7 rounded-[6px] grid place-items-center shrink-0 mt-0.5" style={{
+        background: !selectedBrief?"#FFE9C0":approved?"#D9F1E2":"#EDE9FF"
+      }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{color:!selectedBrief?"#A86A00":approved?"#34A853":"#6B4EFF"}}>
+          <path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>
+        </svg>
+      </div>
+      {!selectedBrief ? (
+        <div className="flex-1 min-w-0">
+          <div className="text-[12.5px] font-semibold" style={{color:"#A86A00"}}>No brief linked to this recording</div>
+          <div className="text-[11.5px] text-ink-2 mt-0.5">Content will be generated from transcript only, without episode context.</div>
+          <a href="../RecordingBriefLink.html" className="inline-flex items-center gap-1 mt-1.5 text-[11.5px] font-medium text-primary hover:text-primary-hover transition">
+            Link a brief<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+      ) : (
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[12.5px] font-semibold text-ink">Brief auto-selected: {selectedBrief.id}</span>
+            <span className="px-2 py-0.5 rounded-pill text-[10px] font-bold" style={{
+              background:approved?"#D9F1E2":inReview?"#EDE9FF":"#FFE9C0",
+              color:approved?"#1E7E34":inReview?"#5A3FE0":"#A86A00"
+            }}>{selectedBrief.status}</span>
+          </div>
+          <div className="flex items-center gap-3 mt-1 flex-wrap">
+            <span className="text-[11.5px] text-ink-2">Episode: <span className="font-medium text-ink">{selectedBrief.episode}</span></span>
+            <span className="text-ink-3 text-[9px]">·</span>
+            <span className="text-[11.5px] text-ink-2">Segment: <span className="font-medium text-ink">{selectedBrief.segment}</span></span>
+            <span className="text-ink-3 text-[9px]">·</span>
+            <span className="inline-flex items-center gap-1 text-[11.5px] text-ink-2">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              <span className="font-medium text-ink">{selectedBrief.brandVoice}</span>
+            </span>
+          </div>
+          {!approved && (
+            <div className="text-[11px] mt-1" style={{color:"#A86A00"}}>Brief not yet approved — content may not reflect final episode direction.</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const SocialContentPage = () => {
+  const [recording, setRecording]       = useState("");
+  const [generated, setGenerated]       = useState(false);
+  const [generating, setGenerating]     = useState(false);
+  const [activeTab, setActiveTab]       = useState("notes");
+  const [content, setContent]           = useState(CONTENT_REC001);
+  const [copied, setCopied]             = useState(null);
+  const [sessions, setSessions]         = useState(SEED_SESSIONS);
+  const [activeSession, setActiveSession] = useState(null);
+  const [sesCounter, setSesCounter]     = useState(3);
+
+  const selectedRec   = RECORDINGS.find(r => r.id === recording);
+  const selectedBrief = selectedRec?.linkedBrief || null;
+  const canGenerate   = !!recording;
+
+  const generate = () => {
+    setGenerating(true);
+    setTimeout(() => {
+      const newSession = {
+        id: `SES-${String(sesCounter).padStart(3,"0")}`,
+        recId: recording,
+        recLabel: selectedRec?.label?.split(" (")[0] || recording,
+        briefId: selectedBrief?.id || null,
+        episode: selectedBrief?.episode || selectedRec?.label?.split(" — ")[1]?.split(" (")[0] || "—",
+        segment: selectedBrief?.segment || "—",
+        brandVoice: selectedBrief?.brandVoice || "—",
+        date: new Date().toISOString().split("T")[0],
+        model: "GPT-4o",
+        genTime: (3.2 + Math.random() * 2).toFixed(1) + "s",
+        content: recording === "REC-002" ? CONTENT_REC002 : CONTENT_REC001,
+      };
+      setSesCounter(c => c + 1);
+      setSessions(prev => [newSession, ...prev]);
+      setContent(newSession.content);
+      setActiveSession(newSession.id);
+      setGenerating(false);
+      setGenerated(true);
+    }, 1500);
+  };
+
+  const loadSession = (session) => {
+    setRecording(session.recId);
+    setContent(session.content);
+    setActiveSession(session.id);
+    setActiveTab("notes");
+    setGenerated(true);
+    window.scrollTo({ top: 0, behavior:"smooth" });
+  };
+
+  const copyTab = (tab) => { setCopied(tab); setTimeout(() => setCopied(null), 2000); };
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar breadcrumb={["Workspace","Social Content Builder"]}/>
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[900px] mx-auto px-8 py-8">
+
+          <div className="mb-6">
+            <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1.5">Content Marketer</div>
+            <h1 className="text-[28px] font-bold display leading-tight">Social Content Builder</h1>
+            <p className="text-[13.5px] text-ink-2 mt-1">Select a recording — its linked brief is auto-applied. Generate all platform content at once, then edit and save.</p>
+          </div>
+
+          {/* Setup card */}
+          <div className="bg-white rounded-card shadow-card p-5 mb-4">
+            <div className="mb-4">
+              <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2 mb-1.5 block">Recording</label>
+              <select value={recording} onChange={e=>{setRecording(e.target.value);setGenerated(false);setActiveSession(null);}}
+                className="w-full h-11 pl-3 pr-9 rounded-input border border-border text-[13.5px] bg-white appearance-none text-ink">
+                <option value="">Choose a recording…</option>
+                {RECORDINGS.map(r=>(
+                  <option key={r.id} value={r.id}>
+                    {r.label}{r.linkedBrief ? ` — Brief: ${r.linkedBrief.id}` : " — No brief linked"}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <BriefContextCard selectedBrief={selectedBrief} recording={recording}/>
+
+            <div className="flex items-center gap-3">
+              <button disabled={!canGenerate||generating} onClick={generate}
+                className={["h-11 px-6 rounded-pill text-[13.5px] font-medium transition inline-flex items-center gap-2",
+                  canGenerate&&!generating?"bg-primary hover:bg-primary-hover text-white shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]":"bg-border text-ink-3 cursor-not-allowed"].join(" ")}>
+                <Icon d={I.sparkle} size={16}/>
+                {generating?"Generating all platforms…":"Generate Social Content"}
+              </button>
+              {canGenerate && !generating && (
+                <span className="text-[11.5px] text-ink-3">Generates Show Notes, YouTube, LinkedIn, X Thread, Instagram simultaneously</span>
+              )}
+            </div>
+          </div>
+
+          {/* Content editor */}
+          {generated && (
+            <div className="fade-in">
+              {/* Session banner */}
+              <div className="ai-banner rounded-card px-5 py-4 mb-5 flex items-center gap-4">
+                <div className="w-9 h-9 rounded-input grid place-items-center shrink-0" style={{background:"#EDE9FF"}}>
+                  <Icon d={I.sparkle} size={18} className="text-primary"/>
+                </div>
+                <div className="flex-1">
+                  <div className="text-[13px] font-semibold text-ink">
+                    {activeSession && sessions.find(s=>s.id===activeSession)
+                      ? `Session ${activeSession} — ${sessions.find(s=>s.id===activeSession)?.episode}`
+                      : "Content generated from transcript"}
+                  </div>
+                  <div className="text-[12px] text-ink-2">
+                    {selectedBrief
+                      ? `Brief ${selectedBrief.id} · ${selectedBrief.segment} · ${selectedBrief.brandVoice}`
+                      : "No brief — transcript only"}
+                    {" · All 5 platforms · Edits auto-saved to session"}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {activeSession && <span className="mono text-[10.5px] text-ink-3">{activeSession}</span>}
+                  <span className="px-2.5 py-1 rounded-pill text-[10.5px] font-semibold" style={{background:"#EDE9FF",color:"#5A3FE0"}}>
+                    {sessions.find(s=>s.id===activeSession)?.model || "GPT-4o"} · {sessions.find(s=>s.id===activeSession)?.genTime || "—"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Platform tabs */}
+              <div className="bg-white rounded-card shadow-card overflow-hidden">
+                <div className="border-b border-border flex overflow-x-auto">
+                  {TABS.map(tab=>(
+                    <button key={tab.id} onClick={()=>setActiveTab(tab.id)}
+                      className={["flex items-center gap-2 px-4 py-3.5 text-[13px] font-medium border-b-2 transition whitespace-nowrap",
+                        activeTab===tab.id?"border-primary text-primary":"border-transparent text-ink-2 hover:text-ink"].join(" ")}>
+                      <Icon d={I[tab.icon]} size={14}/>
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="p-5">
+                  {CHAR_LIMITS[activeTab] && (
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-[11.5px] text-ink-3">
+                        {content[activeTab]?.length || 0} / {CHAR_LIMITS[activeTab].toLocaleString()} characters
+                      </div>
+                      <div className={`text-[11px] font-medium px-2 py-0.5 rounded-pill ${(content[activeTab]?.length||0)>CHAR_LIMITS[activeTab]?"text-danger bg-[#FFE0DA]":"text-success bg-[#D9F1E2]"}`}>
+                        {(content[activeTab]?.length||0) <= CHAR_LIMITS[activeTab] ? "Within limit" : "Over limit"}
+                      </div>
+                    </div>
+                  )}
+                  <textarea
+                    rows={activeTab==="youtube"?18:activeTab==="notes"?14:12}
+                    value={content[activeTab] || ""}
+                    onChange={e=>{
+                      const val = e.target.value;
+                      setContent(c=>({...c,[activeTab]:val}));
+                      if (activeSession) {
+                        setSessions(prev => prev.map(s => s.id===activeSession ? {...s, content:{...s.content,[activeTab]:val}} : s));
+                      }
+                    }}
+                    className="w-full px-4 py-3 rounded-input border border-border text-[13.5px] leading-relaxed bg-white resize-none"
+                    style={{fontFamily:activeTab==="twitter"?"'Inter',sans-serif":"inherit"}}
+                  />
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="text-[12px] text-ink-3">
+                      {activeTab==="youtube" && "Includes chapters and timestamps"}
+                      {activeTab==="twitter" && "Thread format — each tweet on a new numbered line"}
+                      {activeTab==="instagram" && "Caption with hashtags — under 2,200 chars"}
+                      {activeTab==="linkedin" && "Professional post — under 3,000 chars"}
+                      {activeTab==="notes" && "Show notes for podcast platforms"}
+                    </div>
+                    <button onClick={()=>copyTab(activeTab)}
+                      className="h-9 px-4 rounded-pill border border-border text-[12.5px] font-medium text-ink-2 hover:text-ink hover:border-ink-3 inline-flex items-center gap-1.5 transition">
+                      {copied===activeTab
+                        ? <><Icon d={I.check} size={13} className="text-success"/>Copied!</>
+                        : <><Icon d={I.copy} size={13}/>Copy</>}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!generated && !generating && (
+            <div className="bg-white rounded-card shadow-card px-8 py-12 text-center">
+              <div className="w-14 h-14 rounded-full bg-lavender grid place-items-center mx-auto mb-4">
+                <Icon d={I.share2} size={24} className="text-ink-3"/>
+              </div>
+              <div className="text-[15px] font-semibold text-ink mb-1">Ready to generate</div>
+              <div className="text-[13px] text-ink-2">Select a recording above. Brief context is auto-applied from your linked brief.</div>
+            </div>
+          )}
+
+          {/* Session History */}
+          {sessions.length > 0 && (
+            <div className="mt-10">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-[18px] font-bold display">Session History</h2>
+                  <p className="text-[12.5px] text-ink-2 mt-0.5">{sessions.length} saved session{sessions.length!==1?"s":""} — all platforms preserved per session</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {sessions.map((session) => {
+                  const isActive = activeSession === session.id;
+                  return (
+                    <div key={session.id} className={["bg-white rounded-card shadow-card overflow-hidden transition",
+                      isActive ? "ring-2 ring-primary" : ""].join(" ")}>
+                      <div className="flex items-center gap-4 px-5 py-4">
+                        <div className="w-9 h-9 rounded-input grid place-items-center shrink-0" style={{background:isActive?"#6B4EFF":"#EDE9FF"}}>
+                          <Icon d={I.sparkle} size={15} className={isActive?"text-white":"text-primary"}/>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[13.5px] font-semibold text-ink truncate">{session.episode}</span>
+                            {isActive && <span className="px-2 py-0.5 rounded-pill text-[10px] font-bold bg-primary text-white shrink-0">Active</span>}
+                          </div>
+                          <div className="flex items-center gap-2.5 mt-0.5 flex-wrap">
+                            <span className="mono text-[10.5px] text-ink-3">{session.recId}</span>
+                            {session.briefId && <><span className="text-ink-3 text-[9px]">·</span><span className="mono text-[10.5px] text-ink-3">{session.briefId}</span></>}
+                            <span className="text-ink-3 text-[9px]">·</span>
+                            <span className="inline-flex items-center gap-1 text-[11px] text-ink-2">
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                              {session.brandVoice}
+                            </span>
+                            <span className="text-ink-3 text-[9px]">·</span>
+                            <span className="text-[11px] text-ink-3">Segment: {session.segment}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <div className="text-right">
+                            <div className="flex items-center gap-1.5 justify-end">
+                              {TABS.map(t=>(
+                                <span key={t.id} className="w-5 h-5 rounded-[4px] grid place-items-center" style={{background:"#EDE9FF"}}>
+                                  <Icon d={I[t.icon]} size={10} className="text-primary"/>
+                                </span>
+                              ))}
+                            </div>
+                            <div className="text-[10.5px] text-ink-3 mono mt-1">
+                              {new Date(session.date).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} · {session.model}
+                            </div>
+                          </div>
+                          {!isActive && (
+                            <button onClick={()=>loadSession(session)}
+                              className="h-8 px-3.5 rounded-pill border border-primary text-primary text-[12px] font-medium hover:bg-primary hover:text-white inline-flex items-center gap-1.5 transition">
+                              Load
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Quick platform preview for active session */}
+                      {isActive && (
+                        <div className="border-t border-border px-5 py-3 bg-lavender/40 flex items-center gap-3 flex-wrap">
+                          {TABS.map(t=>(
+                            <button key={t.id} onClick={()=>setActiveTab(t.id)}
+                              className={["inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-[11.5px] font-medium transition",
+                                activeTab===t.id?"bg-primary text-white":"bg-white border border-border text-ink-2 hover:border-primary hover:text-primary"].join(" ")}>
+                              <Icon d={I[t.icon]} size={11}/>{t.label}
+                            </button>
+                          ))}
+                          <span className="ml-auto text-[11px] text-ink-3">Edits are saved to this session automatically</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="text-[11px] text-ink-3 mono mt-8">podium · content marketer · social content builder</div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+function App(){
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Social Content Builder">
+      <Sidebar active="social"/>
+      <div className="flex-1 min-w-0 flex flex-col"><SocialContentPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

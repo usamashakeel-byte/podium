@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Brief Ready — Podium AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary:"#6B4EFF","primary-hover":"#5A3FE0","primary-soft":"#EDE9FF",
+            success:"#34A853",warning:"#F9AB00",danger:"#EA4335",info:"#2A6FDB",
+            ink:"#1A1A2E","ink-2":"#5F6368","ink-3":"#ADADBE",
+            border:"#E2E2EE",lavender:"#F4F3FF",
+          },
+          borderRadius:{input:"8px",card:"12px",pill:"999px"},
+          fontFamily:{sans:["Inter","sans-serif"]},
+          boxShadow:{
+            card:"0 1px 2px rgba(26,26,46,0.04),0 4px 12px rgba(26,26,46,0.04)",
+            "card-lg":"0 2px 6px rgba(26,26,46,0.06),0 8px 24px rgba(26,26,46,0.08)",
+          },
+        }
+      }
+    };
+  </script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    body{margin:0;font-family:"Inter",sans-serif;background:#EEEEF8;-webkit-font-smoothing:antialiased}
+    textarea,input{font-family:"Inter",sans-serif}
+    .mono{font-family:"Inter",sans-serif}
+
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#E2E2EE;border-radius:99px}
+    ::-webkit-scrollbar-thumb:hover{background:#ADADBE}
+
+    .shadow-card{box-shadow:0 1px 2px rgba(26,26,46,.04),0 4px 12px rgba(26,26,46,.04)}
+
+    .nav-active::before{
+      content:"";position:absolute;left:0;top:6px;bottom:6px;
+      width:3px;border-radius:99px;background:#6B4EFF
+    }
+
+    /* fade up */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .fu{animation:fadeUp .28s ease both}
+    .fu-1{animation-delay:.05s}
+    .fu-2{animation-delay:.12s}
+    .fu-3{animation-delay:.18s}
+    .fu-4{animation-delay:.24s}
+
+    /* slide down for banner */
+    @keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+    .slide-down{animation:slideDown .35s cubic-bezier(.22,1,.36,1) both}
+
+    /* checklist tick-in */
+    @keyframes tickIn{from{opacity:0;transform:scale(0.7) translateX(-6px)}to{opacity:1;transform:scale(1) translateX(0)}}
+    .tick-in{animation:tickIn .28s cubic-bezier(.22,1,.36,1) both}
+    .tick-1{animation-delay:.30s}
+    .tick-2{animation-delay:.40s}
+    .tick-3{animation-delay:.50s}
+    .tick-4{animation-delay:.60s}
+
+    /* progress bar fill */
+    @keyframes progressFill{from{width:0}to{width:100%}}
+    .progress-fill{animation:progressFill .8s cubic-bezier(.22,1,.36,1) .65s both}
+
+    /* copyable pill */
+    .link-pill{
+      display:inline-flex;align-items:center;gap:8px;
+      background:#F4F3FF;border:1.5px solid #C4B5FD;
+      border-radius:99px;padding:5px 12px 5px 14px;
+      font-family:"Inter",sans-serif;font-size:11.5px;
+      color:#5A3FE0;font-weight:600;cursor:pointer;
+      transition:background .14s,border-color .14s,box-shadow .14s;
+    }
+    .link-pill:hover{background:#EDE9FF;border-color:#6B4EFF;box-shadow:0 0 0 3px rgba(107,78,255,.1)}
+    .link-pill.copied{background:#D9F1E2;border-color:#34A853;color:#1E7E34}
+
+    /* section label */
+    .sec-label{
+      font-size:10.5px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.12em;color:#ADADBE;margin-bottom:5px;
+    }
+
+    /* confirm button pulse */
+    @keyframes confirmPulse{0%,100%{box-shadow:0 1px 4px rgba(107,78,255,.4)}50%{box-shadow:0 0 0 6px rgba(107,78,255,.12),0 1px 4px rgba(107,78,255,.4)}}
+    .btn-confirm{animation:confirmPulse 2s ease-in-out infinite}
+    .editable-hover:hover{background:#F5F3FF;border-radius:4px;box-shadow:inset 0 -1px 0 #C4B5FD}
+  </style>
+</head>
+<body class="h-screen overflow-hidden">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ── icon ──────────────────────────────────────────────── */
+const Ic = ({d,size=18,sw=1.75,cls=""}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" strokeWidth={sw}
+       strokeLinecap="round" strokeLinejoin="round" className={cls}>
+    {typeof d==="string"?<path d={d}/>:d}
+  </svg>
+);
+const I = {
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  trend:   <><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></>,
+  bulb:    "M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z",
+  users:   <><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></>,
+  brief:   <><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  scissors:<><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></>,
+  flame:   "M12 3s5 4 5 9a5 5 0 11-10 0c0-2 1-3 1-3s1 2 3 2c0-3-2-4-2-7 1 1 3 0 3-1z",
+  settings:"M12 9a3 3 0 100 6 3 3 0 000-6zM19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z",
+  bell:    <><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.34 21a2 2 0 003.32 0"/></>,
+  chevR:   "M9 6l6 6-6 6",
+  moreV:   <><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,
+  check:   "M5 12l5 5L20 7",
+  arrowR:  "M5 12h14M12 5l7 7-7 7",
+  refresh: <><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></>,
+  copy:    <><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></>,
+  image:   <><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></>,
+  link:    <><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></>,
+  checkCircle: <><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></>,
+  mic:    <><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,
+  video:  <><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/></>,
+  share2: <><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8-3M8.6 10.5l6.8 3"/></>,
+  studio: <><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 8l5 3-5 3V8z"/></>,
+  voice:<><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></>,
+};
+
+/* ── Logo ───────────────────────────────────────────────── */
+const Logo=()=>(
+  <a href="../CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition">
+    <div className="relative w-10 h-10 rounded-[11px] shadow-card overflow-hidden" style={{background:"#1A1A2E"}}>
+      <svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg>
+    </div>
+    <div className="text-[20px] tracking-[-0.02em] text-ink" style={{ fontWeight: 700 }}>
+      Podium AI<span style={{color:"#6B4EFF"}}>.</span>
+    </div>
+  </a>
+);
+
+/* ── Avatar ─────────────────────────────────────────────── */
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{
+  const t=tintFor(name);const ini=name.split(/\s+/).slice(0,2).map(s=>s[0]).join("").toUpperCase();
+  return <span className="inline-flex items-center justify-center font-bold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?12:14,letterSpacing:"0.02em"}}>{ini}</span>;
+};
+
+/* ── RoleBadge / Nav / Sidebar / Topbar ─────────────────── */
+const RoleBadge=({role})=>{
+  const s={"Content Marketer":{bg:"#EDE9FF",fg:"#5A3FE0",dot:"#6B4EFF"}}[role]||{bg:"#F1F1F8",fg:"#5F6368",dot:"#9e9e9e"};
+  return <span className="inline-flex items-center gap-1.5 rounded-pill px-2.5 py-1 text-[11.5px] font-medium" style={{background:s.bg,color:s.fg}}><span className="w-1.5 h-1.5 rounded-full" style={{background:s.dot}}/>{role}</span>;
+};
+const NavItem=({iconD,label,active,href})=>{
+  const Cmp=href?"a":"button";
+  return <Cmp href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium nav-active":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}><Ic d={iconD} size={15}/><span className="flex-1 text-left leading-tight">{label}</span></Cmp>;
+};
+const SecLabel=({c})=><div className="mono text-[10px] uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-1.5">{c}</div>;
+const Sidebar=({active="brief"})=>(
+  <aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}>
+    <div className="px-5 pt-6 pb-4"><Logo/></div>
+    <div className="flex-1 overflow-y-auto pb-2 px-2">
+      <div className="space-y-0.5 px-1">
+        <NavItem iconD={I.home} label="Dashboard" active={active==="dashboard"} href="../CMDashboard.html"/>
+        <NavItem iconD={I.bulb}     label="Ideation"       href="../IdeationList.html"/>
+        <NavItem iconD={I.mic}      label="Episode Topics" href="../EpisodeTopics.html"/>
+        <NavItem iconD={I.brief}    label="Brief Builder"  active href="../BriefList.html"/>
+        
+      </div>
+      <SecLabel c="Production"/>
+      <div className="space-y-0.5 px-1">
+        <NavItem iconD={I.video}   label="Recordings"     href="../RecordingsList.html"/>
+      </div>
+      <SecLabel c="Account"/>
+      <div className="space-y-0.5 px-1"><NavItem iconD={I.settings} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="../Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="../BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="../Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div>
+        <NavItem iconD={I.settings} label="Settings" href="../Settings.html"/>
+      </div>
+    </div>
+    <div className="border-t border-border px-3 py-3">
+      <div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer">
+        <Avatar name="Alex Rivera" size={32}/>
+        <div className="min-w-0 flex-1">
+          <div className="text-[12.5px] font-semibold text-ink truncate leading-tight">Alex Rivera</div>
+          <div className="text-[10.5px] text-ink-2 truncate leading-tight">Content Marketer</div>
+        </div>
+        <button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white"><Ic d={I.moreV} size={15}/></button>
+      </div>
+    </div>
+  </aside>
+);
+const Topbar=()=>(
+  <header className="h-16 bg-white border-b border-border flex items-center px-8 gap-4 shrink-0">
+    <nav className="flex items-center gap-1.5 text-[13px] flex-1">
+      <span className="text-ink-2 hover:text-ink cursor-pointer transition">The AI Economy</span>
+      <Ic d={I.chevR} size={13} cls="text-ink-3"/>
+      <span className="text-ink-2 hover:text-ink cursor-pointer transition">Sarah Chen</span>
+      <Ic d={I.chevR} size={13} cls="text-ink-3"/>
+      <span className="text-ink font-medium">Brief Ready</span>
+    </nav>
+    <button className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink"><Ic d={I.bell} size={18}/></button>
+    <RoleBadge role="Content Marketer"/>
+  </header>
+);
+
+/* ── AI Draft Badge ─────────────────────────────────────── */
+const AIDraftBadge=()=>(
+  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[10.5px] font-semibold"
+        style={{background:"#EDE9FF",color:"#5A3FE0",border:"1px solid #C4B5FD"}}>
+    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    AI Draft
+  </span>
+);
+
+/* ── Card ───────────────────────────────────────────────── */
+const Card=({children,cls=""})=>(
+  <div className={`bg-white rounded-card border border-border ${cls}`}
+       style={{boxShadow:"0 1px 2px rgba(26,26,46,.04),0 4px 12px rgba(26,26,46,.04)"}}>
+    {children}
+  </div>
+);
+
+/* ── Card Header ────────────────────────────────────────── */
+const CardHeader=({icon,title,badge=true})=>(
+  <div className="flex items-center gap-2.5 px-5 py-4 border-b border-border">
+    <div className="w-7 h-7 rounded-input grid place-items-center shrink-0"
+         style={{background:"#EDE9FF",color:"#6B4EFF"}}>
+      <Ic d={icon} size={14} sw={2}/>
+    </div>
+    <span className="text-[14px] font-bold text-ink tracking-[-0.01em] flex-1">{title}</span>
+    {badge && <AIDraftBadge/>}
+  </div>
+);
+
+/* ── Section Label ──────────────────────────────────────── */
+const SL=({children})=>(
+  <div className="sec-label">{children}</div>
+);
+
+/* ── Inline generated-content editing ───────────────────── */
+const InlineEdit = ({ value, onChange, className="" }) => {
+  const [editing,setEditing]=useState(false);
+  const [draft,setDraft]=useState(value);
+  const ref=useRef(null);
+
+  useEffect(()=>{
+    if(editing&&ref.current){
+      const el=ref.current;
+      el.focus();
+      el.style.height="auto";
+      el.style.height=el.scrollHeight+"px";
+      el.setSelectionRange(el.value.length,el.value.length);
+    }
+  },[editing]);
+
+  const commit=()=>{
+    const v=draft.trim();
+    setEditing(false);
+    if(v&&v!==value) onChange(v); else setDraft(value);
+  };
+
+  if(editing){
+    return (
+      <textarea ref={ref} value={draft}
+        onChange={e=>{setDraft(e.target.value);const el=e.target;el.style.height="auto";el.style.height=el.scrollHeight+"px";}}
+        onBlur={commit}
+        onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();commit();} if(e.key==="Escape"){setDraft(value);setEditing(false);}}}
+        className={`w-full outline-none resize-none bg-transparent px-1 -mx-1 ${className}`}
+        style={{overflow:"hidden",borderBottom:"1.5px solid #6B4EFF",borderRadius:4}}
+      />
+    );
+  }
+
+  return (
+    <span onClick={()=>{setDraft(value);setEditing(true);}}
+      className={`block cursor-text px-1 -mx-1 py-0.5 transition editable-hover ${className}`}
+      title="Click to edit">
+      {value}
+    </span>
+  );
+};
+
+const EditableGeneratedList = ({ items, onChange, type }) => {
+  const [adding,setAdding]=useState(false);
+  const [newVal,setNewVal]=useState("");
+  const addRef=useRef(null);
+
+  useEffect(()=>{if(adding&&addRef.current)addRef.current.focus();},[adding]);
+
+  const update=(idx,val)=>onChange(items.map((item,i)=>i===idx?val:item));
+  const add=()=>{
+    const v=newVal.trim();
+    if(v) onChange([...items,v]);
+    setNewVal("");
+    setAdding(false);
+  };
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      {items.map((item,i)=>(
+        <div key={i} className={`flex items-start ${type==="numbered"?"gap-3":"gap-2.5"}`}>
+          {type==="numbered" ? (
+            <span className="mono text-[11px] font-bold w-5 h-5 rounded-full grid place-items-center shrink-0 mt-0.5"
+                  style={{background:"#EDE9FF",color:"#6B4EFF",minWidth:20}}>
+              {i+1}
+            </span>
+          ) : (
+            <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-[8px]" style={{background:"#6B4EFF"}}/>
+          )}
+          <InlineEdit value={item} onChange={v=>update(i,v)} className={type==="numbered"?"text-[13px] text-ink leading-relaxed":"text-[13px] text-ink-2 leading-relaxed"}/>
+        </div>
+      ))}
+      {adding ? (
+        <textarea ref={addRef} value={newVal} rows={2}
+          onChange={e=>setNewVal(e.target.value)}
+          onBlur={()=>newVal.trim()?add():setAdding(false)}
+          onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();add();} if(e.key==="Escape")setAdding(false);}}
+          placeholder="Type and press Enter to add..."
+          className="w-full outline-none resize-none bg-transparent text-[13px] text-ink leading-relaxed placeholder:text-ink-3 px-1"
+          style={{borderBottom:"1px solid #6B4EFF"}}
+        />
+      ) : (
+        <button onClick={()=>setAdding(true)}
+          className="self-start text-[12px] text-ink-3 hover:text-primary transition opacity-75 hover:opacity-100">
+          + Add point
+        </button>
+      )}
+    </div>
+  );
+};
+
+const EditableVisualRows = ({ rows, onChange }) => {
+  const [adding,setAdding]=useState(false);
+  const [newVal,setNewVal]=useState("");
+  const addRef=useRef(null);
+
+  useEffect(()=>{if(adding&&addRef.current)addRef.current.focus();},[adding]);
+
+  const update=(idx,value)=>onChange(rows.map((row,i)=>i===idx?{...row,value}:row));
+  const add=()=>{
+    const v=newVal.trim();
+    if(v) onChange([...rows,{label:`Instruction ${rows.length+1}`,value:v}]);
+    setNewVal("");
+    setAdding(false);
+  };
+
+  return (
+    <>
+      {rows.map((row,i)=>(
+        <div key={i}>
+          <SL>{row.label}</SL>
+          <InlineEdit value={row.value} onChange={v=>update(i,v)} className="text-[13px] text-ink-2 leading-relaxed"/>
+        </div>
+      ))}
+      {adding ? (
+        <textarea ref={addRef} value={newVal} rows={2}
+          onChange={e=>setNewVal(e.target.value)}
+          onBlur={()=>newVal.trim()?add():setAdding(false)}
+          onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();add();} if(e.key==="Escape")setAdding(false);}}
+          placeholder="Type and press Enter to add..."
+          className="w-full outline-none resize-none bg-transparent text-[13px] text-ink leading-relaxed placeholder:text-ink-3 px-1"
+          style={{borderBottom:"1px solid #6B4EFF"}}
+        />
+      ) : (
+        <button onClick={()=>setAdding(true)}
+          className="self-start text-[12px] text-ink-3 hover:text-primary transition opacity-75 hover:opacity-100">
+          + Add point
+        </button>
+      )}
+    </>
+  );
+};
+
+/* ── CopyLinkPill ────────────────────────────────────────── */
+const CopyLinkPill=({url})=>{
+  const [copied,setCopied]=useState(false);
+  const handleCopy=()=>{
+    navigator.clipboard?.writeText("https://"+url).catch(()=>{});
+    setCopied(true);
+    setTimeout(()=>setCopied(false),2000);
+  };
+  return(
+    <button onClick={handleCopy} className={`link-pill ${copied?"copied":""}`}>
+      <Ic d={copied?I.check:I.link} size={12} sw={2.5}/>
+      <span>{url}</span>
+      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-pill text-[10px] font-bold"
+            style={{background:copied?"rgba(52,168,83,.15)":"rgba(107,78,255,.12)",color:copied?"#1E7E34":"#6B4EFF"}}>
+        <Ic d={copied?I.check:I.copy} size={9} sw={2.5}/>
+        {copied?"Copied":"Copy"}
+      </span>
+    </button>
+  );
+};
+
+/* ── ChecklistItem ──────────────────────────────────────── */
+const ChecklistItem=({children,delay})=>(
+  <div className={`flex items-center gap-2.5 tick-in ${delay}`}>
+    <div className="w-5 h-5 rounded-full grid place-items-center shrink-0"
+         style={{background:"#D9F1E2",color:"#34A853"}}>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+    </div>
+    <span className="text-[13px] text-ink">{children}</span>
+  </div>
+);
+
+/* ── APP ─────────────────────────────────────────────────── */
+function App(){
+  const [discussionAreas,setDiscussionAreas]=useState([
+    "The software line item trap — why renewal-based AI budgeting breaks",
+    "Capex vs. opex reframing for board-level AI conversations",
+    "Building a utilisation-to-revenue measurement layer",
+    "DRI accountability and the AI governance playbook",
+  ]);
+  const [keyQuestions,setKeyQuestions]=useState([
+    "What was the moment you realised your AI budgeting model was wrong?",
+    "Walk us through the capex reframe — how did you present it to the board?",
+    "What does a DRI for AI governance actually do day-to-day?",
+  ]);
+  const [visualRows,setVisualRows]=useState([
+    {label:"Background", value:"Clean, neutral office background or virtual — Dark gradient with subtle Rippling branding (optional)"},
+    {label:"Lighting",   value:"Soft key light from left · no harsh shadows · ring light acceptable"},
+    {label:"Dress Code", value:"Professional but approachable — no loud patterns · navy, grey, or dark tones preferred"},
+    {label:"Camera Setup", value:"Eye-level · webcam or dedicated camera · 1080p minimum"},
+  ]);
+
+  return(
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar/>
+
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <Topbar/>
+
+        {/* ── Scrollable content ── */}
+        <div className="flex-1 overflow-y-auto px-8 py-5 pb-[76px]">
+
+          {/* ── Green success banner ── */}
+          <div className="slide-down mb-5 flex items-center gap-3 px-5 py-3.5 rounded-card"
+               style={{background:"#EDFDF5",borderLeft:"3px solid #34A853",border:"1px solid #A8DFB8",borderLeftWidth:"3px",borderLeftColor:"#34A853"}}>
+            <div className="w-7 h-7 rounded-full grid place-items-center shrink-0"
+                 style={{background:"#D9F1E2",color:"#34A853"}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            </div>
+            <span className="text-[13.5px] font-semibold flex-1" style={{color:"#1E7E34"}}>
+              Production package assembled — Brief and Visual Instructions ready for review
+            </span>
+            <span className="text-[12px] font-medium shrink-0" style={{color:"#2E7D5B"}}>
+              Package compiled 4 mins ago
+            </span>
+          </div>
+
+          {/* ── Two-column layout ── */}
+          <div className="grid gap-5" style={{gridTemplateColumns:"55% 1fr"}}>
+
+            {/* ── LEFT: Episode Brief ── */}
+            <div className="fu fu-1 flex flex-col gap-0">
+              <Card>
+                <CardHeader icon={I.brief} title="Episode Brief"/>
+
+                <div className="px-5 py-5 flex flex-col gap-5">
+
+                  {/* Episode title */}
+                  <div>
+                    <SL>Episode Title</SL>
+                    <h2 className="text-[17px] font-bold text-ink tracking-[-0.02em] leading-snug">
+                      Why CFOs Need to Treat AI Like a P&amp;L
+                    </h2>
+                  </div>
+
+                  {/* Format */}
+                  <div>
+                    <SL>Format</SL>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {["Long-form interview","45–60 min","Riverside.fm"].map((tag,i)=>(
+                        <span key={i} className="inline-flex items-center px-2.5 py-1 rounded-pill text-[12px] font-medium"
+                              style={{background:"#F4F3FF",color:"#5A3FE0",border:"1px solid #DDD9FF"}}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Core thesis */}
+                  <div>
+                    <SL>Core Thesis</SL>
+                    <blockquote className="relative px-4 py-3.5 rounded-input"
+                                style={{background:"#F9F9FC",borderLeft:"3px solid #C4B5FD",border:"1px solid #EDEDF5",borderLeftWidth:"3px",borderLeftColor:"#C4B5FD"}}>
+                      <p className="text-[13px] italic leading-relaxed text-ink-2 m-0">
+                        "Traditional SaaS budgeting frameworks fail for AI infrastructure. CFOs who treat AI spend as a line item rather than a capacity investment are flying blind on ROI."
+                      </p>
+                    </blockquote>
+                  </div>
+
+                  {/* Discussion Areas */}
+                  <div>
+                    <SL>Discussion Areas</SL>
+                    <EditableGeneratedList items={discussionAreas} onChange={setDiscussionAreas} type="numbered"/>
+                  </div>
+
+                  {/* Key Questions */}
+                  <div>
+                    <SL>Key Questions for Host</SL>
+                    <EditableGeneratedList items={keyQuestions} onChange={setKeyQuestions} type="bulleted"/>
+                  </div>
+
+                  {/* Guest Prep Notes */}
+                  <div>
+                    <SL>Guest Prep Notes</SL>
+                    <div className="px-4 py-3.5 rounded-input text-[13px] leading-relaxed text-ink"
+                         style={{background:"#F9F9FC",border:"1px solid #EDEDF5"}}>
+                      Sarah has reviewed and approved these discussion areas. She has asked to avoid specifics on Rippling's internal valuation. She is comfortable with the capex framing and has supporting data she plans to share.
+                    </div>
+                  </div>
+
+                </div>
+              </Card>
+            </div>
+
+            {/* ── RIGHT: Two stacked cards ── */}
+            <div className="fu fu-2 flex flex-col gap-5">
+
+              {/* Visual Instructions */}
+              <Card>
+                <CardHeader icon={I.image} title="Visual Instructions"/>
+
+                <div className="px-5 py-5 flex flex-col gap-4">
+
+                  {/* Recording platform */}
+                  <div>
+                    <SL>Recording Platform</SL>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-pill text-[12px] font-medium"
+                            style={{background:"#F4F3FF",color:"#5A3FE0",border:"1px solid #DDD9FF"}}>
+                        Riverside.fm
+                      </span>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-pill text-[12px] font-medium"
+                            style={{background:"#D9F1E2",color:"#1E7E34",border:"1px solid #A8DFB8"}}>
+                        HD Video
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Visual rows */}
+                  <EditableVisualRows rows={visualRows} onChange={setVisualRows}/>
+
+                  {/* Shareable link */}
+                  <div>
+                    <SL>Shareable Guest Link</SL>
+                    <CopyLinkPill url="podiumai.io/guest-brief/sarah-chen-ep28"/>
+                  </div>
+
+                </div>
+              </Card>
+
+              {/* Package Checklist */}
+              <Card>
+                <CardHeader icon={I.checkCircle} title="Package Checklist" badge={false}/>
+
+                <div className="px-5 py-5 flex flex-col gap-3.5">
+                  <ChecklistItem delay="tick-1">Episode brief generated</ChecklistItem>
+                  <ChecklistItem delay="tick-2">Visual instructions generated</ChecklistItem>
+                  <ChecklistItem delay="tick-3">Guest prep notes included</ChecklistItem>
+                  <ChecklistItem delay="tick-4">Shareable guest link created</ChecklistItem>
+
+                  {/* Progress bar */}
+                  <div className="pt-1.5">
+                    <div className="h-1.5 rounded-pill overflow-hidden mb-2" style={{background:"#E8F5EC"}}>
+                      <div className="progress-fill h-full rounded-pill" style={{background:"#34A853"}}/>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+                      <span className="text-[12px] font-semibold" style={{color:"#34A853"}}>
+                        Package complete · 4/4 items ready
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+            </div>
+          </div>
+        </div>
+
+        {/* ── Sticky bottom bar ── */}
+        <div className="fixed bottom-0 bg-white border-t border-border px-8 h-[60px] flex items-center gap-4"
+             style={{left:220,right:0,zIndex:10}}>
+
+          {/* Left: status */}
+          <div className="flex items-center gap-2 flex-1 text-[12.5px] text-ink-2">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{background:"#34A853"}}/>
+            <span className="font-medium text-ink">Episode 28 · Sarah Chen</span>
+            <span className="text-border mx-1">·</span>
+            <span>Package complete</span>
+            <span className="text-border mx-1">·</span>
+            <span className="mono font-semibold" style={{color:"#34A853"}}>4/4 items</span>
+          </div>
+
+          {/* Center: regenerate */}
+          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-input text-[13px] font-semibold text-ink-2 border border-border bg-white hover:bg-lavender hover:text-ink hover:border-primary transition">
+            <Ic d={I.refresh} size={13} sw={2}/>
+            Regenerate Brief
+          </button>
+
+          {/* Right: CTA */}
+          <a href="../BriefDetail.html"
+             className="btn-confirm inline-flex items-center gap-2 px-5 py-2.5 rounded-input text-[13px] font-bold text-white transition-all cursor-pointer"
+             style={{
+               background:"linear-gradient(135deg,#6B4EFF 0%,#5A3FE0 100%)",
+               boxShadow:"0 1px 4px rgba(107,78,255,.4)",
+               textDecoration:"none",
+             }}>
+            Send for Approval
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
