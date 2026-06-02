@@ -131,10 +131,443 @@ document.addEventListener('DOMContentLoaded', async function() {
     // (synthesizing one if the source HTML omitted it) but may carry
     // attributes through, so match the full opening tag. slice() rather than
     // replace() keeps us clear of $-pattern substitution in resourceScript.
+    const patchScript = `<style id="__ui_patch">
+  /* ── Hide cinematic player label ── */
+  span.text-ink-3[class*="text-[11px]"] {
+    display: none !important;
+  }
+
+  /* ── Page heading avatar fix ── */
+  div.flex > div.min-w-0 > div.flex > span.inline-flex.rounded-full[style*="width: 18px"] {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+    font-size: 8px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    flex-shrink: 0 !important;
+    vertical-align: middle !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* v2 ── Compact the whole bottom panel ── */
+  .rounded-b-card.grid.gap-5 {
+    padding: 10px 16px !important;
+    gap: 12px !important;
+    background: #f7f7fb !important;
+    border-top: 1px solid #ebebf4 !important;
+  }
+
+  /* ── Section labels ── */
+  .rounded-b-card .text-\\[11px\\].font-semibold.text-ink-2 {
+    font-size: 10px !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    margin-bottom: 6px !important;
+    color: #9898b3 !important;
+  }
+
+  /* ── View mode: segmented control container ── */
+  .__controls-bar [class*="bg-lavender"] {
+    padding: 4px !important;
+    gap: 3px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    background: rgba(107,78,255,0.07) !important;
+    border: 1px solid rgba(107,78,255,0.12) !important;
+  }
+
+  /* ── View mode buttons ── */
+  .__controls-bar [class*="bg-lavender"] button {
+    flex: 1 !important;
+    flex-direction: row !important;
+    min-height: 34px !important;
+    padding: 6px 14px !important;
+    gap: 7px !important;
+    border-radius: 8px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transition: background 0.15s, box-shadow 0.15s !important;
+  }
+
+  /* active button */
+  .__controls-bar [class*="bg-lavender"] button.bg-white,
+  .__controls-bar [class*="bg-lavender"] button[class*="shadow"] {
+    background: #ffffff !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10), 0 0 0 1px rgba(107,78,255,0.10) !important;
+    border-radius: 8px !important;
+  }
+
+  /* hide original frame-block icons */
+  .__controls-bar [class*="bg-lavender"] button > span.__vm-icon-orig {
+    display: none !important;
+  }
+
+  /* svg icon */
+  .__controls-bar [class*="bg-lavender"] button .__vm-svg {
+    flex-shrink: 0 !important;
+    opacity: 0.45 !important;
+    color: #6B4EFF !important;
+  }
+  .__controls-bar [class*="bg-lavender"] button.bg-white .__vm-svg,
+  .__controls-bar [class*="bg-lavender"] button[class*="shadow"] .__vm-svg {
+    opacity: 1 !important;
+  }
+
+  /* label */
+  .__controls-bar [class*="bg-lavender"] button > span:last-child {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    color: #4a4a6a !important;
+  }
+  .__controls-bar [class*="bg-lavender"] button.bg-white > span:last-child,
+  .__controls-bar [class*="bg-lavender"] button[class*="shadow"] > span:last-child {
+    color: #6B4EFF !important;
+  }
+
+  /* ── Camera sources: hide MAIN/RIGHT badge chips ── */
+  .__controls-bar .shrink-0.flex.flex-col.items-center.gap-1 {
+    display: none !important;
+  }
+
+  /* compact camera buttons */
+  .__controls-bar button[class*="rounded-input"] {
+    min-height: 38px !important;
+    padding: 5px 10px !important;
+    gap: 8px !important;
+    border-radius: 10px !important;
+  }
+
+  /* compact swap button */
+  .__controls-bar button[title="Swap cameras"] {
+    width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    border-radius: 50% !important;
+    color: #6B4EFF !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    align-self: center !important;
+    flex-shrink: 0 !important;
+    border-color: #ddddf0 !important;
+    background: #fff !important;
+  }
+  .__controls-bar button[title="Swap cameras"]:hover {
+    background: #f0ecff !important;
+    border-color: #6B4EFF !important;
+  }
+  .__controls-bar button[title="Swap cameras"] svg {
+    display: none !important;
+  }
+  .__controls-bar button[title="Swap cameras"]::after {
+    content: '' !important;
+    display: block !important;
+    width: 14px !important;
+    height: 14px !important;
+    background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4.5H13M13 4.5L10 2M13 4.5L10 7' stroke='%236B4EFF' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M13 9.5H1M1 9.5L4 7M1 9.5L4 12' stroke='%236B4EFF' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: contain !important;
+  }
+
+  /* ── Camera switcher ── */
+  .__cam-switcher {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 6px 2px !important;
+  }
+  .__cam-person {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+  .__cam-right {
+    justify-content: flex-end !important;
+  }
+  .__cam-avatar-sm {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 50% !important;
+    background: #6B4EFF !important;
+    color: #fff !important;
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    letter-spacing: -0.02em !important;
+  }
+  .__cam-host-av {
+    background: #3d3d6b !important;
+  }
+  .__cam-info {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+  }
+  .__cam-name {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #1a1a2e !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3 !important;
+  }
+  .__cam-role {
+    font-size: 10px !important;
+    color: #9898b3 !important;
+    white-space: nowrap !important;
+    line-height: 1.2 !important;
+  }
+  .__cam-swap {
+    flex-shrink: 0 !important;
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    border: 1.5px solid #e0e0ef !important;
+    background: #fff !important;
+    color: #6B4EFF !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: background 0.15s, border-color 0.15s !important;
+    box-shadow: 0 1px 4px rgba(107,78,255,0.10) !important;
+  }
+  .__cam-swap:hover {
+    background: #f0ecff !important;
+    border-color: #6B4EFF !important;
+  }
+</style>
+<script>
+(function() {
+  var icons = {
+    split: '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="5" height="10" rx="1.5" fill="currentColor"/><rect x="8" y="2" width="5" height="10" rx="1.5" fill="currentColor"/></svg>',
+    full:  '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="12" height="10" rx="1.5" fill="currentColor"/></svg>',
+    pip:   '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="12" height="10" rx="1.5" fill="currentColor" opacity="0.35"/><rect x="7" y="7" width="5.5" height="4" rx="1" fill="currentColor"/></svg>',
+  };
+
+  function inject() {
+    var btns = document.querySelectorAll('.rounded-b-card .rounded-input button');
+    if (!btns.length) return;
+    btns.forEach(function(btn) {
+      if (btn.querySelector('.__vm-svg')) return; // already done
+      var title = (btn.getAttribute('title') || '').toLowerCase();
+      var key = title.indexOf('side') !== -1 ? 'split' : title.indexOf('full') !== -1 ? 'full' : 'pip';
+      // mark original icon span so CSS hides it
+      var orig = btn.querySelector('span:first-child');
+      if (orig) orig.classList.add('__vm-icon-orig');
+      // inject svg before label
+      var wrap = document.createElement('span');
+      wrap.className = '__vm-svg';
+      wrap.innerHTML = icons[key];
+      btn.insertBefore(wrap, btn.querySelector('span:last-child'));
+    });
+  }
+
+  function rebuildCamSources() {
+    if (document.__camPatched) return;
+    var panel = document.querySelector('.rounded-b-card');
+    if (!panel) return;
+
+    // Find the camera sources label
+    var camLabel = null;
+    panel.querySelectorAll('*').forEach(function(el) {
+      if (el.children.length === 0 && /camera sources/i.test(el.textContent.trim())) camLabel = el;
+    });
+    if (!camLabel) return;
+
+    // The section container is an ancestor of the label
+    var section = camLabel;
+    while (section.parentElement && section.parentElement !== panel) section = section.parentElement;
+
+    // Collect camera cards — divs with MAIN or RIGHT content
+    var cards = [];
+    section.querySelectorAll('div').forEach(function(d) {
+      if (d.children.length < 2) return;
+      var txt = d.textContent || '';
+      if (/\bMAIN\b/.test(txt) || /\bRIGHT\b/.test(txt)) {
+        // avoid nested duplicates — only keep direct relevant containers
+        if (!cards.some(function(c){ return c.contains(d) || d.contains(c); })) {
+          cards.push(d);
+        }
+      }
+    });
+    if (cards.length < 2) return;
+
+    document.__camPatched = true;
+
+    // Extract person info from each card
+    function parsePerson(card) {
+      var initials = '', name = '', role = '';
+      // avatar initials
+      var av = card.querySelector('[class*="rounded-full"]');
+      if (av) initials = av.textContent.trim();
+      // name + role — look for font-semibold spans/divs
+      var texts = [];
+      card.querySelectorAll('*').forEach(function(el) {
+        if (el.children.length === 0) {
+          var t = el.textContent.trim();
+          if (t && !/\bMAIN\b|\bRIGHT\b/.test(t) && t.length > 1) texts.push(t);
+        }
+      });
+      // first text = name, second = role
+      name = texts[0] || initials;
+      role = texts[1] || '';
+      return { initials: initials, name: name, role: role };
+    }
+
+    var guest = parsePerson(cards[0]);
+    var host  = parsePerson(cards[1]);
+
+    // Hide original cards but keep section label
+    cards.forEach(function(c) { c.style.display = 'none'; });
+    // Also hide any wrapper around the cards
+    var cardsWrapper = cards[0].parentElement;
+    if (cardsWrapper && cardsWrapper !== section) cardsWrapper.style.display = 'none';
+
+    // Build new minimal switcher
+    var switcher = document.createElement('div');
+    switcher.className = '__cam-switcher';
+    switcher.innerHTML =
+      '<div class="__cam-person __cam-left">' +
+        '<div class="__cam-avatar-sm">' + guest.initials + '</div>' +
+        '<div class="__cam-info"><span class="__cam-name">' + guest.name + '</span><span class="__cam-role">' + guest.role + '</span></div>' +
+      '</div>' +
+      '<button class="__cam-swap" title="Swap cameras">' +
+        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+          '<path d="M2 5.5H14M14 5.5L11 2.5M14 5.5L11 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '<path d="M14 10.5H2M2 10.5L5 7.5M2 10.5L5 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+      '</button>' +
+      '<div class="__cam-person __cam-right">' +
+        '<div class="__cam-info" style="text-align:right"><span class="__cam-name">' + host.name + '</span><span class="__cam-role">' + host.role + '</span></div>' +
+        '<div class="__cam-avatar-sm __cam-host-av">' + host.initials + '</div>' +
+      '</div>';
+
+    section.appendChild(switcher);
+
+    // Swap interaction
+    var swapped = false;
+    switcher.querySelector('.__cam-swap').addEventListener('click', function() {
+      swapped = !swapped;
+      if (cards[0].click) cards[swapped ? 1 : 0].click();
+      var left = switcher.querySelector('.__cam-left');
+      var right = switcher.querySelector('.__cam-right');
+      var tmp = left.innerHTML;
+      left.innerHTML = right.innerHTML;
+      right.innerHTML = tmp;
+      // fix right alignment
+      right.querySelector('.__cam-info') && (right.querySelector('.__cam-info').style.textAlign = 'right');
+      left.querySelector('.__cam-info') && (left.querySelector('.__cam-info').style.textAlign = '');
+    });
+  }
+
+  function fixHeadingAvatar() {
+    var avatars = document.querySelectorAll('span.inline-flex.rounded-full.shrink-0');
+    avatars.forEach(function(av) {
+      var w = parseInt(av.style.width);
+      if (w && w < 27) {
+        av.setAttribute('style',
+          'width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;' +
+          'background:' + av.style.background + ';color:' + av.style.color + ';' +
+          'font-size:9px!important;font-weight:700!important;letter-spacing:0.02em;' +
+          'display:inline-flex!important;align-items:center!important;justify-content:center!important;' +
+          'line-height:1!important;padding:0!important;overflow:hidden!important;'
+        );
+      }
+    });
+  }
+
+  function moveControlsToStudioBar() {
+    if (document.__barMoved) return;
+    // Find the studio bar row (contains h2.mono)
+    var studioH2 = document.querySelector('h2.mono');
+    if (!studioH2) return;
+    var studioRow = studioH2.parentElement;
+    if (!studioRow) return;
+
+    // Find the bottom controls panel
+    var panel = document.querySelector('.rounded-b-card');
+    if (!panel) return;
+
+    document.__barMoved = true;
+
+    // Make studio row flex with space-between
+    studioRow.style.cssText += 'display:flex!important;align-items:center!important;gap:12px!important;';
+
+    // Shrink the divider line so controls have space
+    var divider = studioRow.querySelector('.h-px.bg-border.flex-1');
+    if (divider) divider.style.flex = '1';
+
+    // Clone the panel's inner content into a compact wrapper
+    var wrap = document.createElement('div');
+    wrap.className = '__controls-bar';
+    wrap.style.cssText = 'display:flex;align-items:center;gap:10px;flex-shrink:0;';
+
+    // Move view mode buttons group
+    var vmGrid = panel.querySelector('[class*="bg-lavender"]');
+    if (vmGrid) {
+      var vmWrap = document.createElement('div');
+      vmWrap.style.cssText = 'display:flex;align-items:center;gap:6px;';
+      vmWrap.appendChild(vmGrid);
+      wrap.appendChild(vmWrap);
+    }
+
+    // Divider between groups
+    var sep = document.createElement('div');
+    sep.style.cssText = 'width:1px;height:20px;background:#e0e0ef;flex-shrink:0;';
+    wrap.appendChild(sep);
+
+    // Move camera sources flex row
+    var camFlex = panel.querySelector('.flex.items-stretch.gap-2');
+    if (camFlex) {
+      camFlex.style.cssText += 'flex:none;';
+      wrap.appendChild(camFlex);
+    }
+
+    studioRow.appendChild(wrap);
+
+    // Hide the now-empty panel
+    panel.style.display = 'none';
+  }
+
+  var attempts = 0;
+  var iv = setInterval(function() {
+    inject();
+    rebuildCamSources();
+    fixHeadingAvatar();
+    moveControlsToStudioBar();
+    attempts++;
+    if (attempts > 60) clearInterval(iv);
+    var done = document.querySelectorAll('.__vm-svg');
+    if (done.length >= 3 && document.__barMoved) clearInterval(iv);
+  }, 150);
+})();
+<\/script>`;
+
     const headOpen = template.match(/<head[^>]*>/i);
     if (headOpen) {
       const i = headOpen.index + headOpen[0].length;
-      template = template.slice(0, i) + resourceScript + template.slice(i);
+      template = template.slice(0, i) + resourceScript + patchScript + template.slice(i);
     }
 
     // Parse the template and swap the root element. Scripts inserted via
