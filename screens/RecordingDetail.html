@@ -146,6 +146,161 @@ document.addEventListener('DOMContentLoaded', async function() {
     display: none !important;
   }
 
+  /* ── Clip Settings Widget ── */
+  .__cs-btn {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 8px !important;
+    border: 1.5px solid #E4E0FF !important;
+    background: #F4F2FF !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    color: #6B4EFF !important;
+    flex-shrink: 0 !important;
+    transition: background 0.15s, border-color 0.15s !important;
+    position: relative !important;
+  }
+  .__cs-btn:hover, .__cs-btn.active {
+    background: #EDE9FF !important;
+    border-color: #6B4EFF !important;
+  }
+  .__cs-popover {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    width: 260px !important;
+    background: #fff !important;
+    border: 1px solid #E8E4FF !important;
+    border-radius: 14px !important;
+    box-shadow: 0 8px 32px rgba(107,78,255,0.13), 0 2px 8px rgba(0,0,0,0.06) !important;
+    z-index: 999 !important;
+    padding: 14px !important;
+    display: none !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+  .__cs-popover.open {
+    display: flex !important;
+  }
+  .__cs-section-label {
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: #ADADBE !important;
+    margin-bottom: 7px !important;
+  }
+  .__cs-options {
+    display: flex !important;
+    gap: 6px !important;
+  }
+  .__cs-option {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 5px !important;
+    padding: 8px 4px !important;
+    border-radius: 10px !important;
+    border: 1.5px solid #EDEDF8 !important;
+    background: #FAFAFA !important;
+    cursor: pointer !important;
+    transition: all 0.15s !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    color: #5F6368 !important;
+    text-align: center !important;
+    line-height: 1.3 !important;
+  }
+  .__cs-option:hover {
+    border-color: #C4B8FF !important;
+    background: #F4F2FF !important;
+    color: #3D3580 !important;
+  }
+  .__cs-option.selected {
+    border-color: #6B4EFF !important;
+    background: #EDE9FF !important;
+    color: #6B4EFF !important;
+    font-weight: 600 !important;
+  }
+  .__cs-option svg {
+    opacity: 0.6 !important;
+  }
+  .__cs-option.selected svg {
+    opacity: 1 !important;
+  }
+  .__cs-ratio-options {
+    display: flex !important;
+    gap: 6px !important;
+  }
+  .__cs-ratio-btn {
+    flex: 1 !important;
+    padding: 7px 4px !important;
+    border-radius: 9px !important;
+    border: 1.5px solid #EDEDF8 !important;
+    background: #FAFAFA !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #5F6368 !important;
+    cursor: pointer !important;
+    transition: all 0.15s !important;
+    text-align: center !important;
+  }
+  .__cs-ratio-btn:hover {
+    border-color: #C4B8FF !important;
+    background: #F4F2FF !important;
+    color: #3D3580 !important;
+  }
+  .__cs-ratio-btn.selected {
+    border-color: #6B4EFF !important;
+    background: #EDE9FF !important;
+    color: #6B4EFF !important;
+  }
+  .__cs-length-options {
+    display: flex !important;
+    gap: 6px !important;
+  }
+  .__cs-length-btn {
+    flex: 1 !important;
+    padding: 8px 8px !important;
+    border-radius: 10px !important;
+    border: 1.5px solid #EDEDF8 !important;
+    background: #FAFAFA !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #5F6368 !important;
+    cursor: pointer !important;
+    transition: all 0.15s !important;
+    text-align: left !important;
+    line-height: 1.4 !important;
+  }
+  .__cs-length-btn:hover {
+    border-color: #C4B8FF !important;
+    background: #F4F2FF !important;
+  }
+  .__cs-length-btn.selected {
+    border-color: #6B4EFF !important;
+    background: #EDE9FF !important;
+    color: #6B4EFF !important;
+  }
+  .__cs-length-btn span {
+    display: block !important;
+    font-size: 9.5px !important;
+    font-weight: 400 !important;
+    color: #ADADBE !important;
+    margin-top: 1px !important;
+  }
+  .__cs-length-btn.selected span {
+    color: #9B84FF !important;
+  }
+  .__cs-divider {
+    height: 1px !important;
+    background: #F0EEFF !important;
+    margin: 0 -14px !important;
+  }
+
   /* ── Podsmith chat UI redesign ── */
 
   /* Input bar */
@@ -688,6 +843,117 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.__suggestionsDone = true;
   }
 
+  function injectClipSettings() {
+    if (document.__clipSettingsDone) return;
+
+    // Find the Podsmith header — contains the three-dot menu button
+    var podsmithHeading = null;
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    var node;
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.trim() === 'Podsmith') { podsmithHeading = node.parentElement; break; }
+    }
+    if (!podsmithHeading) return;
+
+    // The flex row containing badge + title + menu btn — walk up to the row with multiple children
+    var headerRow = podsmithHeading.parentElement;
+    while (headerRow && headerRow !== document.body) {
+      if (headerRow.children.length >= 3) break;
+      headerRow = headerRow.parentElement;
+    }
+    if (!headerRow) return;
+
+    // Find the three-dot button (last button in the row)
+    var menuBtn = headerRow.querySelector('button:last-of-type');
+    if (!menuBtn) return;
+
+    document.__clipSettingsDone = true;
+
+    // ── Build the widget button + popover ──
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;display:flex;align-items:center;flex-shrink:0;';
+
+    var btn = document.createElement('button');
+    btn.className = '__cs-btn';
+    btn.title = 'Clip settings';
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
+
+    var popover = document.createElement('div');
+    popover.className = '__cs-popover';
+    popover.innerHTML =
+      // Layout
+      '<div>' +
+        '<div class="__cs-section-label">Layout</div>' +
+        '<div class="__cs-options">' +
+          '<button class="__cs-option selected" data-group="layout" data-val="side">' +
+            '<svg width="22" height="16" viewBox="0 0 22 16" fill="none"><rect x="0.5" y="0.5" width="9" height="15" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="12.5" y="0.5" width="9" height="15" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>' +
+            'Side by Side' +
+          '</button>' +
+          '<button class="__cs-option" data-group="layout" data-val="full">' +
+            '<svg width="22" height="16" viewBox="0 0 22 16" fill="none"><rect x="0.5" y="0.5" width="21" height="15" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>' +
+            'Full' +
+          '</button>' +
+          '<button class="__cs-option" data-group="layout" data-val="pip">' +
+            '<svg width="22" height="16" viewBox="0 0 22 16" fill="none"><rect x="0.5" y="0.5" width="21" height="15" rx="2" stroke="currentColor" stroke-width="1.5" opacity="0.4"/><rect x="12" y="7" width="9" height="7.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>' +
+            'Pic-in-Pic' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="__cs-divider"></div>' +
+      // Ratio
+      '<div>' +
+        '<div class="__cs-section-label">Ratio</div>' +
+        '<div class="__cs-ratio-options">' +
+          '<button class="__cs-ratio-btn" data-group="ratio" data-val="16:9">16:9</button>' +
+          '<button class="__cs-ratio-btn selected" data-group="ratio" data-val="9:16">9:16</button>' +
+          '<button class="__cs-ratio-btn" data-group="ratio" data-val="4:3">4:3</button>' +
+          '<button class="__cs-ratio-btn" data-group="ratio" data-val="1:1">1:1</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="__cs-divider"></div>' +
+      // Clip Length
+      '<div>' +
+        '<div class="__cs-section-label">Clip Length</div>' +
+        '<div class="__cs-length-options">' +
+          '<button class="__cs-length-btn selected" data-group="length" data-val="short">Short<span>30s – 90s</span></button>' +
+          '<button class="__cs-length-btn" data-group="length" data-val="medium">Medium<span>2 – 5 min</span></button>' +
+          '<button class="__cs-length-btn" data-group="length" data-val="long">Long<span>10 – 15 min</span></button>' +
+        '</div>' +
+      '</div>';
+
+    // Toggle open/close
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var isOpen = popover.classList.contains('open');
+      popover.classList.toggle('open', !isOpen);
+      btn.classList.toggle('active', !isOpen);
+    });
+
+    // Close on outside click
+    document.addEventListener('click', function() {
+      popover.classList.remove('open');
+      btn.classList.remove('active');
+    });
+    popover.addEventListener('click', function(e) { e.stopPropagation(); });
+
+    // Option selection
+    popover.querySelectorAll('button[data-group]').forEach(function(optBtn) {
+      optBtn.addEventListener('click', function() {
+        var group = optBtn.getAttribute('data-group');
+        popover.querySelectorAll('button[data-group="' + group + '"]').forEach(function(b) {
+          b.classList.remove('selected');
+        });
+        optBtn.classList.add('selected');
+      });
+    });
+
+    wrap.appendChild(btn);
+    wrap.appendChild(popover);
+
+    // Insert before the three-dot menu button
+    headerRow.insertBefore(wrap, menuBtn);
+  }
+
   function rebuildPodsmithChat() {
     if (document.__chatRebuilt) return;
 
@@ -983,6 +1249,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     restructureLayout();
     hideSuggestionsTab();
     rebuildPodsmithChat();
+    injectClipSettings();
     attempts++;
     if (attempts > 60) clearInterval(iv);
     var done = document.querySelectorAll('.__vm-svg');
