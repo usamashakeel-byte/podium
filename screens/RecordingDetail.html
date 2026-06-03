@@ -138,15 +138,164 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   /* ── Podsmith: hide entire tab switcher bar ── */
-  .rounded-pill.bg-lavender\/60.border.border-border {
-    display: none !important;
-  }
   button[data-tab="suggestions"],
   button[value="suggestions"] {
     display: none !important;
   }
   .__podsmith-suggestions-tab-hidden {
     display: none !important;
+  }
+
+  /* ── Podsmith chat UI redesign ── */
+
+  /* Input bar */
+  .__ps-input-wrap {
+    padding: 12px !important;
+    border-top: 1px solid #EFEFFA !important;
+    background: #fff !important;
+  }
+  .__ps-input-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: #F7F6FF !important;
+    border: 1.5px solid #E4E0FF !important;
+    border-radius: 14px !important;
+    padding: 6px 6px 6px 14px !important;
+    transition: border-color 0.15s !important;
+  }
+  .__ps-input-row:focus-within {
+    border-color: #6B4EFF !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+  .__ps-input-row input {
+    flex: 1 !important;
+    border: none !important;
+    background: transparent !important;
+    font-size: 13px !important;
+    color: #1A1A2E !important;
+    outline: none !important;
+    height: 28px !important;
+    padding: 0 !important;
+  }
+  .__ps-input-row input::placeholder { color: #ADADBE !important; }
+  .__ps-send-btn {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 10px !important;
+    background: #6B4EFF !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    transition: background 0.15s, opacity 0.15s !important;
+  }
+  .__ps-send-btn:hover { background: #5A3FE0 !important; }
+  .__ps-send-btn:disabled { opacity: 0.35 !important; cursor: default !important; }
+
+  /* Starter prompts */
+  .__ps-starters {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 1 !important;
+    padding: 20px 16px !important;
+    gap: 10px !important;
+  }
+  .__ps-starters-icon {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 12px !important;
+    background: linear-gradient(135deg, #EDE9FF 0%, #D6CCFF 100%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-bottom: 4px !important;
+  }
+  .__ps-starters-title {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #1A1A2E !important;
+    margin-bottom: 2px !important;
+  }
+  .__ps-starters-sub {
+    font-size: 11.5px !important;
+    color: #ADADBE !important;
+    text-align: center !important;
+    margin-bottom: 8px !important;
+    line-height: 1.5 !important;
+  }
+  .__ps-prompt-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 7px !important;
+    width: 100% !important;
+  }
+  .__ps-prompt-btn {
+    width: 100% !important;
+    text-align: left !important;
+    background: #F7F6FF !important;
+    border: 1.5px solid #E8E4FF !important;
+    border-radius: 11px !important;
+    padding: 9px 13px !important;
+    font-size: 12px !important;
+    color: #3D3580 !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    line-height: 1.4 !important;
+  }
+  .__ps-prompt-btn:hover {
+    background: #EDE9FF !important;
+    border-color: #6B4EFF !important;
+    transform: translateY(-1px) !important;
+  }
+  .__ps-prompt-icon {
+    flex-shrink: 0 !important;
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 7px !important;
+    background: #fff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 1px 3px rgba(107,78,255,0.12) !important;
+  }
+
+  /* Message bubbles */
+  .__ps-msg-ai {
+    background: #F4F2FF !important;
+    border-radius: 12px 12px 12px 3px !important;
+    padding: 10px 13px !important;
+    font-size: 12.5px !important;
+    color: #1A1A2E !important;
+    line-height: 1.55 !important;
+    max-width: 88% !important;
+  }
+  .__ps-msg-user {
+    background: linear-gradient(135deg, #7B5CFF 0%, #6B4EFF 100%) !important;
+    border-radius: 12px 12px 3px 12px !important;
+    padding: 10px 13px !important;
+    font-size: 12.5px !important;
+    color: #fff !important;
+    line-height: 1.55 !important;
+    max-width: 88% !important;
+    margin-left: auto !important;
+  }
+
+  @keyframes __ps_fadein {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .__ps-msg-ai, .__ps-msg-user {
+    animation: __ps_fadein 0.2s ease both !important;
   }
 
     /* ── Media card only (no flex class): shrink to video height ── */\n  div.bg-white.rounded-card.shadow-card:not(.flex) {\n    height: fit-content !important;\n    align-self: start !important;\n  }\n\n  /* ── Podsmith / Transcript cards: fill wrapper height; body scrolls inside ── */\n  div.bg-white.rounded-card.shadow-card.flex.flex-col {\n    height: 100% !important;\n    max-height: 100% !important;\n  }\n\n  /* ── Podsmith suggestion card action buttons: no reserved space, animate in on hover ── */
@@ -539,6 +688,119 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.__suggestionsDone = true;
   }
 
+  function rebuildPodsmithChat() {
+    if (document.__chatRebuilt) return;
+
+    // Find the chat input — placeholder "Describe a clip…"
+    var origInput = document.querySelector('input[placeholder="Describe a clip\u2026"]');
+    if (!origInput) return;
+
+    document.__chatRebuilt = true;
+
+    // ── Rebuild input bar ──
+    var origWrap = origInput.closest('div[class*="border-t"]');
+    if (origWrap) {
+      origWrap.className = '__ps-input-wrap';
+      var row = document.createElement('div');
+      row.className = '__ps-input-row';
+
+      var newInput = document.createElement('input');
+      newInput.placeholder = 'Ask Podsmith anything…';
+      newInput.className = '';
+
+      var sendBtn = document.createElement('button');
+      sendBtn.className = '__ps-send-btn';
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>';
+
+      newInput.addEventListener('input', function() {
+        sendBtn.disabled = !newInput.value.trim();
+        origInput.value = newInput.value;
+        origInput.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      newInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && newInput.value.trim()) {
+          origInput.value = newInput.value;
+          origInput.dispatchEvent(new Event('input', { bubbles: true }));
+          // trigger the original send via keydown on original input
+          origInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+          setTimeout(function() {
+            newInput.value = '';
+            sendBtn.disabled = true;
+            injectStarters(); // re-show starters hidden state handled by messages check
+          }, 50);
+        }
+      });
+      sendBtn.addEventListener('click', function() {
+        if (!newInput.value.trim()) return;
+        origInput.value = newInput.value;
+        origInput.dispatchEvent(new Event('input', { bubbles: true }));
+        origInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        setTimeout(function() { newInput.value = ''; sendBtn.disabled = true; }, 50);
+      });
+
+      row.appendChild(newInput);
+      row.appendChild(sendBtn);
+      origWrap.innerHTML = '';
+      origWrap.appendChild(row);
+    }
+
+    // ── Inject starter prompts ──
+    injectStarters();
+  }
+
+  function injectStarters() {
+    if (document.getElementById('__ps_starters')) return;
+
+    // Find the messages scroll container — sibling above the input bar
+    var origInput = document.querySelector('.__ps-input-wrap');
+    if (!origInput) return;
+    var msgContainer = origInput.previousElementSibling;
+    if (!msgContainer) return;
+
+    var starters = document.createElement('div');
+    starters.id = '__ps_starters';
+    starters.className = '__ps-starters';
+
+    var prompts = [
+      { icon: '✂️', text: 'Find the strongest 60-second clip' },
+      { icon: '🎯', text: 'What moment would work best for LinkedIn?' },
+      { icon: '🔥', text: 'Find a hook for the first 10 seconds' },
+      { icon: '💡', text: 'Suggest a clip for a YouTube Short' },
+    ];
+
+    starters.innerHTML =
+      '<div class="__ps-starters-icon">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B4EFF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+      '</div>' +
+      '<div class="__ps-starters-title">How can I help?</div>' +
+      '<div class="__ps-starters-sub">Ask me to find clips, hooks,<br>or standout moments.</div>' +
+      '<div class="__ps-prompt-grid">' +
+        prompts.map(function(p) {
+          return '<button class="__ps-prompt-btn">' +
+            '<span class="__ps-prompt-icon">' + p.icon + '</span>' +
+            p.text +
+          '</button>';
+        }).join('') +
+      '</div>';
+
+    // Wire prompt clicks → fill input
+    starters.querySelectorAll('.__ps-prompt-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var inputEl = document.querySelector('.__ps-input-row input');
+        if (inputEl) {
+          inputEl.value = btn.textContent.trim();
+          inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+          inputEl.focus();
+          document.querySelector('.__ps-send-btn').disabled = false;
+        }
+      });
+    });
+
+    // Insert before message list (prepend into scroll area)
+    msgContainer.insertBefore(starters, msgContainer.firstChild);
+  }
+
   function fixHeadingAvatar() {
     var avatars = document.querySelectorAll('span.inline-flex.rounded-full.shrink-0');
     avatars.forEach(function(av) {
@@ -720,6 +982,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     moveControlsToStudioBar();
     restructureLayout();
     hideSuggestionsTab();
+    rebuildPodsmithChat();
     attempts++;
     if (attempts > 60) clearInterval(iv);
     var done = document.querySelectorAll('.__vm-svg');
