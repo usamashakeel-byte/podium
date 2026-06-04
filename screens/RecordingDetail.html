@@ -146,6 +146,175 @@ document.addEventListener('DOMContentLoaded', async function() {
     display: none !important;
   }
 
+  /* ── Hide Podium AI Revise Strip ── */
+  .ai-shimmer,
+  .ai-shimmer + div {
+    display: none !important;
+  }
+  div:has(> .ai-shimmer) {
+    display: none !important;
+  }
+
+  /* ── Regenerate button ── */
+  .__regen-btn {
+    width: 100% !important;
+    height: 40px !important;
+    border-radius: 10px !important;
+    border: 1.5px solid #E4E0FF !important;
+    background: #F7F6FF !important;
+    color: #6B4EFF !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    margin-top: 12px !important;
+    transition: background 0.15s, border-color 0.15s !important;
+  }
+  .__regen-btn:hover {
+    background: #EDE9FF !important;
+    border-color: #6B4EFF !important;
+  }
+  .__regen-btn.loading {
+    opacity: 0.6 !important;
+    cursor: default !important;
+  }
+  @keyframes __regen-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .__regen-btn.loading svg.__regen-icon {
+    animation: __regen-spin 0.8s linear infinite !important;
+  }
+
+  /* ── Hide Brand Library box from caption body ── */
+  .__bl-hidden {
+    display: none !important;
+  }
+
+  /* ── Brand Library Header Widget ── */
+  .__bl-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    height: 30px !important;
+    padding: 0 10px !important;
+    border-radius: 8px !important;
+    border: 1px solid #DDD8FF !important;
+    background: #fff !important;
+    cursor: pointer !important;
+    color: #5F4ECC !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    flex-shrink: 0 !important;
+    transition: background 0.15s, border-color 0.15s, color 0.15s !important;
+    position: relative !important;
+    white-space: nowrap !important;
+  }
+  .__bl-btn:hover, .__bl-btn.active {
+    background: #F4F2FF !important;
+    border-color: #6B4EFF !important;
+    color: #6B4EFF !important;
+  }
+  .__bl-popover {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    width: 280px !important;
+    background: #fff !important;
+    border: 1px solid #E8E4FF !important;
+    border-radius: 14px !important;
+    box-shadow: 0 8px 32px rgba(107,78,255,0.13), 0 2px 8px rgba(0,0,0,0.06) !important;
+    z-index: 999 !important;
+    padding: 14px !important;
+    display: none !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .__bl-popover.open {
+    display: flex !important;
+  }
+  .__bl-pop-label {
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: #ADADBE !important;
+    margin-bottom: 6px !important;
+  }
+  .__bl-pop-select {
+    width: 100% !important;
+    height: 36px !important;
+    border-radius: 9px !important;
+    border: 1.5px solid #E4E0FF !important;
+    background: #F7F6FF !important;
+    padding: 0 10px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #1A1A2E !important;
+    appearance: none !important;
+    cursor: pointer !important;
+    outline: none !important;
+  }
+  .__bl-pop-select:focus {
+    border-color: #6B4EFF !important;
+    background: #fff !important;
+  }
+  .__bl-pop-desc {
+    font-size: 11.5px !important;
+    color: #5F6368 !important;
+    line-height: 1.5 !important;
+    padding: 8px 10px !important;
+    background: #F7F6FF !important;
+    border-radius: 8px !important;
+    min-height: 36px !important;
+  }
+  .__bl-pop-actions {
+    display: flex !important;
+    gap: 8px !important;
+  }
+  .__bl-pop-apply {
+    flex: 1 !important;
+    height: 34px !important;
+    border-radius: 9px !important;
+    background: #6B4EFF !important;
+    color: #fff !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    transition: background 0.15s !important;
+  }
+  .__bl-pop-apply:hover { background: #5A3FE0 !important; }
+  .__bl-pop-manage {
+    height: 34px !important;
+    padding: 0 12px !important;
+    border-radius: 9px !important;
+    border: 1.5px solid #E4E0FF !important;
+    background: #fff !important;
+    color: #5F6368 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    transition: border-color 0.15s, color 0.15s !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  .__bl-pop-manage:hover { border-color: #6B4EFF !important; color: #6B4EFF !important; }
+  .__bl-divider {
+    height: 1px !important;
+    background: #F0EEFF !important;
+    margin: 0 -14px !important;
+  }
+
   /* ── Clip Settings Widget ── */
   .__cs-btn {
     width: 28px !important;
@@ -843,6 +1012,248 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.__suggestionsDone = true;
   }
 
+  function hideClipSelector() {
+    // Run every tick — no flag, re-applies after React re-renders
+    var allDivs = document.querySelectorAll('div.mb-4');
+    allDivs.forEach(function(div) {
+      if (div.textContent.includes('Select a clip') && !div.querySelector('textarea') && !div.querySelector('.__regen-btn')) {
+        div.style.setProperty('display', 'none', 'important');
+      }
+    });
+  }
+
+  // Full caption data keyed by clip title (lowercase) for easy lookup
+  function patchCaptionTextarea() {
+    var textarea = document.querySelector('textarea');
+    if (!textarea) return;
+    if (textarea.__coverPatched) return;
+    textarea.__coverPatched = true;
+
+    // Determine current mode
+    var isPerClip = !!document.querySelector('button.layout-btn');
+    var storageKey = isPerClip ? 'podium_clip_selected' : 'podium_full_selected';
+    var alreadySelected = localStorage.getItem(storageKey) === '1';
+
+    // Wrap textarea in relative container if not already
+    var wrap = textarea.parentElement;
+    if (!wrap.style.position) wrap.style.position = 'relative';
+
+    // Create overlay
+    var cover = document.createElement('div');
+    cover.className = '__caption-cover';
+    cover.style.cssText =
+      'position:absolute;inset:0;background:#fff;border-radius:8px;' +
+      'display:flex;align-items:center;justify-content:center;' +
+      'pointer-events:none;z-index:2;' +
+      'color:#ADADBE;font-size:13px;text-align:center;padding:20px;line-height:1.6;';
+    cover.textContent = isPerClip
+      ? 'Select a clip above to see its caption here…'
+      : 'Click "Full Episode Post" to generate your caption…';
+
+    if (!alreadySelected) {
+      wrap.appendChild(cover);
+    }
+
+    // Wire clip buttons to remove cover and persist selection
+    document.querySelectorAll('button.layout-btn').forEach(function(btn) {
+      if (btn.__clipPatched) return;
+      btn.__clipPatched = true;
+      btn.addEventListener('click', function() {
+        localStorage.setItem('podium_clip_selected', '1');
+        var c = wrap.querySelector('.__caption-cover');
+        if (c) c.remove();
+      });
+    });
+
+    // For full episode tab — remove cover on any textarea interaction
+    if (!isPerClip) {
+      textarea.addEventListener('focus', function() {
+        localStorage.setItem('podium_full_selected', '1');
+        var c = wrap.querySelector('.__caption-cover');
+        if (c) c.remove();
+      }, { once: true });
+      // Auto-remove if it already has content
+      if (textarea.value && textarea.value.trim()) {
+        localStorage.setItem('podium_full_selected', '1');
+        var c = wrap.querySelector('.__caption-cover');
+        if (c) c.remove();
+      }
+    }
+  }
+
+  function injectRegenerateButton() {
+    var textarea = document.querySelector('textarea');
+    if (!textarea) return;
+
+    // Remove all stale regen buttons first
+    document.querySelectorAll('.__regen-btn').forEach(function(b) { b.remove(); });
+
+    // Inject fresh immediately after textarea's parent
+    var container = textarea.parentElement;
+
+    var btn = document.createElement('button');
+    btn.className = '__regen-btn';
+    btn.innerHTML =
+      '<svg class="__regen-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>' +
+      'Regenerate caption';
+
+    btn.addEventListener('click', function() {
+      if (btn.classList.contains('loading')) return;
+      btn.classList.add('loading');
+      btn.innerHTML =
+        '<svg class="__regen-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>' +
+        'Regenerating…';
+      setTimeout(function() {
+        btn.classList.remove('loading');
+        btn.innerHTML =
+          '<svg class="__regen-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>' +
+          'Regenerate caption';
+      }, 1800);
+    });
+
+    // Insert after the textarea's parent container
+    var container = textarea.parentElement;
+    container.parentElement.insertBefore(btn, container.nextSibling);
+  }
+
+  function injectBrandLibraryWidget() {
+    if (document.__blWidgetDone) return;
+
+    // Find the Caption header by locating "Captions" text node
+    var captionsHeading = null;
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    var node;
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.trim() === 'Captions') { captionsHeading = node.parentElement; break; }
+    }
+    if (!captionsHeading) return;
+
+    // Find the brand library box by walking up from the voice select
+    // looking for the container with mb-4 class (unique to this box)
+    var select = document.querySelector('select[id^="brand-voice"]');
+    if (!select) return;
+    var brandBox = null;
+    var el = select;
+    while (el && el !== document.body) {
+      if (el.className && typeof el.className === 'string' && el.className.includes('mb-4')) {
+        brandBox = el;
+        break;
+      }
+      el = el.parentElement;
+    }
+    if (!brandBox) return;
+
+    // Get the original select and apply button from brand box
+    var origSelect = brandBox.querySelector('select[id^="brand-voice"]');
+    var origApplyBtn = brandBox.querySelector('button.rounded-pill.bg-primary');
+    var origManageLink = brandBox.querySelector('a[href="BrandVoice.html"]');
+    if (!origSelect) return;
+
+    document.__blWidgetDone = true;
+    document.__brandBox = brandBox;
+
+    // Hide brand library box from body
+    brandBox.style.setProperty('display', 'none', 'important');
+
+    // Walk up to the caption header row
+    var headerRow = captionsHeading.parentElement;
+    while (headerRow && headerRow !== document.body) {
+      if (headerRow.children.length >= 2 && headerRow.offsetWidth > 200) break;
+      headerRow = headerRow.parentElement;
+    }
+    if (!headerRow) return;
+
+    // Get current selected voice name
+    var selectedName = origSelect.options[origSelect.selectedIndex]
+      ? origSelect.options[origSelect.selectedIndex].text : 'Brand Voice';
+
+    // ── Build widget button + popover ──
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;display:flex;align-items:center;flex-shrink:0;';
+
+    var btn = document.createElement('button');
+    btn.className = '__bl-btn';
+    btn.innerHTML =
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>' +
+      'Brand Voice' +
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+
+    // Build cloned select for popover
+    var popSelect = origSelect.cloneNode(true);
+    popSelect.className = '__bl-pop-select';
+    popSelect.removeAttribute('id');
+
+    // Sync both selects
+    popSelect.addEventListener('change', function() {
+      origSelect.value = popSelect.value;
+      origSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      var newName = popSelect.options[popSelect.selectedIndex].text;
+      btn.querySelector('.__bl-btn-label').textContent = newName;
+      descEl.textContent = newName + ' voice selected';
+    });
+
+    var descEl = document.createElement('div');
+    descEl.className = '__bl-pop-desc';
+    descEl.textContent = selectedName + ' voice selected';
+
+    var applyBtn = document.createElement('button');
+    applyBtn.className = '__bl-pop-apply';
+    applyBtn.innerHTML =
+      '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+      'Apply to caption';
+    applyBtn.addEventListener('click', function() {
+      if (origApplyBtn) origApplyBtn.click();
+      applyBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Applied';
+      setTimeout(function() {
+        applyBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 1.5 9 9l-7.5.9L9 10.8l.9 7.5.9-7.5L18.3 9l-7.5-.9zm11.1 12-1 4-1-4-4-1 4-1 1-4 1 4 4 1z"/></svg>Apply to caption';
+      }, 2000);
+    });
+
+    var manageLink = document.createElement('a');
+    manageLink.className = '__bl-pop-manage';
+    manageLink.href = 'BrandVoice.html';
+    manageLink.textContent = 'Manage';
+
+    var popover = document.createElement('div');
+    popover.className = '__bl-popover';
+    var popLabel = document.createElement('div');
+    popLabel.className = '__bl-pop-label';
+    popLabel.textContent = 'Brand Voice';
+    var actionsRow = document.createElement('div');
+    actionsRow.className = '__bl-pop-actions';
+    actionsRow.appendChild(applyBtn);
+
+    popover.appendChild(popLabel);
+    popover.appendChild(popSelect);
+    popover.appendChild(descEl);
+    popover.appendChild(document.createElement('div')).className = '__bl-divider';
+    popover.appendChild(actionsRow);
+
+    // Toggle popover
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var isOpen = popover.classList.contains('open');
+      popover.classList.toggle('open', !isOpen);
+      btn.classList.toggle('active', !isOpen);
+    });
+    document.addEventListener('click', function() {
+      popover.classList.remove('open');
+      btn.classList.remove('active');
+    });
+    popover.addEventListener('click', function(e) { e.stopPropagation(); });
+
+    wrap.appendChild(btn);
+    wrap.appendChild(popover);
+
+    // Insert just before the mode toggle (Full Episode / Per-Clip buttons)
+    var modeToggle = headerRow.querySelector('[class*="rounded-pill"]');
+    if (modeToggle) {
+      headerRow.insertBefore(wrap, modeToggle);
+    } else {
+      headerRow.appendChild(wrap);
+    }
+  }
+
   function injectClipSettings() {
     if (document.__clipSettingsDone) return;
 
@@ -1250,11 +1661,66 @@ document.addEventListener('DOMContentLoaded', async function() {
     hideSuggestionsTab();
     rebuildPodsmithChat();
     injectClipSettings();
+    injectBrandLibraryWidget();
+    injectRegenerateButton();
+    hideClipSelector();
+    patchCaptionTextarea();
+    hideGenerateClipsBtn();
+    patchChatWithPodsmithIcon();
     attempts++;
     if (attempts > 60) clearInterval(iv);
     var done = document.querySelectorAll('.__vm-svg');
     if (done.length >= 3 && document.__layoutDoneV4) clearInterval(iv);
   }, 150);
+
+  function hideGenerateClipsBtn() {
+    document.querySelectorAll('button').forEach(function(btn) {
+      if (btn.textContent.trim() === 'Generate clips') {
+        btn.style.setProperty('display', 'none', 'important');
+      }
+    });
+  }
+
+  function patchChatWithPodsmithIcon() {
+    if (document.__chatBtnIconDone) return;
+    document.querySelectorAll('button').forEach(function(btn) {
+      if (btn.textContent.trim() === 'Chat with Podsmith') {
+        var svg = btn.querySelector('svg');
+        if (!svg) return;
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('width', '12');
+        svg.setAttribute('height', '12');
+        svg.innerHTML = '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>';
+        document.__chatBtnIconDone = true;
+      }
+    });
+  }
+
+  // MutationObserver — re-applies caption patches on React re-renders
+  var captionPatchTimer = null;
+  var captionObserver = new MutationObserver(function() {
+    clearTimeout(captionPatchTimer);
+    captionPatchTimer = setTimeout(function() {
+      captionObserver.disconnect();
+      injectRegenerateButton();
+      hideClipSelector();
+      hideGenerateClipsBtn();
+      // Re-hide brand library box every time React re-renders
+      var select = document.querySelector('select[id^="brand-voice"]');
+      if (select) {
+        var el = select;
+        while (el && el !== document.body) {
+          if (el.className && typeof el.className === 'string' && el.className.includes('mb-4')) {
+            el.style.setProperty('display', 'none', 'important');
+            break;
+          }
+          el = el.parentElement;
+        }
+      }
+      captionObserver.observe(document.body, { childList: true, subtree: true });
+    }, 200);
+  });
+  captionObserver.observe(document.body, { childList: true, subtree: true });
 })();
 <\/script>`;
 
