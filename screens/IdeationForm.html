@@ -393,6 +393,7 @@ const FormSummary = ({ formData, onUpdate }) => {
   const [tmpAudience,  setTmpAudience]  = useState("");
   const [tmpContext,   setTmpContext]   = useState("");
   const [addingTag,    setAddingTag]    = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [tagVal,       setTagVal]       = useState("");
 
   const seg = SEGMENTS.find(s=>s.id===formData.segment);
@@ -573,15 +574,16 @@ const IdeationFormPage = () => {
     setAudienceForm({...IDEATION_SEGMENT_SUGGESTIONS[id]});
   };
   const setAudienceField = (field, value) => setAudienceForm(current => ({...current, [field]: value}));
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   return (
     <div className="h-full flex flex-col bg-lavender">
       <Topbar
         breadcrumb={["Workspace","Ideation","New Ideation","Configure"]}
         actions={
-          <button className="ml-1 inline-flex items-center gap-2 h-9 px-4 rounded-pill bg-white border border-border text-ink text-[13px] font-medium hover:bg-lavender transition">
-            <Icon d={I.save} size={14}/>Save draft
-          </button>
+          <span className="ml-1 inline-flex items-center gap-1.5 text-[12px] text-ink-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-success shrink-0"/>Autosaved
+          </span>
         }
       />
       <main className="flex-1 overflow-y-auto">
@@ -660,6 +662,18 @@ const IdeationFormPage = () => {
                 <TagInput tags={audienceForm.painPoints} setTags={tags=>setAudienceField("painPoints",tags)} placeholder="Add a pain point..."/>
               </div>
               <div>
+                <button
+                  onClick={()=>setShowAdvanced(v=>!v)}
+                  className="flex items-center gap-2 text-[12px] font-medium text-ink-2 hover:text-primary transition mt-1">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    {showAdvanced ? <path d="M18 15l-6-6-6 6"/> : <path d="M6 9l6 6 6-6"/>}
+                  </svg>
+                  {showAdvanced ? "Hide advanced details" : "Add advanced details"}
+                  <span className="text-[10.5px] text-ink-3 font-normal">Needs · Wants · Context</span>
+                </button>
+              </div>
+              {showAdvanced && <>
+              <div>
                 <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2 mb-1.5 block">Audience Needs</label>
                 <TagInput tags={audienceForm.needs} setTags={tags=>setAudienceField("needs",tags)} placeholder="Add a need..."/>
               </div>
@@ -680,24 +694,22 @@ const IdeationFormPage = () => {
                   className="w-full px-3 py-2.5 rounded-input border border-border text-[14px] bg-white resize-none leading-relaxed placeholder:text-ink-3"
                 ></textarea>
               </div>
+              </>}
             </div>
           </section>
 
-          <div className="bg-white rounded-card shadow-card px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-[12.5px] text-ink-2">
-              <span className="inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-success"/>Autosaved 8s ago</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <a href="IdeationList.html" className="h-10 px-4 rounded-pill text-[13.5px] font-medium text-ink hover:bg-lavender transition inline-flex items-center">Back</a>
-              <a href="TopicGeneration.html" className="h-10 px-5 rounded-pill bg-primary hover:bg-primary-hover transition text-white text-[13.5px] font-medium inline-flex items-center gap-2 shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]">
-                <Icon d={I.ideation} size={15} stroke={2}/>Generate Topic Ideas
-                <Icon d={I.chevR} size={15} stroke={2.25}/>
-              </a>
-            </div>
-          </div>
-          <div className="text-[11px] text-ink-3 mono mt-6">podium · content marketer · ideation step 1</div>
+          <div className="text-[11px] text-ink-3 mono mt-6 mb-2">podium · content marketer · ideation step 1</div>
         </div>
       </main>
+      <div className="shrink-0 bg-white border-t border-border px-8 py-3.5 flex items-center justify-end">
+        <div className="flex items-center gap-2">
+          <a href="IdeationList.html" className="h-10 px-4 rounded-pill text-[13.5px] font-medium text-ink hover:bg-lavender transition inline-flex items-center">Back</a>
+          <a href="TopicGeneration.html" className="h-10 px-5 rounded-pill bg-primary hover:bg-primary-hover transition text-white text-[13.5px] font-medium inline-flex items-center gap-2 shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]">
+            <Icon d={I.ideation} size={15} stroke={2}/>Generate Topic Ideas
+            <Icon d={I.chevR} size={15} stroke={2.25}/>
+          </a>
+        </div>
+      </div>
     </div>
   );
 };
