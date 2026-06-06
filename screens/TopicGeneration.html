@@ -332,21 +332,23 @@ const TopicGenerationPage = () => {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-[minmax(0,1fr)_286px] gap-6 items-start">
+          <div>
             <div className="min-w-0">
               <div className="bg-white rounded-card shadow-card px-5 py-3.5 mb-5 flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-1.5 text-[12px] text-ink-2 pr-4 border-r border-border">
+                  <AgentMark/>
+                  <span className="font-medium text-ink">Sweetspot</span>
+                  <span className="text-ink-3">·</span>
+                  <span>VP Eng / CTO</span>
+                </div>
                 <div className="flex items-center gap-5 flex-1 text-[12.5px]">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-ink-3"/>
-                    <span className="text-ink-2"><span className="font-semibold text-ink">{TOPICS.length}</span> topics analyzed</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-primary"/>
-                    <span className="text-ink-2"><span className="font-semibold text-primary">{selectedTopicCount}</span> topics selected</span>
+                    <span className="text-ink-2"><span className="font-semibold text-ink">{selectedTopicCount} of {TOPICS.length}</span> topics selected</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-success"/>
-                    <span className="text-ink-2"><span className="font-semibold text-success">{totalEpisodes}</span> episodes selected</span>
+                    <span className="text-ink-2"><span className="font-semibold text-success">{totalEpisodes}</span> {totalEpisodes === 1 ? "episode" : "episodes"} in plan</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-[12px]">
@@ -364,9 +366,11 @@ const TopicGenerationPage = () => {
               const isRegen = !!regenerating[topic.idx];
               const allEpisodes = topic.subtopics.map((_, i) => planEpisode(topic, plan, i));
 
+              const isCollapsed = selectedTopicCount > 0 && !topicSelected;
+
               return (
-                <article key={topic.idx} className={`topic-card bg-white rounded-card overflow-hidden ${topicSelected ? "selected" : "unselected border border-border"}`}>
-                  <div className="px-5 pt-4 pb-4">
+                <article key={topic.idx} className={`topic-card bg-white rounded-card overflow-hidden transition-all ${topicSelected ? "selected border-2 border-primary shadow-[0_0_0_1px_rgba(107,78,255,0.08)]" : "border border-border"}`}>
+                  <div className={`px-5 ${isCollapsed ? "py-3" : "pt-4 pb-4"}`}>
                     <div className="flex items-start gap-4">
                       <button onClick={()=>toggleTopic(topic.idx)}
                         className={`w-5 h-5 rounded-[5px] border-2 flex items-center justify-center shrink-0 mt-0.5 transition ${topicSelected?"bg-primary border-primary":"bg-white border-border hover:border-primary"}`}>
@@ -382,13 +386,17 @@ const TopicGenerationPage = () => {
                             <AgentMark/>{plan.recommendation} · {plan.recommendedCount} ep
                           </span>
                         </div>
-                        <h3 className={`text-[16px] font-semibold display leading-snug ${topicSelected?"text-ink":"text-ink-2"}`}>{topic.title}</h3>
-                        <p className="text-[12.5px] text-ink-2 mt-1.5 leading-relaxed">{topic.rationale}</p>
-                        <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
-                          <span className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mr-0.5">Evidence</span>
-                          {topic.evidence?.map(e=><EvidencePill key={e} type={e}/>)}
-                          {topic.sources.map(s=><SourcePill key={s}>{s}</SourcePill>)}
-                        </div>
+                        <h3 className={`text-[16px] font-semibold display leading-snug ${topicSelected?"text-ink":isCollapsed?"text-ink-3":"text-ink-2"}`}>{topic.title}</h3>
+                        {!isCollapsed&&(
+                          <>
+                            <p className="text-[12.5px] text-ink-2 mt-1.5 leading-relaxed">{topic.rationale}</p>
+                            <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+                              <span className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mr-0.5">Evidence</span>
+                              {topic.evidence?.map(e=><EvidencePill key={e} type={e}/>)}
+                              {topic.sources.map(s=><SourcePill key={s}>{s}</SourcePill>)}
+                            </div>
+                          </>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-3 shrink-0">
@@ -404,11 +412,15 @@ const TopicGenerationPage = () => {
                             </button>
                           </div>
                         )}
-                        <button onClick={()=>regenTopic(topic.idx)}
-                          className={`w-8 h-8 rounded-input grid place-items-center transition ${isRegen?"bg-primary-soft text-primary":"text-ink-3 hover:text-primary hover:bg-primary-soft"}`}
-                          title="Regenerate this topic">
-                          <Icon d={I.refresh} size={14} stroke={2} className={isRegen?"animate-spin":""}/>
-                        </button>
+                        {isCollapsed ? (
+                          <button onClick={()=>toggleTopic(topic.idx)} className="text-[11.5px] text-primary font-medium hover:underline shrink-0">+ Select</button>
+                        ) : (
+                          <button onClick={()=>regenTopic(topic.idx)}
+                            className={`w-8 h-8 rounded-input grid place-items-center transition ${isRegen?"bg-primary-soft text-primary":"text-ink-3 hover:text-primary hover:bg-primary-soft"}`}
+                            title="Regenerate this topic">
+                            <Icon d={I.refresh} size={14} stroke={2} className={isRegen?"animate-spin":""}/>
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -478,9 +490,8 @@ const TopicGenerationPage = () => {
                     </div>
                   )}
 
-                  {!topicSelected&&(
-                    <div className="border-t border-border/50 px-5 py-2.5 flex items-center justify-between">
-                      <span className="text-[11.5px] text-ink-3">Not selected · AI recommendation is available when selected</span>
+                  {!topicSelected&&!isCollapsed&&(
+                    <div className="border-t border-border/50 px-5 py-2 flex items-center justify-end">
                       <button onClick={()=>toggleTopic(topic.idx)} className="text-[11.5px] text-primary font-medium hover:underline">+ Select topic</button>
                     </div>
                   )}
@@ -490,7 +501,6 @@ const TopicGenerationPage = () => {
               </div>
             </div>
 
-            <ConfigSummary/>
           </div>
         </div>
       </main>

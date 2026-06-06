@@ -363,6 +363,7 @@ const IdeationSubmitPage = () => {
   const [personaModal, setPersonaModal] = useState(null);
   const [hostModal, setHostModal] = useState(null);
   const [selectedHosts, setSelectedHosts] = useState({});
+  const [note, setNote] = useState("");
   const getCurrentPersona=(ep)=>ep.persona;
   const getCurrentHost=(ep,ti,ei)=>{const manual=selectedHosts[`${ti}-${ei}`];if(!manual)return ep.host;return{...manual,manualPick:manual.name!==ep.host.name};};
   const handleSelectHost=(ti,ei,host)=>{setSelectedHosts(prev=>({...prev,[`${ti}-${ei}`]:host}));};
@@ -373,8 +374,8 @@ const IdeationSubmitPage = () => {
     return (
       <div className="h-full flex flex-col bg-lavender">
         <Topbar breadcrumb={["Workspace","Ideation","New Ideation","Sent for Approval"]}/>
-        <main className="flex-1 overflow-y-auto flex items-center justify-center">
-          <div className="text-center max-w-[520px] px-8 success-pop">
+        <main className="flex-1 overflow-y-auto">
+          <div className="text-center max-w-[520px] px-8 py-12 mx-auto success-pop">
             <div className="w-20 h-20 rounded-full bg-success/10 grid place-items-center mx-auto mb-6">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
             </div>
@@ -474,31 +475,6 @@ const IdeationSubmitPage = () => {
 
           <div className="grid lg:grid-cols-[minmax(0,1fr)_300px] gap-6 items-start">
             <div className="min-w-0 space-y-4">
-              {/* Config summary */}
-              <section className="bg-white rounded-card shadow-card p-5">
-                <div className="flex items-center justify-between gap-4 mb-4">
-                  <div>
-                    <div className="text-[10.5px] mono uppercase tracking-[0.14em] text-ink-3 mb-1">Configuration Summary</div>
-                    <h2 className="text-[16px] font-semibold display leading-tight">Ideation context</h2>
-                  </div>
-                  <a href="IdeationForm.html" className="text-[12px] text-primary font-medium hover:underline shrink-0">Edit</a>
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-4 text-[12.5px]">
-                  <section className="rounded-input bg-lavender/60 px-3 py-3">
-                    <div className="text-[10.5px] mono uppercase tracking-[0.12em] text-ink-3 mb-1.5">Segment</div>
-                    <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary"/><span className="font-semibold text-ink">Sweetspot</span></div>
-                    <div className="text-ink-3 text-[11px] mt-1">SMBs · SMEs · Startups</div>
-                  </section>
-
-                  <section className="rounded-input bg-lavender/60 px-3 py-3">
-                    <div className="text-[10.5px] mono uppercase tracking-[0.12em] text-ink-3 mb-1.5">Audience</div>
-                    <div className="text-ink font-semibold">VP Eng / CTO</div>
-                    <div className="text-ink-3 text-[11px] mt-1 leading-relaxed">Series B-D SaaS teams</div>
-                  </section>
-                </div>
-              </section>
-
               {/* Selected topics */}
               <section className="bg-white rounded-card shadow-card p-5">
                 <div className="text-[13px] font-semibold display mb-1 flex items-start justify-between gap-3">
@@ -609,6 +585,16 @@ const IdeationSubmitPage = () => {
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                   Guest persona + fit score per episode
                 </div>
+              </div>
+              <div>
+                <label className="text-[11px] mono uppercase tracking-[0.12em] text-ink-3 mb-1.5 block">Note for Jen <span className="normal-case not-mono font-normal tracking-normal text-ink-3">(optional)</span></label>
+                <textarea
+                  rows={3}
+                  value={note}
+                  onChange={e=>setNote(e.target.value)}
+                  placeholder="Add context for the manager — priorities, deadlines, or anything to flag…"
+                  className="w-full px-3 py-2.5 rounded-input border border-border text-[12.5px] bg-white resize-none leading-relaxed placeholder:text-ink-3 focus:outline-none focus:border-primary transition"
+                />
               </div>
               <button onClick={() => setSubmitted(true)}
                 className="w-full h-11 rounded-pill bg-primary hover:bg-primary-hover transition text-white text-[13.5px] font-medium inline-flex items-center justify-center gap-2 shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]">
