@@ -661,19 +661,7 @@ const IdeationFormPage = () => {
                 </div>
                 <TagInput tags={audienceForm.painPoints} setTags={tags=>setAudienceField("painPoints",tags)} placeholder="Add a pain point..."/>
               </div>
-              <div>
-                <button
-                  onClick={()=>setShowAdvanced(v=>!v)}
-                  className="flex items-center gap-2 text-[12px] font-medium text-ink-2 hover:text-primary transition mt-1">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    {showAdvanced ? <path d="M18 15l-6-6-6 6"/> : <path d="M6 9l6 6 6-6"/>}
-                  </svg>
-                  {showAdvanced ? "Hide advanced details" : "Add advanced details"}
-                  <span className="text-[10.5px] text-ink-3 font-normal">Needs · Wants · Context</span>
-                </button>
-              </div>
-              {showAdvanced && <>
-              <div>
+                            <div>
                 <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2 mb-1.5 block">Audience Needs</label>
                 <TagInput tags={audienceForm.needs} setTags={tags=>setAudienceField("needs",tags)} placeholder="Add a need..."/>
               </div>
@@ -694,7 +682,6 @@ const IdeationFormPage = () => {
                   className="w-full px-3 py-2.5 rounded-input border border-border text-[14px] bg-white resize-none leading-relaxed placeholder:text-ink-3"
                 ></textarea>
               </div>
-              </>}
             </div>
           </section>
 
