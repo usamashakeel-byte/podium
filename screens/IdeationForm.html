@@ -264,7 +264,7 @@ const ConvAgent = ({ onUpdate }) => {
                     <a href="TopicGeneration.html"
                        className="h-9 px-5 rounded-pill text-[13px] font-semibold inline-flex items-center gap-2 text-white transition"
                        style={{background:"#6B4EFF",boxShadow:"0 4px 14px -2px rgba(107,78,255,.50)"}}>
-                      Generate Topic Ideas
+                      Generate Topics
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
                     </a>
                   </div>
@@ -525,7 +525,7 @@ const FormSummary = ({ formData, onUpdate }) => {
              className="w-full h-10 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13.5px] font-semibold inline-flex items-center justify-center gap-2 transition"
              style={{boxShadow:"0 6px 14px -4px rgba(107,78,255,0.5)"}}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/></svg>
-            Generate Topic Ideas
+            Generate Topics
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
           </a>
         ) : (
@@ -533,7 +533,7 @@ const FormSummary = ({ formData, onUpdate }) => {
             Complete the chat to continue
           </div>
         )}
-        <div className="text-[10.5px] text-ink-3 mono mt-3 text-center">podium · content marketer · ideation step 1</div>
+        <div className="text-[10.5px] text-ink-3 mono mt-3 text-center"></div>
       </div>
     </div>
   );
@@ -541,7 +541,7 @@ const FormSummary = ({ formData, onUpdate }) => {
 
 /* ── Step bar ─────────────────────────────────────────────────── */
 const StepBar = ({ current }) => {
-  const steps = ["Configure","Topic Plan","Send for Approval"];
+  const steps = ["Configure","Topic Plan","Approval"];
   return (
     <div className="bg-white rounded-card shadow-card px-6 py-4 mb-6 shrink-0">
       <div className="flex items-center">
@@ -593,15 +593,15 @@ const IdeationFormPage = () => {
           <div className="flex items-end justify-between gap-4 mb-6">
             <div>
               <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1.5">Step 1 of 3</div>
-              <h1 className="text-[26px] font-bold display leading-tight">Configure your ideation</h1>
-              <p className="text-[13.5px] text-ink-2 mt-1">Select your target segment and define the audience profile for AI topic generation.</p>
+              <h1 className="text-[24px] font-bold display leading-tight">Configure your ideation</h1>
+              <p className="text-[13.5px] text-ink-2 mt-1">Choose a segment ICP and define your audience.</p>
             </div>
           </div>
 
           <section className="bg-white rounded-card shadow-card mb-5">
             <div className="px-6 pt-5 pb-3">
               <h2 className="text-[17px] font-semibold display">Target Segment <span className="text-primary">*</span></h2>
-              <p className="text-[12.5px] text-ink-2 mt-1">Select the segment ICP for this ideation. This shapes topic relevance and audience fit scoring.</p>
+              <p className="text-[12.5px] text-ink-2 mt-1">Shapes topic relevance and audience fit.</p>
             </div>
             <div className="px-6 pb-6">
               <div className="grid grid-cols-3 gap-3">
@@ -641,7 +641,7 @@ const IdeationFormPage = () => {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-[17px] font-semibold display">Audience</h2>
-                  <p className="text-[12.5px] text-ink-2 mt-1">AI-suggested from the selected Brand Library audience segment. Edit anything before generating topics.</p>
+                  <p className="text-[12.5px] text-ink-2 mt-1">Pre-filled from your Brand Library. Edit as needed.</p>
                 </div>
                 <span className="shrink-0 rounded-pill px-2.5 py-1 text-[11px] font-bold" style={{background:activeSegment.soft,color:activeSegment.color}}>
                   {activeSegment.label} suggested
@@ -650,49 +650,49 @@ const IdeationFormPage = () => {
             </div>
             <div className="px-6 pb-6 space-y-5">
               <div>
-                <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2 mb-1.5 block">Target Audience <span className="text-primary">*</span></label>
+                <label className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mb-1.5 block">Target Audience <span className="text-primary">*</span></label>
                 <input type="text" value={audienceForm.audience} onChange={e=>setAudienceField("audience",e.target.value)}
                   className="w-full h-11 px-3 rounded-input border border-border text-[14px] bg-white"/>
               </div>
               <div>
                 <div className="flex items-baseline justify-between mb-1.5">
-                  <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2">Pain Points</label>
+                  <label className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3">Pain Points</label>
                   <span className="text-[11px] text-ink-3">Press Enter to add</span>
                 </div>
                 <TagInput tags={audienceForm.painPoints} setTags={tags=>setAudienceField("painPoints",tags)} placeholder="Add a pain point..."/>
               </div>
                             <div>
-                <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2 mb-1.5 block">Audience Needs</label>
+                <label className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mb-1.5 block">Audience Needs</label>
                 <TagInput tags={audienceForm.needs} setTags={tags=>setAudienceField("needs",tags)} placeholder="Add a need..."/>
               </div>
               <div>
-                <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2 mb-1.5 block">Audience Wants</label>
+                <label className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mb-1.5 block">Audience Wants</label>
                 <TagInput tags={audienceForm.wants} setTags={tags=>setAudienceField("wants",tags)} placeholder="Add a want..."/>
               </div>
               <div>
                 <div className="flex items-baseline justify-between mb-1.5">
-                  <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-ink-2">Additional Context</label>
+                  <label className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3">Additional Context</label>
                   <span className="text-[11px] text-ink-3">Optional</span>
                 </div>
                 <textarea
                   rows={4}
                   value={audienceForm.context}
                   onChange={e=>setAudienceField("context",e.target.value)}
-                  placeholder="Add angles to focus on, topics to avoid, examples, or any extra context for topic generation..."
+                  placeholder="Angles, topics to avoid, examples…"
                   className="w-full px-3 py-2.5 rounded-input border border-border text-[14px] bg-white resize-none leading-relaxed placeholder:text-ink-3"
                 ></textarea>
               </div>
             </div>
           </section>
 
-          <div className="text-[11px] text-ink-3 mono mt-6 mb-2">podium · content marketer · ideation step 1</div>
+          <div className="text-[11px] text-ink-3 mono mt-6 mb-2"></div>
         </div>
       </main>
       <div className="shrink-0 bg-white border-t border-border px-8 py-3.5 flex items-center justify-end">
         <div className="flex items-center gap-2">
           <a href="IdeationList.html" className="h-10 px-4 rounded-pill text-[13.5px] font-medium text-ink hover:bg-lavender transition inline-flex items-center">Back</a>
           <a href="TopicGeneration.html" className="h-10 px-5 rounded-pill bg-primary hover:bg-primary-hover transition text-white text-[13.5px] font-medium inline-flex items-center gap-2 shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]">
-            <Icon d={I.ideation} size={15} stroke={2}/>Generate Topic Ideas
+            <Icon d={I.ideation} size={15} stroke={2}/>Generate Topics
             <Icon d={I.chevR} size={15} stroke={2.25}/>
           </a>
         </div>

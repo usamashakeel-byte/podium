@@ -194,7 +194,7 @@ const EVIDENCE_LABELS={trending:{label:"Trending",bg:"#FFF3CD",fg:"#92600A"},vir
 const EvidencePill=({type})=>{const e=EVIDENCE_LABELS[type];if(!e)return null;return<span className="px-2 py-0.5 rounded-pill text-[10.5px] font-medium" style={{background:e.bg,color:e.fg}}>{e.label}</span>;};
 
 const StepBar = () => {
-  const steps = ["Configure", "Topic Plan", "Send for Approval"];
+  const steps = ["Configure", "Topic Plan", "Approval"];
   return (
     <div className="bg-white rounded-card shadow-card px-6 py-4 mb-6">
       <div className="flex items-center">
@@ -220,10 +220,10 @@ const StepBar = () => {
 const ConfigSummary = () => (
   <aside className="bg-white rounded-card shadow-card px-5 py-5 sticky top-6">
     <div className="mb-5">
-      <div className="mono text-[10.5px] uppercase tracking-[0.18em] text-ink-3 mb-1.5">Ideation context</div>
+      <div className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 mb-1.5">Ideation context</div>
       <h2 className="text-[17px] font-semibold display text-ink leading-tight">AI planning inputs</h2>
       <span className="ai-pill rounded-pill px-2.5 py-1 text-[11px] font-semibold text-ink inline-flex items-center gap-1.5 mt-3">
-        <AgentMark/>Analyzed by Podium Agent
+        <AgentMark/>Podium Agent
       </span>
     </div>
 
@@ -326,9 +326,9 @@ const TopicGenerationPage = () => {
                 <Icon d={I.ideation} size={10}/>AI generated
               </span>
             </div>
-            <h1 className="text-[24px] font-bold display leading-tight">Review the AI-generated topic plan</h1>
+            <h1 className="text-[24px] font-bold display leading-tight">Review your topic plan</h1>
             <p className="text-[13px] text-ink-2 mt-1.5 max-w-[680px]">
-              Select a topic to accept the agent's recommended structure. You can adjust episode count or deselect suggested episodes, but episode creation stays with the AI agent at this stage.
+              Select topics and adjust episode counts. Episode creation happens after approval.
             </p>
           </div>
 
@@ -352,9 +352,9 @@ const TopicGenerationPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-[12px]">
-                  <button onClick={()=>setSelections(Object.fromEntries(TOPICS.map(t=>[t.idx,Array.from({length:TOPIC_PLANS[t.idx].recommendedCount},(_,i)=>i)])))} className="text-primary font-medium hover:underline">Use all recommendations</button>
+                  <button onClick={()=>setSelections(Object.fromEntries(TOPICS.map(t=>[t.idx,Array.from({length:TOPIC_PLANS[t.idx].recommendedCount},(_,i)=>i)])))} className="text-primary font-medium hover:underline">Select all</button>
                   <span className="text-ink-3">·</span>
-                  <button onClick={()=>setSelections({})} className="text-ink-2 hover:text-ink font-medium hover:underline">Clear all</button>
+                  <button onClick={()=>setSelections({})} className="text-ink-2 hover:text-ink font-medium hover:underline">Clear All</button>
                 </div>
               </div>
 
@@ -438,17 +438,17 @@ const TopicGenerationPage = () => {
                               <AgentMark/>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-[13px] font-semibold text-ink">AI recommendation</span>
+                                  <span className="text-[13px] font-semibold text-ink"></span>
                                   <span className="px-2 py-0.5 rounded-pill text-[10.5px] font-medium" style={{background:"#D9F1E2",color:"#1E7E34"}}>{plan.confidence}% confidence</span>
                                 </div>
                                 <p className="text-[13px] text-ink-2 leading-relaxed mt-2">{plan.reasoning}</p>
                                 <div className="grid sm:grid-cols-2 gap-4 mt-3">
                                   <div>
-                                    <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-1">Audience insight</div>
+                                    <div className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 mb-1">Audience insight</div>
                                     <p className="text-[12.5px] leading-relaxed text-ink">{plan.audience}</p>
                                   </div>
                                   <div>
-                                    <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-1">Content depth</div>
+                                    <div className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 mb-1">Content depth</div>
                                     <p className="text-[12.5px] leading-relaxed text-ink">{plan.depth}</p>
                                   </div>
                                 </div>
@@ -458,7 +458,7 @@ const TopicGenerationPage = () => {
 
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
-                              <span className="text-[10.5px] mono uppercase tracking-[0.14em] text-ink-3">AI-generated episode plan</span>
+                              <span className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3">Episode Plan</span>
                               <span className="px-2 py-0.5 rounded-pill text-[10px] font-semibold" style={{background:"#EDE9FF",color:"#5A3FE0"}}>{selectedCount} of {allEpisodes.length} selected</span>
                             </div>
                             <div className="flex items-center gap-3 text-[11.5px]">
@@ -508,7 +508,7 @@ const TopicGenerationPage = () => {
       <div className="fixed bottom-0 left-[220px] right-0 bg-white border-t border-border px-8 py-4 flex items-center justify-between z-10 shadow-[0_-4px_16px_rgba(26,26,46,0.06)]">
         <div className="text-[13px] text-ink-2">
           {canProceed ? (
-            <><span className="font-semibold text-ink">{selectedTopicCount}</span> topic{selectedTopicCount!==1?"s":""} selected · <span className="font-semibold text-primary">{totalEpisodes}</span> AI-suggested episodes selected</>
+            <><span className="font-semibold text-ink">{selectedTopicCount}</span> topic{selectedTopicCount!==1?"s":""} selected · <span className="font-semibold text-primary">{totalEpisodes}</span> episodes selected</>
           ) : (
             <span className="text-ink-3">Select at least 1 AI topic recommendation to continue</span>
           )}
