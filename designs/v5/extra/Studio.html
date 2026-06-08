@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Studio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  select:focus{outline:none;border-color:#6B4EFF!important;box-shadow:0 0 0 3px rgba(107,78,255,0.15)}
+  .layout-btn{transition:background .12s,border-color .12s,color .12s}
+  .size-btn{transition:background .12s,border-color .12s,color .12s}
+  @keyframes fadeIn{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}
+  .fade-in{animation:fadeIn .25s ease both}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .pulse{animation:pulse 1.5s ease-in-out infinite}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,chevDown:<path d="M6 9l6 6 6-6"/>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,
+  mic:<><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,
+  video:<><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/></>,
+  share2:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8-3M8.6 10.5l6.8 3"/></>,
+  studio:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 8l5 3-5 3V8z"/></>,voice:<><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></>,
+  play:<path d="M5 3l14 9-14 9V3z" fill="currentColor" stroke="none"/>,
+  download:<><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>,
+  sparkle:<path d="M9.9 1.5 9 9l-7.5.9L9 10.8l.9 7.5.9-7.5L18.3 9l-7.5-.9zm11.1 12-1 4-1-4-4-1 4-1 1-4 1 4 4 1z"/>,
+  scissors:<><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></>,
+  link:<><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></>,
+  zap:<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" stroke="none"/>,
+  refresh2:<path d="M23 4v6h-6M1 20v-6h6M3.5 9A9 9 0 0121 15.5M20.5 15A9 9 0 013 8.5"/>,
+};
+const Logo=()=>(<a href="../CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const RoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>Content Marketer</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="studio"})=>{const u={name:"Fizza Asad",role:"Content Marketer"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="../CMDashboard.html"/><NavItem icon={I.ideation} label="Ideation" active={active==="ideation"} href="../IdeationList.html"/><NavItem icon={I.mic} label="Episode Topics" active={active==="episodes"} href="../EpisodeTopics.html"/><NavItem icon={I.brief} label="Brief Builder" active={active==="brief"} href="../BriefList.html"/></div><SectionLabel>Production</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.video} label="Recordings" active={active==="recordings"} href="../RecordingsList.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.settings} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="../Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="../BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="../Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="../Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer"><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white"><Icon d={I.moreV} size={16}/></button></div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}>{i>0&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}<span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span></React.Fragment>))}</nav>);
+const Topbar=({breadcrumb})=>(<header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0"><div className="flex-1 min-w-0"><Crumb items={breadcrumb}/></div><button className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink"><Icon d={I.bell} size={18}/></button><RoleBadge/></header>);
+</script>
+
+<script type="text/babel">
+const { useState } = React;
+
+const STUDIO_RECORDING = {
+  id:"REC-001", guest:"Alex Morgan", title:"Inside the Procurement Black Box", duration:"42:18",
+  linkedBrief: {
+    id:"BR-006", episode:"Inside the Procurement Black Box", segment:"Sweetspot",
+    brandVoice:"The Revenue Engine", status:"Approved",
+    hook:"Every enterprise AI POC has a procurement failure hiding inside a technology story.",
+  },
+};
+
+const TRANSCRIPT = [
+  { time:"00:00:15", speaker:"HOST",        text:"Alex, welcome to the show. You've been CIO at Lattice for three years now — a company at that interesting inflection point between scrappy startup and mature enterprise. Before we dive in, set the scene for us." },
+  { time:"00:00:28", speaker:"ALEX MORGAN", text:"Thanks for having me. At Lattice we're around 400 people, which puts us in this awkward zone — too big to move fast like a startup, too small to have dedicated procurement infrastructure. I'm responsible for every piece of technology that touches the business: infrastructure, security, internal tooling, and increasingly, AI." },
+  { time:"00:01:12", speaker:"HOST",        text:"You've described enterprise AI procurement as a 'black box.' What do you actually mean by that phrase?" },
+  { time:"00:01:20", speaker:"ALEX MORGAN", text:"Here's the pattern I see over and over. A vendor comes in, does a demo with engineering. Engineering loves it, they run a POC, the POC goes well. And then it hits the procurement layer. Suddenly it's like the demo never happened. Everything slows down. Legal needs to review the data processing agreement. Security needs a vendor questionnaire. Finance needs to understand the pricing model. And the vendor is completely unprepared for any of this." },
+  { time:"00:02:45", speaker:"HOST",        text:"Is the vendor unprepared because they don't know, or because they haven't prioritised it?" },
+  { time:"00:02:51", speaker:"ALEX MORGAN", text:"Both, honestly. But mostly it's information asymmetry. The person who championed the tool internally — usually a senior engineer or a tech lead — doesn't know what procurement is going to ask. And procurement doesn't know enough about the tool to ask the right questions. The two sides never speak directly until it's too late, and by then the vendor has already lost faith in the deal." },
+  { time:"00:04:10", speaker:"HOST",        text:"So what's the fix? How should companies structure this better?" },
+  { time:"00:04:15", speaker:"ALEX MORGAN", text:"Designate an internal champion who understands both worlds. Not the CTO — they're too senior and too removed from the details. The sweet spot is usually a Head of Engineering Ops or a senior technical program manager. Someone who can translate between engineering excitement and procurement reality. They need to be in the room for the demo and in the room for the security review." },
+  { time:"00:06:33", speaker:"HOST",        text:"Let's talk about the security review specifically, because I hear this is where a lot of deals die." },
+  { time:"00:06:40", speaker:"ALEX MORGAN", text:"The security review is not the problem. Arriving at it unprepared is the problem. Every vendor should know exactly what a security review looks like before they walk in. SOC 2 Type II report, data residency documentation, subprocessor list, penetration test results. These aren't surprises — they're table stakes. If your vendor can't produce these immediately, that's the red flag, not the review itself." },
+  { time:"00:09:02", speaker:"HOST",        text:"You mentioned earlier that engineering and procurement don't talk. How does that break down in practice?" },
+  { time:"00:09:10", speaker:"ALEX MORGAN", text:"Picture this: the engineer evaluates the tool on technical merit. Does it integrate with our stack? Is the API well-documented? Is the latency acceptable? All legitimate questions. But procurement is evaluating on completely different criteria. What's the contractual flexibility? Who holds the data if we terminate? What's the indemnity clause look like? These two sets of questions almost never get asked at the same time, in the same room, by the same team." },
+  { time:"00:11:48", speaker:"HOST",        text:"What would you tell a vendor who is about to walk into their first enterprise deal?" },
+  { time:"00:11:55", speaker:"ALEX MORGAN", text:"Prepare like a scout. Know the objections before they're raised. Have your security documentation ready on day one. Find out who the internal champion is and give them everything they need to build a business case — not just technical specs, but cost savings, time saved per week per person, risk reduction. Give them a number a CFO can put in a spreadsheet. That's the document that actually gets deals across the line." },
+];
+
+const VIRAL_TITLES = {
+  "CL-001": [
+    "The #1 Reason AI Projects Get Killed (It's Not the Tech)",
+    "CIO Reveals the Hidden Killer of Enterprise AI Deals",
+    "Why Your AI POC Failed: A CIO's Honest Take",
+  ],
+  "CL-002": [
+    "Security Reviews Are NOT the Blocker (Here's What Actually Is)",
+    "The Prep Work That Saves Your AI Deal from Security Review",
+    "CIO: 'Every Vendor Knows This — Why Don't They Prepare?'",
+  ],
+  "CL-003": [
+    "Your Internal Champion Is More Important Than Your Demo",
+    "Stop Pitching the CTO — Here's Who Actually Buys AI Tools",
+    "The One Role That Determines If Your AI POC Reaches Production",
+  ],
+};
+
+const INIT_CLIPS = [
+  { id:"CL-001", title:"The silent killer of AI POCs", duration:"1:23", type:"Short", saved:"May 21" },
+  { id:"CL-002", title:"Security review prep: what vendors never tell you", duration:"1:18", type:"Short", saved:"May 21" },
+  { id:"CL-003", title:"Why your internal champion matters more than the demo", duration:"1:31", type:"Short", saved:"May 21" },
+];
+
+const LAYOUTS = [
+  { id:"Split", label:"Split", desc:"Guest + Host", preview: (active) => (
+    <div className="flex gap-1 justify-center mb-2.5">
+      <div style={{width:14,height:22,borderRadius:3,background:active?"#6B4EFF":"#ADADBE"}}/>
+      <div style={{width:14,height:22,borderRadius:3,background:active?"#6B4EFF":"#ADADBE"}}/>
+    </div>
+  )},
+  { id:"Solo", label:"Solo", desc:"Guest only", preview: (active) => (
+    <div className="flex justify-center mb-2.5">
+      <div style={{width:16,height:22,borderRadius:3,background:active?"#6B4EFF":"#ADADBE"}}/>
+    </div>
+  )},
+  { id:"Full", label:"Full", desc:"Wide frame", preview: (active) => (
+    <div className="flex justify-center mb-2.5">
+      <div style={{width:28,height:18,borderRadius:3,background:active?"#6B4EFF":"#ADADBE"}}/>
+    </div>
+  )},
+];
+
+const ClipCard = ({ clip }) => {
+  const [titlesOpen, setTitlesOpen] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
+  const titles = VIRAL_TITLES[clip.id] || [];
+  const checkPath = <path d="M5 12l5 5L20 7"/>;
+
+  return (
+    <div className="bg-white rounded-card shadow-card overflow-hidden flex flex-col">
+      {/* 9:16 thumbnail */}
+      <div className="relative w-full flex items-center justify-center shrink-0" style={{background:"#0D0D1A",aspectRatio:"9/16",maxHeight:220}}>
+        <div className="flex flex-col items-center gap-3 opacity-50">
+          <div className="w-12 h-12 rounded-full border-2 border-white/20 grid place-items-center">
+            <Icon d={I.play} size={18} fill="white" className="text-white"/>
+          </div>
+        </div>
+        <div className="absolute top-2.5 left-2.5">
+          <span className="px-2 py-0.5 rounded-pill text-[10px] font-bold" style={{background:"rgba(107,78,255,0.88)",color:"#fff"}}>{clip.type}</span>
+        </div>
+        <div className="absolute bottom-2.5 right-2.5">
+          <span className="mono text-[10px] text-white/60 bg-black/30 px-1.5 py-0.5 rounded">{clip.duration}</span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 flex flex-col flex-1 gap-3">
+        <div>
+          <div className="text-[13px] font-semibold text-ink leading-snug mb-1">{clip.title}</div>
+          <div className="text-[11px] text-ink-3 mono">{clip.id} · saved {clip.saved}</div>
+        </div>
+
+        {/* Viral title generator */}
+        <div>
+          <button onClick={()=>setTitlesOpen(o=>!o)}
+            className={["w-full h-10 rounded-input text-[12.5px] font-medium inline-flex items-center justify-center gap-2 transition border",
+              titlesOpen
+                ? "bg-warning/10 border-warning/30 text-ink"
+                : "border-border text-ink-2 hover:border-warning/50 hover:bg-warning/5 hover:text-ink"].join(" ")}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#F9AB00" stroke="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            {titlesOpen ? "Hide Viral Titles" : "Generate Viral Titles"}
+          </button>
+
+          {titlesOpen && (
+            <div className="mt-2 space-y-2 fade-in">
+              {titles.map((t,i)=>(
+                <div key={i} className="flex gap-2 px-3 py-2.5 rounded-input bg-lavender">
+                  <span className="text-primary font-bold text-[11px] shrink-0 mt-0.5">#{i+1}</span>
+                  <span className="text-[12px] text-ink leading-snug">{t}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Download */}
+        <button onClick={()=>setDownloaded(true)}
+          className={["w-full h-10 rounded-pill text-[13px] font-semibold inline-flex items-center justify-center gap-2 transition mt-auto",
+            downloaded
+              ? "bg-[#D9F1E2] text-[#1E7E34]"
+              : "bg-primary hover:bg-primary-hover text-white shadow-[0_4px_14px_-4px_rgba(107,78,255,0.5)]"].join(" ")}>
+          <Icon d={downloaded ? checkPath : I.download} size={14} stroke={downloaded?2.5:1.75}/>
+          {downloaded ? "Downloaded" : "Download Clip"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const StudioPage = () => {
+  const [layout, setLayout] = useState("Split");
+  const [clipSize, setClipSize] = useState("Shorts");
+  const [clips, setClips] = useState(INIT_CLIPS);
+  const [generating, setGenerating] = useState(false);
+  const [clipPrompt, setClipPrompt] = useState("");
+
+  const generateMore = () => {
+    setGenerating(true);
+    setTimeout(() => {
+      setClips(prev => [...prev,
+        { id:`CL-${String(prev.length+1).padStart(3,"0")}`, title:"Prepare like a scout: the vendor playbook for enterprise deals", duration:"1:27", type:"Short", saved:"Just now" },
+      ]);
+      setGenerating(false);
+    }, 1800);
+  };
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar breadcrumb={["Workspace","Studio"]}/>
+
+      {/* In-Studio banner */}
+      <div className="bg-white border-b border-border shrink-0">
+        <div className="px-8 h-11 flex items-center gap-4 text-[12.5px]">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-primary pulse"/>
+            <span className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">In Studio</span>
+          </div>
+          <span className="w-px h-4 bg-border"/>
+          <span className="font-medium text-ink">{STUDIO_RECORDING.guest} — {STUDIO_RECORDING.title}</span>
+          <span className="text-ink-3">·</span>
+          <span className="mono text-[11px] text-ink-3">{STUDIO_RECORDING.duration}</span>
+          <a href="../RecordingsList.html" className="ml-auto text-[12px] text-primary hover:text-primary-hover font-medium transition">Change recording →</a>
+        </div>
+      </div>
+
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[1280px] mx-auto px-8 py-8">
+          <div className="flex items-start gap-6">
+
+            {/* Left: Video + Generate Clips */}
+            <div className="w-[360px] shrink-0 space-y-5">
+
+              {/* Video preview */}
+              <div className="bg-white rounded-card shadow-card overflow-hidden">
+                <div className="relative w-full flex items-center justify-center" style={{background:"#0D0D1A",aspectRatio:"16/9"}}>
+                  <div className="flex flex-col items-center gap-3 opacity-50">
+                    <div className="w-16 h-16 rounded-full border-2 border-white/20 grid place-items-center">
+                      <Icon d={I.play} size={24} fill="white" className="text-white"/>
+                    </div>
+                    <span className="text-white/50 text-[11px] mono">{STUDIO_RECORDING.duration}</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+                    <div className="h-full bg-primary" style={{width:"18%"}}/>
+                  </div>
+                </div>
+                <div className="px-4 py-3 border-t border-border flex items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-semibold text-ink truncate">{STUDIO_RECORDING.guest}</div>
+                    <div className="text-[11px] text-ink-3 mono">{STUDIO_RECORDING.id} · {STUDIO_RECORDING.duration}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Brief Context */}
+              {STUDIO_RECORDING.linkedBrief ? (
+                <div className="bg-white rounded-card shadow-card overflow-hidden">
+                  <div className="px-4 pt-3.5 pb-2.5 border-b border-border flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-[6px] grid place-items-center" style={{background:"#EDE9FF"}}>
+                        <Icon d={I.brief} size={13} className="text-primary"/>
+                      </div>
+                      <span className="text-[13px] font-semibold text-ink">Brief Context</span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-pill text-[10px] font-bold" style={{background:"#D9F1E2",color:"#1E7E34"}}>Approved</span>
+                  </div>
+                  <div className="px-4 py-3 space-y-2.5">
+                    <div>
+                      <div className="text-[10px] mono uppercase tracking-[0.14em] text-ink-3 mb-0.5">Episode</div>
+                      <div className="text-[12.5px] font-medium text-ink leading-snug">{STUDIO_RECORDING.linkedBrief.episode}</div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <div className="text-[10px] mono uppercase tracking-[0.14em] text-ink-3 mb-0.5">Segment</div>
+                        <div className="text-[12px] text-ink">{STUDIO_RECORDING.linkedBrief.segment}</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] mono uppercase tracking-[0.14em] text-ink-3 mb-0.5">Brief ID</div>
+                        <div className="text-[12px] mono text-ink">{STUDIO_RECORDING.linkedBrief.id}</div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] mono uppercase tracking-[0.14em] text-ink-3 mb-0.5">Brand Voice</div>
+                      <div className="flex items-center gap-1.5">
+                        <Icon d={I.voice} size={12} className="text-primary"/>
+                        <span className="text-[12px] font-medium text-ink">{STUDIO_RECORDING.linkedBrief.brandVoice}</span>
+                      </div>
+                    </div>
+                    <div className="pt-1 border-t border-border">
+                      <div className="text-[10px] mono uppercase tracking-[0.14em] text-ink-3 mb-1">Episode Hook</div>
+                      <div className="text-[12px] text-ink-2 leading-relaxed italic">"{STUDIO_RECORDING.linkedBrief.hook}"</div>
+                    </div>
+                    <a href="../BriefDetail.html" className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-primary hover:text-primary-hover transition">
+                      View full brief<Icon d={I.chevR} size={11}/>
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-card shadow-card px-4 py-4 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-input grid place-items-center shrink-0" style={{background:"#FFE9C0"}}>
+                    <Icon d={I.brief} size={15} className="text-[#A86A00]"/>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[12.5px] font-semibold text-ink mb-0.5">No brief linked</div>
+                    <div className="text-[11.5px] text-ink-2 leading-snug">Link an approved brief before generating clips for best results.</div>
+                    <a href="../BriefList.html" className="inline-flex items-center gap-1 mt-2 text-[11.5px] font-medium text-primary hover:text-primary-hover transition">
+                      Link a brief<Icon d={I.chevR} size={11}/>
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Generate Clips */}
+              <div className="bg-white rounded-card shadow-card p-5 space-y-6">
+                <div>
+                  <h2 className="text-[16px] font-bold display">Generate Clips</h2>
+                  <p className="text-[12px] text-ink-2 mt-0.5">AI-powered clip extraction from your recording</p>
+                </div>
+
+                {/* Layout selector */}
+                <div>
+                  <div className="text-[11px] mono uppercase tracking-[0.15em] text-ink-3 mb-3">Layout</div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {LAYOUTS.map(l => {
+                      const active = layout === l.id;
+                      return (
+                        <button key={l.id} onClick={()=>setLayout(l.id)}
+                          className={["rounded-card border-2 py-3 px-2 text-center transition",
+                            active?"border-primary bg-primary-soft":"border-border hover:border-ink-3 bg-white"].join(" ")}>
+                          {l.preview(active)}
+                          <div className={`text-[12.5px] font-semibold ${active?"text-primary":"text-ink"}`}>{l.label}</div>
+                          <div className="text-[10.5px] text-ink-3 mt-0.5">{l.desc}</div>
+                          {l.id==="Split"&&<div className="text-[9.5px] font-bold text-warning mt-1">Default</div>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Clip size */}
+                <div>
+                  <div className="text-[11px] mono uppercase tracking-[0.15em] text-ink-3 mb-3">Clip Size</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { id:"Shorts", label:"Shorts", duration:"1–1.5 min", platform:"TikTok · Reels · YouTube Shorts" },
+                      { id:"Clips",  label:"Clips",  duration:"10–15 min", platform:"YouTube · Podcast clips" },
+                    ].map(s => {
+                      const active = clipSize === s.id;
+                      return (
+                        <button key={s.id} onClick={()=>setClipSize(s.id)}
+                          className={["rounded-card border-2 p-4 text-left transition",
+                            active?"border-primary bg-primary-soft":"border-border hover:border-ink-3 bg-white"].join(" ")}>
+                          <div className={`text-[14px] font-bold ${active?"text-primary":"text-ink"}`}>{s.label}</div>
+                          <div className={`text-[12px] font-semibold mt-1 ${active?"text-primary/70":"text-ink-2"}`}>{s.duration}</div>
+                          <div className="text-[10.5px] text-ink-3 mt-2 leading-relaxed">{s.platform}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Clip prompt */}
+                <div>
+                  <div className="text-[11px] mono uppercase tracking-[0.15em] text-ink-3 mb-2">Instructions <span className="normal-case tracking-normal font-normal text-ink-3 ml-1">(optional)</span></div>
+                  <div className="relative">
+                    <textarea
+                      value={clipPrompt}
+                      onChange={e => setClipPrompt(e.target.value.slice(0, 280))}
+                      rows={3}
+                      placeholder="e.g. Find moments where Alex talks about procurement failure. Prioritise punchy one-liners. Avoid the intro."
+                      className="w-full px-3 py-2.5 rounded-input border border-border text-[12.5px] leading-relaxed bg-white resize-none focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(107,78,255,0.15)] transition placeholder:text-ink-3"
+                    />
+                    <div className="absolute bottom-2 right-2.5 text-[10px] mono text-ink-3">{clipPrompt.length}/280</div>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {["Best one-liners","Guest story moments","Controversial takes","Data-backed claims"].map(s=>(
+                      <button key={s} onClick={()=>setClipPrompt(v=>v?v+", "+s:s)}
+                        className="px-2 py-0.5 rounded-pill text-[10.5px] font-medium border border-border text-ink-2 hover:border-primary hover:text-primary hover:bg-primary-soft transition">
+                        + {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Generate button */}
+                <button onClick={generateMore} disabled={generating}
+                  className={["w-full h-13 rounded-pill text-[14px] font-semibold transition inline-flex items-center justify-center gap-2.5",
+                    generating
+                      ? "bg-border text-ink-3 cursor-not-allowed"
+                      : "bg-primary hover:bg-primary-hover text-white shadow-[0_8px_20px_-6px_rgba(107,78,255,0.6)]"].join(" ")}
+                  style={{height:52}}>
+                  {generating ? (
+                    <><Icon d={I.refresh2} size={17} className="animate-spin"/>Generating clips…</>
+                  ) : (
+                    <><Icon d={I.scissors} size={17}/>Generate {clipSize}</>
+                  )}
+                </button>
+              </div>
+
+              <div className="text-[11px] text-ink-3 mono">podium · studio · {STUDIO_RECORDING.id}</div>
+            </div>
+
+            {/* Right: Transcript + Clips */}
+            <div className="flex-1 min-w-0 space-y-6">
+
+              {/* Transcript */}
+              <div className="bg-white rounded-card shadow-card overflow-hidden">
+                <div className="px-5 pt-4 pb-3.5 border-b border-border flex items-center justify-between">
+                  <div>
+                    <h2 className="text-[15px] font-semibold display">Transcript</h2>
+                    <p className="text-[12px] text-ink-2 mt-0.5">Auto-generated · Riverside.fm · {STUDIO_RECORDING.duration}</p>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-pill text-[10.5px] font-semibold" style={{background:"#D9F1E2",color:"#1E7E34"}}>Ready</span>
+                </div>
+                <div className="overflow-y-auto px-5 py-5 space-y-5" style={{maxHeight:360}}>
+                  {TRANSCRIPT.map((entry, i) => (
+                    <div key={i} className="flex gap-3">
+                      <div className="shrink-0 pt-0.5">
+                        <span className="mono text-[10.5px] text-ink-3">{entry.time}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className={`text-[11px] font-bold uppercase tracking-[0.1em] mb-1 ${entry.speaker==="HOST"?"text-ink-3":"text-primary"}`}>
+                          {entry.speaker}
+                        </div>
+                        <p className="text-[13.5px] text-ink leading-relaxed">{entry.text}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Generated clips */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-[18px] font-bold display">Generated Clips</h2>
+                    <p className="text-[12.5px] text-ink-2 mt-0.5">{clips.length} clips · {clipSize} · {layout} layout · saved state</p>
+                  </div>
+                  {clips.length > 0 && (
+                    <button onClick={generateMore} disabled={generating}
+                      className={["h-10 px-5 rounded-pill border text-[13px] font-medium inline-flex items-center gap-2 transition",
+                        generating?"border-border text-ink-3 cursor-not-allowed":"border-border text-ink-2 hover:text-ink hover:border-ink-3 bg-white"].join(" ")}>
+                      <Icon d={I.refresh2} size={14}/>Generate More
+                    </button>
+                  )}
+                </div>
+
+                {clips.length === 0 ? (
+                  <div className="bg-white rounded-card shadow-card px-8 py-14 text-center">
+                    <div className="w-14 h-14 rounded-full bg-lavender grid place-items-center mx-auto mb-4">
+                      <Icon d={I.scissors} size={22} className="text-ink-3"/>
+                    </div>
+                    <div className="text-[15px] font-semibold text-ink mb-1">No clips generated yet</div>
+                    <div className="text-[13px] text-ink-2">Configure your clip settings on the left and click Generate.</div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-4">
+                    {clips.map(clip=><ClipCard key={clip.id} clip={clip}/>)}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+function App(){
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Studio">
+      <Sidebar active="studio"/>
+      <div className="flex-1 min-w-0 flex flex-col"><StudioPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

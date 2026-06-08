@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Marketing Manager Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  .agent-banner{background:radial-gradient(70% 130% at 0% 50%,rgba(107,78,255,0.14) 0%,transparent 72%),#F8F6FF;border:1px solid #DDD8FF}
+  .queue-card{transition:transform .14s,box-shadow .14s,border-color .14s,background .14s}
+  .queue-card:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(26,26,46,0.05),0 8px 20px rgba(26,26,46,0.06);border-color:#D6D2EE}
+  .decision-panel{background:linear-gradient(180deg,#FFFFFF 0%,#FAFAFF 100%)}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  check:<path d="M5 12l5 5L20 7"/>,
+  x:<path d="M18 6L6 18M6 6l12 12"/>,
+  message:<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>,
+  arrow:<path d="M5 12h14M13 5l7 7-7 7"/>,
+  clock:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
+  users:<><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></>,
+};
+
+const Logo=()=>(<a href="MMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const MMRoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#E3ECFF",color:"#1D4ED8"}}><span className="w-1.5 h-1.5 rounded-full bg-blue-600"/>Marketing Manager</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="dashboard"})=>{const [menu,setMenu]=useState(false);const u={name:"Jen Mendoza",role:"Marketing Manager"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="MMDashboard.html"/><NavItem icon={I.ideation} label="Ideation Reviews" active={active==="ideation-reviews"} href="MMIdeations.html"/><NavItem icon={I.brief} label="Brief Reviews" active={active==="brief-reviews"} href="MMBriefs.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="relative"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>e.stopPropagation()}><Icon d={I.moreV} size={16}/></button></div>{menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}</div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}>{i>0&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}<span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span></React.Fragment>))}</nav>);
+const NOTIFS=[
+  {id:1,type:"action",title:"New ideation submitted",desc:"Fizza submitted 'AI Strategy Series' for review.",time:"2 hrs ago",read:false},
+  {id:2,type:"action",title:"Brief awaiting review",desc:"Episode 1 brief for AI Strategy Series is pending approval.",time:"3 hrs ago",read:false},
+  {id:3,type:"reminder",title:"Ideation review overdue",desc:"'Procurement Bottleneck' has been waiting 2 days for review.",time:"2 days ago",read:false},
+  {id:4,type:"approved",title:"Episodes now live",desc:"AI Cost Optimization topics moved to Episode Topics.",time:"3 days ago",read:true},
+  {id:5,type:"info",title:"Weekly summary",desc:"3 ideations reviewed this week — 2 approved, 1 rejected.",time:"5 days ago",read:true},
+];
+const NOTIF_STYLE={approved:{bg:"#D9F1E2",fg:"#1E7E34",path:<path d="M5 12l5 5L20 7"/>},rejected:{bg:"#FFE0DA",fg:"#B92E22",path:<path d="M18 6L6 18M6 6l12 12"/>},action:{bg:"#EDE9FF",fg:"#5A3FE0",path:<path d="M12 5v7M12 16h.01"/>},reminder:{bg:"#FFE9C0",fg:"#A86A00",path:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>},info:{bg:"#E8E8F8",fg:"#5F6368",path:<><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v5"/></>}};
+const NotifPanel=({notifs,onMarkAll,onClose})=>{const unread=notifs.filter(n=>!n.read).length;return(<><div className="fixed inset-0 z-40" onClick={onClose}/><div className="absolute right-0 top-full mt-2 w-[340px] bg-white rounded-card border border-border z-50 overflow-hidden" style={{boxShadow:"0 8px 32px rgba(26,26,46,0.14)"}}><div className="flex items-center justify-between px-4 py-3 border-b border-border"><div className="flex items-center gap-2"><span className="text-[14px] font-semibold text-ink">Notifications</span>{unread>0&&<span className="px-1.5 py-0.5 rounded-pill text-[10px] font-bold bg-primary text-white">{unread}</span>}</div>{unread>0&&<button onClick={onMarkAll} className="text-[11.5px] font-medium text-primary hover:underline">Mark all read</button>}</div><div className="divide-y divide-border/50 max-h-[420px] overflow-y-auto">{notifs.map(n=>{const s=NOTIF_STYLE[n.type]||NOTIF_STYLE.info;return(<div key={n.id} className={`flex items-start gap-3 px-4 py-3 cursor-pointer transition hover:bg-lavender/40 ${!n.read?"bg-primary-soft/20":""}`}><div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{background:s.bg}}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={s.fg} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">{s.path}</svg></div><div className="flex-1 min-w-0"><div className={`text-[12.5px] leading-snug ${!n.read?"font-semibold text-ink":"text-ink-2"}`}>{n.title}</div><div className="text-[11.5px] text-ink-3 mt-0.5 leading-snug">{n.desc}</div><div className="text-[10.5px] text-ink-3 mt-1">{n.time}</div></div>{!n.read&&<div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5"/>}</div>);})}</div><div className="px-4 py-3 border-t border-border text-center"><button className="text-[12px] font-medium text-ink-3 hover:text-primary transition">View all notifications</button></div></div></>);};
+const Topbar=()=>{
+  const [notifOpen,setNotifOpen]=useState(false);
+  const [notifs,setNotifs]=useState(NOTIFS);
+  const unread=notifs.filter(n=>!n.read).length;
+  return(
+    <header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0">
+      <div className="flex-1 min-w-0"><Crumb items={["Workspace","Dashboard"]}/></div>
+      <div className="relative">
+        <button onClick={()=>setNotifOpen(v=>!v)} className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink relative">
+          <Icon d={I.bell} size={18}/>
+          {unread>0&&<span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary border-2 border-white"/>}
+        </button>
+        {notifOpen&&<NotifPanel notifs={notifs} onMarkAll={()=>setNotifs(p=>p.map(n=>({...n,read:true})))} onClose={()=>setNotifOpen(false)}/>}
+      </div>
+      <MMRoleBadge/>
+    </header>
+  );
+};
+
+const AgentMark=({size=28})=>(
+  <div className="rounded-full shrink-0 flex items-center justify-center" style={{width:size,height:size,background:"#1A1A2E"}}>
+    <svg viewBox="0 0 40 40" width={size*0.58} height={size*0.58} fill="none">
+      <rect x="10" y="9" width="5" height="22" rx="1.5" fill="#FFF"/>
+      <path d="M15 9h7a7 7 0 010 14h-7" stroke="#FFF" strokeWidth="5" strokeLinejoin="round" fill="none"/>
+      <circle cx="27.5" cy="30.5" r="2.4" fill="#6B4EFF"/>
+    </svg>
+  </div>
+);
+const AgentThinking=({total,nextItem,ideationCount,briefCount})=>(
+  <div className="agent-banner rounded-card px-5 py-4 flex items-center gap-4">
+    <AgentMark/>
+    <div className="flex-1 min-w-0">
+      <div className="text-[13px] font-semibold text-ink">Podium Agent</div>
+      <div className="text-[13px] text-ink-2 mt-0.5">You have <span className="font-semibold text-ink">{total}</span> items waiting. Approving these unblocks your team.</div>
+    </div>
+    <div className="hidden sm:flex items-center gap-2 shrink-0">
+      <a href="MMIdeations.html" className="h-8 px-3 rounded-pill bg-primary-soft text-primary inline-flex items-center gap-1.5 text-[12px] font-semibold hover:bg-[#E3DCFF] transition">
+        <Icon d={I.ideation} size={13}/>{plural(ideationCount,"Ideation")}
+      </a>
+      <a href="MMBriefs.html" className="h-8 px-3 rounded-pill bg-success/10 text-success inline-flex items-center gap-1.5 text-[12px] font-semibold hover:bg-success/15 transition">
+        <Icon d={I.brief} size={13}/>{plural(briefCount,"Brief")}
+      </a>
+    </div>
+    {nextItem&&<a href={nextItem.detailHref} className="h-9 px-3.5 rounded-pill bg-ink text-white text-[12px] font-semibold inline-flex items-center gap-1.5 shrink-0 hover:bg-primary transition">Review next<Icon d={I.arrow} size={13}/></a>}
+  </div>
+);
+
+const INITIAL_IDEATIONS=[
+  {id:"ideation-1",title:"AI Strategy Series",segment:"Enterprise segment",audience:"Enterprise AI decision makers",topicCount:3,episodeCount:4,submittedBy:"Fizza",age:"2 hrs ago",priority:"High",impact:"Unblocks a 4-part topic plan. Includes suggested host and guest persona fits per episode.",confidence:"92%",detailHref:"MMReviewDetail.html?kind=ideation&id=ideation-1"},
+  {id:"ideation-2",title:"Procurement Bottleneck Deep Dive",segment:"Sweetspot segment",audience:"CIO / Head of AI evaluators",topicCount:2,episodeCount:3,submittedBy:"Fizza",age:"4 hrs ago",priority:"Medium",impact:"Needed before approved episodes move into brief planning. Host and persona fits are attached.",confidence:"88%",detailHref:"MMReviewDetail.html?kind=ideation&id=ideation-2"},
+];
+const INITIAL_BRIEFS=[
+  {id:"brief-1",title:"Episode 1: AI Adoption Brief",episodeId:"EP-001",host:"Haseeb",guest:"CTO persona",submittedBy:"Fizza",age:"45 mins ago",priority:"High",impact:"Recording prep, host framing, and guest persona are waiting on approval",confidence:"94%",detailHref:"MMReviewDetail.html?kind=brief&id=brief-1"},
+];
+
+const plural=(count,word)=>`${count} ${word}${count===1?"":"s"}`;
+const allPending=(ideations,briefs)=>[...ideations.map(i=>({...i,type:"ideation"})),...briefs.map(b=>({...b,type:"brief"}))];
+
+const QueueCard=({item,type,onApprove,onReject})=>{
+  const [rejecting,setRejecting]=useState(false);
+  const [feedback,setFeedback]=useState("");
+  const accent=type==="ideation"?"#6B4EFF":"#34A853";
+  const soft=type==="ideation"?"#EDE9FF":"#D9F1E2";
+  const label=type==="ideation"?"Ideation":"Brief";
+
+  const submitReject=()=>{
+    if(feedback.trim()) onReject(item.id, feedback.trim());
+  };
+
+  return (
+    <article data-testid={`${type}-${item.id}`} className="queue-card bg-white rounded-card shadow-card border border-transparent p-4">
+      <div className="flex items-start gap-3">
+        <div className="w-9 h-9 rounded-input grid place-items-center shrink-0" style={{background:soft,color:accent}}>
+          <Icon d={type==="ideation"?I.ideation:I.brief} size={17}/>
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">{label}</span>
+            <span className="px-2 py-0.5 rounded-pill text-[10.5px] font-semibold" style={{background:item.priority==="High"?"#FFE9C0":"#EDE9FF",color:item.priority==="High"?"#A86A00":"#5A3FE0"}}>{item.priority}</span>
+            <span className="text-[11.5px] text-ink-3 inline-flex items-center gap-1"><Icon d={I.clock} size={12}/>{item.age}</span>
+          </div>
+          <a href={item.detailHref} className="text-[15px] font-semibold display leading-snug text-ink hover:text-primary transition block">
+            {item.title}{item.segment?` · ${item.segment}`:""}
+          </a>
+          {type==="ideation" ? (
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px] text-ink-2">
+              <span>Audience: <span className="font-medium text-ink">{item.audience}</span></span>
+              <span>{plural(item.topicCount,"topic")}</span>
+              <span>{plural(item.episodeCount,"episode")}</span>
+              <span>Submitted by <span className="font-medium text-ink">{item.submittedBy}</span></span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[11px] font-semibold" style={{background:"#D9F1E2",color:"#1E7E34"}}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                Suggested host &amp; persona fits
+              </span>
+            </div>
+          ) : (
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-ink-2">
+              <span>{item.episodeId}</span>
+              <span>Host: <span className="font-medium text-ink">{item.host}</span></span>
+              <span>Guest persona: <span className="font-medium text-ink">{item.guest}</span></span>
+              <span>Submitted by <span className="font-medium text-ink">{item.submittedBy}</span></span>
+            </div>
+          )}
+          <div className="mt-3 rounded-input bg-lavender/60 px-3 py-2 flex items-center justify-between gap-3">
+            <div className="text-[12px] text-ink-2 leading-snug">{item.impact}</div>
+            <div className="text-[11px] font-semibold text-primary shrink-0">{item.confidence} AI fit</div>
+          </div>
+        </div>
+      </div>
+
+      {rejecting && (
+        <div className="mt-4 rounded-input border border-border bg-lavender/60 p-3">
+          <label className="text-[11.5px] font-medium text-ink-2 mb-2 block">Why are you rejecting this? <span className="text-ink-3 font-normal">(your feedback improves future suggestions)</span></label>
+          <textarea data-testid={`${type}-${item.id}-feedback`} value={feedback} onChange={e=>setFeedback(e.target.value)} autoFocus rows={3}
+            className="w-full resize-none bg-white border border-border rounded-input px-3 py-2.5 text-[13px] leading-relaxed outline-none focus:border-primary"
+            placeholder="Add clear feedback for the content team..."/>
+        </div>
+      )}
+
+      <div className="mt-4 flex items-center justify-between gap-3 flex-wrap">
+        <a href={item.detailHref} data-testid={`${type}-${item.id}-details`}
+          className="h-9 px-3.5 rounded-pill border border-border text-[12.5px] font-medium text-ink hover:border-primary hover:text-primary inline-flex items-center gap-1.5 transition">
+          Review details<Icon d={I.arrow} size={13}/>
+        </a>
+        <div className="flex items-center gap-2">
+          <button data-testid={`${type}-${item.id}-approve`} onClick={()=>onApprove(item.id)}
+            className="h-9 px-4 rounded-pill bg-success hover:bg-success/90 text-white text-[12.5px] font-medium inline-flex items-center gap-1.5 transition shadow-[0_5px_12px_-5px_rgba(52,168,83,0.7)]">
+            <Icon d={I.check} size={13} stroke={2.5}/>Approve
+          </button>
+          {rejecting ? (
+            <>
+              <button data-testid={`${type}-${item.id}-send-feedback`} onClick={submitReject} disabled={!feedback.trim()}
+                className={`h-9 px-4 rounded-pill text-[12.5px] font-medium inline-flex items-center gap-1.5 transition ${feedback.trim()?"bg-danger hover:bg-danger/90 text-white":"bg-ink-3 text-white cursor-not-allowed opacity-60"}`}>
+                <Icon d={I.x} size={13} stroke={2.5}/>Send feedback
+              </button>
+              <button data-testid={`${type}-${item.id}-cancel-feedback`} onClick={()=>{setRejecting(false);setFeedback("");}}
+                className="h-9 px-3 rounded-pill border border-border text-[12.5px] font-medium text-ink-2 hover:text-ink hover:bg-lavender transition">
+                Cancel
+              </button>
+            </>
+          ) : (
+            <button data-testid={`${type}-${item.id}-reject`} onClick={()=>setRejecting(true)}
+              className="h-9 px-4 rounded-pill border border-border text-[12.5px] font-medium text-ink-2 hover:text-danger hover:border-danger/30 hover:bg-[#FFF4F3] transition inline-flex items-center gap-1.5">
+              <Icon d={I.message} size={13}/>Reject + Feedback
+            </button>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+};
+
+const QueueSection=({title,count,type,items,onApprove,onReject})=>(
+  <section>
+    <div className="flex items-end justify-between mb-3">
+      <div>
+        <div className="mono text-[10.5px] uppercase tracking-[0.18em] text-ink-3">{title}</div>
+        <h2 className="text-[18px] font-semibold display mt-1">{count} pending</h2>
+      </div>
+      <a href={type==="ideation"?"MMIdeations.html":"MMBriefs.html"} className="text-[12.5px] text-primary font-medium hover:underline">View all</a>
+    </div>
+    <div className="space-y-3">
+      {items.length ? items.map(item=><QueueCard key={item.id} item={item} type={type} onApprove={onApprove} onReject={onReject}/>) : (
+        <div className="bg-white rounded-card shadow-card px-5 py-8 text-center">
+          <div className="w-9 h-9 rounded-full bg-success/10 text-success grid place-items-center mx-auto mb-3"><Icon d={I.check} size={17} stroke={2.5}/></div>
+          <div className="text-[13.5px] font-semibold text-ink">All clear</div>
+          <div className="text-[12.5px] text-ink-2 mt-1">No pending {type==="ideation"?"ideation":"brief"} reviews.</div>
+        </div>
+      )}
+    </div>
+  </section>
+);
+
+const DecisionPanel=({items})=>(
+  <section data-testid="decision-order" className="decision-panel rounded-card shadow-card p-5">
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <div className="mono text-[10.5px] uppercase tracking-[0.16em] text-ink-3">Decision Order</div>
+        <h2 className="text-[17px] font-semibold display mt-1">Most blocking first</h2>
+      </div>
+      <div className="hidden sm:flex items-center gap-2 text-[12.5px] text-ink-2">
+        <Icon d={I.users} size={15} className="text-primary"/>
+        <span><span className="font-semibold text-ink">{items.length}</span> team blockers</span>
+      </div>
+    </div>
+    <div className="mt-4 grid md:grid-cols-3 gap-3">
+      {items.slice(0,3).map((item,idx)=>(
+        <a key={`${item.type}-${item.id}`} href={item.detailHref} className="group flex items-start gap-3 rounded-input p-3 bg-white border border-border/70 hover:border-primary/30 hover:bg-lavender transition">
+          <span className="w-6 h-6 rounded-full grid place-items-center text-[11px] font-bold shrink-0" style={{background:idx===0?"#1A1A2E":"#EDE9FF",color:idx===0?"#FFF":"#6B4EFF"}}>{idx+1}</span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[12.5px] font-semibold text-ink leading-snug group-hover:text-primary transition">{item.title}</span>
+            <span className="block text-[11.5px] text-ink-3 mt-0.5">{item.age} · {item.type==="ideation"?"Topic plan":"Brief"}</span>
+          </span>
+          <Icon d={I.chevR} size={14} className="text-ink-3 group-hover:text-primary mt-1"/>
+        </a>
+      ))}
+    </div>
+  </section>
+);
+
+const MMDashboardPage=()=>{
+  const [ideations,setIdeations]=useState(INITIAL_IDEATIONS);
+  const [briefs,setBriefs]=useState(INITIAL_BRIEFS);
+  const [completed,setCompleted]=useState([]);
+  const [removing,setRemoving]=useState({});
+
+  const removeItem=(kind,id,action,feedback)=>{
+    setRemoving(prev=>({...prev,[id]:true}));
+    setTimeout(()=>{
+      if(kind==="ideation") setIdeations(prev=>prev.filter(item=>item.id!==id));
+      if(kind==="brief") setBriefs(prev=>prev.filter(item=>item.id!==id));
+      setCompleted(prev=>[{id,kind,action,feedback},...prev].slice(0,3));
+      setRemoving(prev=>{const next={...prev};delete next[id];return next;});
+    },160);
+  };
+
+  const visibleIdeations=ideations.filter(item=>!removing[item.id]);
+  const visibleBriefs=briefs.filter(item=>!removing[item.id]);
+  const pendingItems=allPending(visibleIdeations,visibleBriefs);
+  const total=pendingItems.length;
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar/>
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[1180px] mx-auto px-8 py-8">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <div>
+              <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1.5">Marketing Manager</div>
+              <h1 className="text-[28px] font-bold display">Dashboard</h1>
+              <p className="text-[13.5px] text-ink-2 mt-1">Approvals that unblock topic planning and episode production.</p>
+            </div>
+            <div className="hidden md:flex items-center gap-2 rounded-pill bg-white px-3 py-2 shadow-card">
+              <span className="w-2 h-2 rounded-full bg-warning"/>
+              <span className="text-[12.5px] font-medium text-ink-2">Oldest item waiting 4 hrs</span>
+            </div>
+          </div>
+
+          <AgentThinking total={total} nextItem={pendingItems[0]} ideationCount={visibleIdeations.length} briefCount={visibleBriefs.length}/>
+          <div className="mt-5"><DecisionPanel items={pendingItems}/></div>
+
+          <div className="mt-6">
+            <div className="grid lg:grid-cols-2 gap-6">
+              <QueueSection title="Ideation Reviews" count={visibleIdeations.length} type="ideation" items={visibleIdeations}
+                onApprove={id=>removeItem("ideation",id,"approved")}
+                onReject={(id,feedback)=>removeItem("ideation",id,"rejected",feedback)}
+              />
+              <QueueSection title="Brief Reviews" count={visibleBriefs.length} type="brief" items={visibleBriefs}
+                onApprove={id=>removeItem("brief",id,"approved")}
+                onReject={(id,feedback)=>removeItem("brief",id,"rejected",feedback)}
+              />
+            </div>
+          </div>
+
+          {completed.length>0&&(
+            <div className="mt-6 bg-white rounded-card shadow-card px-5 py-4">
+              <div className="mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3 mb-2">Recent actions</div>
+              <div className="flex flex-wrap gap-2">
+                {completed.map(item=>(
+                  <span key={`${item.id}-${item.action}`} className="px-2.5 py-1 rounded-pill text-[11.5px] font-medium" style={{background:item.action==="approved"?"#D9F1E2":"#FFE0DA",color:item.action==="approved"?"#1E7E34":"#B92E22"}}>
+                    {item.kind} {item.action}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+function App(){
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Marketing Manager Dashboard">
+      <Sidebar active="dashboard"/>
+      <div className="flex-1 min-w-0 flex flex-col"><MMDashboardPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+<script>window.parent.postMessage({type:'podium_navigate',page:'screens/MMDashboard.html'},'*');</script></body>
+</html>

@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium AI — Brand Library</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}
+  body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}
+  .mono{font-family:'Inter',sans-serif}
+  .display{letter-spacing:-0.02em}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:999px;outline:none;cursor:pointer;background:linear-gradient(to right,#6B4EFF 0%,#6B4EFF var(--pct,50%),#E2E2EE var(--pct,50%),#E2E2EE 100%)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#6B4EFF;border:2px solid #fff;box-shadow:0 1px 4px rgba(107,78,255,.35);cursor:pointer}
+  .hub-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235F6368' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:15px;padding-right:42px!important}
+  @keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .slide-up{animation:slideUp .2s ease both}
+  textarea{resize:vertical}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  mic:<><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  voice:<><path d="M12 2a3 3 0 013 3v7a3 3 0 11-6 0V5a3 3 0 013-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v3M8 22h8"/></>,
+  video:<><rect x="2" y="7" width="15" height="10" rx="2"/><path d="M17 9l5-3v12l-5-3"/></>,
+  share2:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></>,
+  studio:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  plus:<path d="M12 5v14M5 12h14"/>,
+  trash:<><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></>,
+  edit:<><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></>,
+  check:<path d="M5 12l5 5L20 7"/>,
+  x:<path d="M18 6L6 18M6 6l12 12"/>,
+  chevR:<path d="M9 6l6 6-6 6"/>,
+  chevDown:<path d="M6 9l6 6 6-6"/>,
+  chevL:<path d="M15 18l-6-6 6-6"/>,
+  copy:<><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></>,
+  sparkle:<><path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z"/><path d="M19 3l.9 2.7L22 7l-2.1.3L19 10l-.9-2.7L16 7l2.1-.3z"/></>,
+};
+
+const Logo=()=>(<a href="CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13}}>{name.split(/\s+/).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const RoleBadge=()=>(<span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>Content Marketer</span>);
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+
+const Sidebar=({active="voice"})=>{
+  const [menu,setMenu]=useState(false);
+  const u={name:"Fizza Asad",role:"Content Marketer"};
+  return(
+    <aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}>
+      <div className="px-5 pt-6 pb-4"><Logo/></div>
+      <div className="flex-1 overflow-y-auto pb-2"><div className="px-2">
+        <div className="space-y-0.5 px-1">
+          <NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="CMDashboard.html"/>
+          <NavItem icon={I.ideation} label="Ideation"       href="IdeationList.html"/>
+          <NavItem icon={I.mic}      label="Episode Topics" href="EpisodeTopics.html"/>
+          <NavItem icon={I.brief}    label="Brief Builder"  href="BriefList.html"/>
+          
+        </div>
+        <SectionLabel>Production</SectionLabel>
+        <div className="space-y-0.5 px-1">
+          <NavItem icon={I.video}   label="Recordings"     href="RecordingsList.html"/>
+        </div>
+        <SectionLabel>Account</SectionLabel>
+        <div className="space-y-0.5 px-1"><NavItem icon={I.sliders} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div>
+          <NavItem icon={I.settings} label="Settings" href="Settings.html"/>
+        </div>
+      </div></div>
+      <div className="border-t border-border px-3 py-3">
+        <div className="relative">
+          <div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}>
+            <Avatar name={u.name} size={32}/>
+            <div className="min-w-0 flex-1">
+              <div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div>
+              <div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div>
+            </div>
+            <button type="button" className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>{e.stopPropagation();setMenu(v=>!v);}}><Icon d={I.moreV} size={16}/></button>
+          </div>
+          {menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}
+        </div>
+      </div>
+    </aside>
+  );
+};
+
+const Topbar=({crumb,action,onBellClick})=>(
+  <header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0">
+    <div className="flex-1 min-w-0">
+      <nav className="flex items-center gap-1.5 text-[13px]">
+        {crumb.map((c,i)=>(
+          <React.Fragment key={i}>
+            {i>0&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}
+            <span className={i===crumb.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{c}</span>
+          </React.Fragment>
+        ))}
+      </nav>
+    </div>
+    {action}
+    <button type="button" onClick={onBellClick} className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink transition"><Icon d={I.bell} size={18}/></button>
+    <RoleBadge/>
+  </header>
+);
+
+/* ── Constants ──────────────────────────────────────────── */
+const CHANNELS=["Episode titles","Show notes","Episode descriptions","Social clip captions","Newsletter","LinkedIn posts"];
+const TONE_TRAITS=["Conversational","Expert","Warm","Direct","Playful","Practical","Opinionated","Witty"];
+const EXAMPLE_TYPES=["Episode transcript","Show notes","Social post","Newsletter excerpt","Episode titles","LinkedIn post","Guest bio"];
+const READING_LEVELS=["Middle school (grade 6–8)","High school (grade 9–12)","General audience","Professional / Expert"];
+
+const EMPTY_FORM={
+  name:"",audience:"",channels:[],description:"",
+  examples:[],
+  traits:[],formality:4,energy:5,depth:5,
+  preferredWords:"",bannedWords:"",dos:"",donts:"",
+  cta:"",readingLevel:"General audience",notes:"",
+};
+
+const SEED_VOICES=[
+  {
+    id:"BV-001",
+    name:"The Revenue Engine",
+    audience:"B2B SaaS revenue leaders",
+    channels:["Episode titles","Show notes","Social clip captions"],
+    description:"Signal over noise — real decisions, real outcomes. Authoritative but never stuffy. The voice leads with insight, not preamble.",
+    examples:[{type:"Show notes",titleOrUrl:"EP 47 — When the Deal Dies in Legal",sample:"Every revenue leader has a story: the deal that was done, until it wasn't. This week, we unpack why legal and procurement kill more late-stage deals than any competitor does — and what the best sales teams do differently."}],
+    traits:["Expert","Direct","Conversational"],
+    formality:4,energy:5,depth:5,
+    preferredWords:"practitioners, signal, revenue, real-world, strategic, operators",
+    bannedWords:"synergy, disruptive, game-changer, guru, ninja, rockstar",
+    dos:"Open with the insight, not the context. Use concrete examples. Keep intros under two sentences.",
+    donts:"Don't sound corporate. Don't over-explain obvious concepts. Avoid passive voice.",
+    cta:"Subscribe and catch the next episode",
+    readingLevel:"Professional / Expert",
+    notes:"Primary voice for the main show feed. All episode assets default to this voice.",
+  },
+  {
+    id:"BV-002",
+    name:"Founder Stories — Social",
+    audience:"Early-stage founders and operators",
+    channels:["Social clip captions","LinkedIn posts"],
+    description:"Conversational and punchy. Reads like a smart friend giving advice. Short sentences. High signal per word.",
+    examples:[],
+    traits:["Conversational","Warm","Playful"],
+    formality:2,energy:6,depth:3,
+    preferredWords:"honest, scrappy, founder, build, shipped, learned",
+    bannedWords:"leverage, ecosystem, scalable (overused), paradigm",
+    dos:"Start with a hook. Use numbers when possible. End with a question or call to action.",
+    donts:"Don't use buzzwords. Don't write paragraphs — use line breaks.",
+    cta:"Watch the full episode — link in bio",
+    readingLevel:"High school (grade 9–12)",
+    notes:"For short-form social clips only. Not to be used for show notes.",
+  },
+];
+
+const DEFAULT_PRINCIPLES=[
+  "Lead with the insight, then support it with context.",
+  "Use concrete operator language instead of broad marketing claims.",
+  "Keep generated assets authoritative, direct, and easy to scan.",
+];
+
+/* ── Slider ─────────────────────────────────────────────── */
+const Slider=({label,left,right,value,onChange})=>{
+  const pct=((value-1)/6)*100;
+  return(
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[13px] font-medium text-ink">{label}</span>
+        <span className="mono text-[12px] font-semibold text-primary">{value}<span className="text-ink-3 font-normal">/7</span></span>
+      </div>
+      <input type="range" min={1} max={7} value={value}
+        style={{"--pct":`${pct}%`}}
+        onChange={e=>onChange(Number(e.target.value))}
+        className="w-full mb-1.5"/>
+      <div className="flex justify-between text-[11px] text-ink-3">
+        <span>{left}</span><span>{right}</span>
+      </div>
+    </div>
+  );
+};
+
+/* ── TraitChip ──────────────────────────────────────────── */
+const TraitChip=({label,active,onClick})=>(
+  <button type="button" onClick={onClick}
+    className={["px-3 py-1.5 rounded-pill text-[12.5px] font-medium border transition",
+      active?"bg-primary-soft border-primary/40 text-primary":"bg-white border-border text-ink-2 hover:border-primary/30 hover:text-primary"].join(" ")}>
+    {label}
+  </button>
+);
+
+/* ── ChannelChip ────────────────────────────────────────── */
+const ChannelChip=({label,active,onClick})=>(
+  <button type="button" onClick={onClick}
+    className={["px-3 py-1.5 rounded-pill text-[12.5px] font-medium border transition",
+      active?"bg-ink text-white border-ink":"bg-white border-border text-ink-2 hover:border-ink/40 hover:text-ink"].join(" ")}>
+    {label}
+  </button>
+);
+
+/* ── Section wrapper ─────────────────────────────────────── */
+const Section=({title,note,children,action})=>(
+  <div className="bg-white rounded-card shadow-card overflow-hidden mb-4">
+    <div className="px-6 py-4 border-b border-border flex items-start justify-between gap-4">
+      <div>
+        <div className="text-[14px] font-semibold text-ink">{title}</div>
+        {note&&<div className="text-[12.5px] text-ink-2 mt-0.5">{note}</div>}
+      </div>
+      {action}
+    </div>
+    <div className="px-6 py-5">{children}</div>
+  </div>
+);
+
+/* ── Field ──────────────────────────────────────────────── */
+const Field=({label,children})=>(
+  <div>
+    <label className="block text-[12.5px] font-medium text-ink mb-1.5">{label}</label>
+    {children}
+  </div>
+);
+
+const inputCls="w-full px-3.5 py-2.5 rounded-input border border-border text-[13px] text-ink placeholder:text-ink-3 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition";
+const selectCls=inputCls+" hub-select";
+const textareaCls=inputCls+" leading-relaxed";
+
+/* ── Example row ────────────────────────────────────────── */
+const ExampleRow=({ex,onChange,onRemove})=>(
+  <div className="rounded-input border border-border bg-lavender/30 p-4 space-y-3">
+    <div className="flex items-center gap-3">
+      <select value={ex.type} onChange={e=>onChange({...ex,type:e.target.value})}
+        className="hub-select h-8 pl-2.5 pr-9 rounded-input border border-border text-[12.5px] text-ink bg-white focus:outline-none focus:border-primary transition">
+        {EXAMPLE_TYPES.map(t=><option key={t}>{t}</option>)}
+      </select>
+      <input value={ex.titleOrUrl} onChange={e=>onChange({...ex,titleOrUrl:e.target.value})}
+        placeholder="Episode title or source URL"
+        className="flex-1 h-8 px-2.5 rounded-input border border-border text-[12.5px] text-ink placeholder:text-ink-3 bg-white focus:outline-none focus:border-primary transition"/>
+      <button type="button" onClick={onRemove}
+        className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-danger hover:bg-danger/10 border border-border transition">
+        <Icon d={I.x} size={13} stroke={2.5}/>
+      </button>
+    </div>
+    <textarea value={ex.sample} onChange={e=>onChange({...ex,sample:e.target.value})} rows={3}
+      placeholder="Paste a sample — show notes, a clip caption, an episode title list..."
+      className={textareaCls}/>
+  </div>
+);
+
+/* ── Live Summary ────────────────────────────────────────── */
+const LiveSummary=({form})=>{
+  const hasName=form.name.trim().length>0;
+  const hasDesc=form.description.trim().length>0;
+  const traitsStr=form.traits.join(", ");
+  return(
+    <div className="bg-white rounded-card shadow-card sticky top-6 overflow-hidden">
+      <div className="px-5 py-4 border-b border-border">
+        <div className="text-[13px] font-semibold text-ink">Live preview</div>
+        <div className="text-[11.5px] text-ink-3 mt-0.5">Updates as you fill out the form</div>
+      </div>
+      {!hasName&&!hasDesc?(
+        <div className="px-5 py-8 text-center">
+          <Icon d={I.sparkle} size={28} className="text-ink-3 mx-auto mb-2"/>
+          <div className="text-[13px] text-ink-3">Start filling out the form to preview your brand voice profile here.</div>
+        </div>
+      ):(
+        <div className="px-5 py-5 space-y-4">
+          {hasName&&(
+            <div>
+              <div className="text-[11px] mono uppercase tracking-[0.12em] text-ink-3 mb-1">Voice name</div>
+              <div className="text-[15px] font-bold text-ink display">{form.name}</div>
+              {form.audience&&<div className="text-[12px] text-ink-2 mt-0.5">{form.audience}</div>}
+            </div>
+          )}
+          {form.channels.length>0&&(
+            <div>
+              <div className="text-[11px] mono uppercase tracking-[0.12em] text-ink-3 mb-2">Applied to</div>
+              <div className="flex flex-wrap gap-1.5">
+                {form.channels.map(c=>(
+                  <span key={c} className="px-2.5 py-0.5 rounded-pill text-[11px] font-medium bg-ink text-white">{c}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          {hasDesc&&(
+            <div>
+              <div className="text-[11px] mono uppercase tracking-[0.12em] text-ink-3 mb-1">Description</div>
+              <div className="text-[12.5px] text-ink-2 leading-relaxed">{form.description}</div>
+            </div>
+          )}
+          {form.traits.length>0&&(
+            <div>
+              <div className="text-[11px] mono uppercase tracking-[0.12em] text-ink-3 mb-2">Tone traits</div>
+              <div className="flex flex-wrap gap-1.5">
+                {form.traits.map(t=>(
+                  <span key={t} className="px-2.5 py-0.5 rounded-pill text-[11px] font-medium bg-primary-soft text-primary">{t}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          <div>
+            <div className="text-[11px] mono uppercase tracking-[0.12em] text-ink-3 mb-2">Style dials</div>
+            <div className="space-y-1.5">
+              {[["Formality",form.formality,"Casual","Formal"],["Energy",form.energy,"Calm","Bold"],["Depth",form.depth,"Brief","Deep"]].map(([l,v,lo,hi])=>(
+                <div key={l} className="flex items-center gap-2">
+                  <span className="text-[11.5px] text-ink-2 w-16 shrink-0">{l}</span>
+                  <div className="flex-1 h-1.5 bg-lavender rounded-full overflow-hidden">
+                    <div className="h-full bg-primary rounded-full" style={{width:`${((v-1)/6)*100}%`}}/>
+                  </div>
+                  <span className="text-[11px] mono text-ink-3 w-6 text-right">{v}/7</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {form.preferredWords&&(
+            <div>
+              <div className="text-[11px] mono uppercase tracking-[0.12em] text-ink-3 mb-1">Preferred words</div>
+              <div className="text-[12px] text-ink-2">{form.preferredWords}</div>
+            </div>
+          )}
+          {form.bannedWords&&(
+            <div>
+              <div className="text-[11px] mono uppercase tracking-[0.12em] text-ink-3 mb-1">Words to avoid</div>
+              <div className="text-[12px] text-ink-2 line-through decoration-danger/60">{form.bannedWords}</div>
+            </div>
+          )}
+          {(form.dos||form.donts)&&(
+            <div className="grid grid-cols-2 gap-3">
+              {form.dos&&<div>
+                <div className="text-[11px] mono uppercase tracking-[0.12em] text-success mb-1">Do</div>
+                <div className="text-[11.5px] text-ink-2 leading-relaxed">{form.dos}</div>
+              </div>}
+              {form.donts&&<div>
+                <div className="text-[11px] mono uppercase tracking-[0.12em] text-danger mb-1">Don't</div>
+                <div className="text-[11.5px] text-ink-2 leading-relaxed">{form.donts}</div>
+              </div>}
+            </div>
+          )}
+          {form.cta&&(
+            <div>
+              <div className="text-[11px] mono uppercase tracking-[0.12em] text-ink-3 mb-1">Default CTA</div>
+              <div className="text-[12px] text-ink-2 italic">"{form.cta}"</div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ── Voice Editor ────────────────────────────────────────── */
+const VoiceEditor=({initial,onSave,onCancel,embedded=false})=>{
+  const [form,setForm]=useState({...EMPTY_FORM,...initial});
+  const [saved,setSaved]=useState(false);
+
+  const set=(k,v)=>setForm(f=>({...f,[k]:v}));
+  const toggleTrait=t=>set("traits",form.traits.includes(t)?form.traits.filter(x=>x!==t):[...form.traits,t]);
+  const toggleChannel=c=>set("channels",form.channels.includes(c)?form.channels.filter(x=>x!==c):[...form.channels,c]);
+
+  const addExample=()=>set("examples",[...form.examples,{type:"Show notes",titleOrUrl:"",sample:""}]);
+  const updateExample=(i,ex)=>set("examples",form.examples.map((e,j)=>j===i?ex:e));
+  const removeExample=i=>set("examples",form.examples.filter((_,j)=>j!==i));
+
+  const handleSave=()=>{
+    if(!form.name.trim())return;
+    onSave(form);
+    setSaved(true);
+  };
+
+  const isNew=!initial.id;
+
+  return(
+    <div className={embedded?"":"flex-1 overflow-y-auto"}>
+      {!embedded&&<Topbar crumb={["Configuration","Brand Voice",isNew?"New Voice":initial.name]} action={
+        <button onClick={onCancel} className="h-9 px-4 rounded-pill border border-border text-[13px] font-medium text-ink-2 hover:text-ink hover:bg-lavender transition flex items-center gap-1.5">
+          <Icon d={I.chevL} size={14}/>Back
+        </button>
+      }/>}
+      <div className={embedded?"max-w-[1180px] mx-auto":"max-w-[1180px] mx-auto px-8 py-8"}>
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1">{embedded?"Brand Voice":"Configuration / Brand Voice"}</div>
+            <h1 className="text-[28px] font-bold display">{isNew?"New brand voice":form.name||"Edit brand voice"}</h1>
+            <p className="text-[13.5px] text-ink-2 mt-1">Define a reusable writing style — tone, language rules, and reference examples — that guides AI generation for your podcast content.</p>
+          </div>
+          {embedded&&<button type="button" onClick={onCancel} className="h-9 px-4 rounded-pill border border-border text-[13px] font-medium text-ink-2 hover:text-ink hover:bg-lavender transition flex items-center gap-1.5 shrink-0">
+            <Icon d={I.chevL} size={14}/>Back to voices
+          </button>}
+        </div>
+
+        <div className="flex gap-6 items-start">
+          {/* Form */}
+          <div className="flex-1 min-w-0">
+
+            {/* 1. Basics */}
+            <Section title="Basics" note="Name the voice and choose where it should be applied during generation.">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <Field label="Voice name">
+                  <input value={form.name} onChange={e=>set("name",e.target.value)}
+                    placeholder="e.g. The Revenue Engine" className={inputCls}/>
+                </Field>
+                <Field label="Primary audience">
+                  <input value={form.audience} onChange={e=>set("audience",e.target.value)}
+                    placeholder="e.g. B2B SaaS revenue leaders" className={inputCls}/>
+                </Field>
+              </div>
+              <Field label="Apply this voice to">
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {CHANNELS.map(c=>(
+                    <ChannelChip key={c} label={c} active={form.channels.includes(c)} onClick={()=>toggleChannel(c)}/>
+                  ))}
+                </div>
+              </Field>
+              <div className="mt-4">
+                <Field label="Voice description">
+                  <textarea value={form.description} onChange={e=>set("description",e.target.value)} rows={3}
+                    placeholder="Describe what this voice sounds like, what it emphasizes, and what makes it recognizable across your podcast content."
+                    className={textareaCls}/>
+                </Field>
+              </div>
+            </Section>
+
+            {/* 2. Reference examples */}
+            <Section title="Reference examples" note="Paste samples that represent this voice — show notes, clip captions, episode titles."
+              action={
+                <button type="button" onClick={addExample}
+                  className="h-8 px-3 rounded-pill border border-border text-[12.5px] font-medium text-ink-2 hover:text-ink hover:bg-lavender transition inline-flex items-center gap-1.5">
+                  <Icon d={I.plus} size={13}/>Add example
+                </button>
+              }>
+              {form.examples.length===0?(
+                <div className="text-center py-6 rounded-input border border-dashed border-border">
+                  <Icon d={I.copy} size={22} className="text-ink-3 mx-auto mb-2"/>
+                  <div className="text-[13px] text-ink-2 font-medium">No examples yet</div>
+                  <div className="text-[12px] text-ink-3 mt-0.5">Add samples of your show notes, clip captions, or episode titles so the AI can match your style.</div>
+                  <button type="button" onClick={addExample}
+                    className="mt-3 h-8 px-4 rounded-pill bg-primary-soft text-primary text-[12.5px] font-medium hover:bg-primary hover:text-white transition">
+                    + Add first example
+                  </button>
+                </div>
+              ):(
+                <div className="space-y-3">
+                  {form.examples.map((ex,i)=>(
+                    <ExampleRow key={i} ex={ex} onChange={ex=>updateExample(i,ex)} onRemove={()=>removeExample(i)}/>
+                  ))}
+                </div>
+              )}
+            </Section>
+
+            {/* 3. Style controls */}
+            <Section title="Style controls" note="Set the repeatable traits and tone dials that guide every generation.">
+              <div className="mb-5">
+                <div className="text-[12.5px] font-medium text-ink mb-2">Tone traits</div>
+                <div className="flex flex-wrap gap-2">
+                  {TONE_TRAITS.map(t=>(
+                    <TraitChip key={t} label={t} active={form.traits.includes(t)} onClick={()=>toggleTrait(t)}/>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-6 pt-4 border-t border-border">
+                <Slider label="Formality" left="Casual" right="Formal" value={form.formality} onChange={v=>set("formality",v)}/>
+                <Slider label="Energy" left="Calm" right="Bold" value={form.energy} onChange={v=>set("energy",v)}/>
+                <Slider label="Depth" left="Brief" right="Deep" value={form.depth} onChange={v=>set("depth",v)}/>
+              </div>
+            </Section>
+
+            {/* 4. Language rules */}
+            <Section title="Language rules" note="Define what this voice consistently uses, avoids, and always or never does.">
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Preferred words or phrases">
+                  <textarea value={form.preferredWords} onChange={e=>set("preferredWords",e.target.value)} rows={3}
+                    placeholder="Words, phrases, hooks, recurring framing..." className={textareaCls}/>
+                </Field>
+                <Field label="Words or phrases to avoid">
+                  <textarea value={form.bannedWords} onChange={e=>set("bannedWords",e.target.value)} rows={3}
+                    placeholder="Jargon, clichés, off-brand phrases..." className={textareaCls}/>
+                </Field>
+                <Field label="Do">
+                  <textarea value={form.dos} onChange={e=>set("dos",e.target.value)} rows={3}
+                    placeholder="Use concrete examples. Keep intros tight. Lead with the insight." className={textareaCls}/>
+                </Field>
+                <Field label="Do not">
+                  <textarea value={form.donts} onChange={e=>set("donts",e.target.value)} rows={3}
+                    placeholder="Don't sound corporate. Don't over-explain obvious concepts." className={textareaCls}/>
+                </Field>
+              </div>
+            </Section>
+
+            {/* 5. Generation defaults */}
+            <Section title="Generation defaults" note="Optional defaults applied whenever this voice is selected for generation.">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <Field label="Default call to action">
+                  <input value={form.cta} onChange={e=>set("cta",e.target.value)}
+                    placeholder="e.g. Subscribe on Spotify, watch the full episode" className={inputCls}/>
+                </Field>
+                <Field label="Reading level">
+                  <select value={form.readingLevel} onChange={e=>set("readingLevel",e.target.value)}
+                    className={selectCls}>
+                    {READING_LEVELS.map(l=><option key={l}>{l}</option>)}
+                  </select>
+                </Field>
+              </div>
+              <Field label="Internal notes">
+                <textarea value={form.notes} onChange={e=>set("notes",e.target.value)} rows={2}
+                  placeholder="Context for the team — when to use this voice, what it's for, any edge cases." className={textareaCls}/>
+              </Field>
+            </Section>
+
+            {/* Footer actions */}
+            <div className="flex items-center gap-3 pb-8">
+              {saved?(
+                <div className="flex items-center gap-2 text-[13px] font-medium text-success">
+                  <Icon d={I.check} size={15} stroke={2.5}/>Voice saved successfully
+                </div>
+              ):(
+                <button onClick={handleSave}
+                  className="h-10 px-6 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13px] font-medium transition inline-flex items-center gap-2 shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]">
+                  <Icon d={I.check} size={14}/>Save brand voice
+                </button>
+              )}
+              <button onClick={onCancel}
+                className="h-10 px-4 rounded-pill border border-border text-[13px] font-medium text-ink-2 hover:text-ink transition">
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          {/* Live summary */}
+          <div style={{width:280,minWidth:280}}>
+            <LiveSummary form={form}/>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── Voice card (list view) ──────────────────────────────── */
+const VoiceCard=({voice,onEdit,onDelete,active=false,canDelete=true})=>(
+  <div role="button" tabIndex={0} onClick={()=>onEdit(voice)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();onEdit(voice);}}}
+    className={["bg-white rounded-card border overflow-hidden transition-shadow cursor-pointer",
+    active?"border-primary/45 shadow-[0_1px_2px_rgba(26,26,46,0.04),0_0_0_3px_rgba(107,78,255,0.10)]":"border-transparent shadow-card hover:shadow-[0_2px_4px_rgba(26,26,46,0.06),0_8px_24px_rgba(26,26,46,0.08)]"].join(" ")}>
+    <div className="px-5 pt-5 pb-4">
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex-1 min-w-0">
+          <div className="text-[16px] font-bold text-ink display leading-tight">{voice.name}</div>
+          {voice.audience&&<div className="text-[12.5px] text-ink-2 mt-0.5">{voice.audience}</div>}
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          {active&&<span className="rounded-pill bg-primary-soft px-2.5 py-1 text-[11px] font-semibold text-primary">Active</span>}
+          <button type="button" title="Select voice" onClick={e=>{e.stopPropagation();onEdit(voice);}}
+            className="w-8 h-8 rounded-input grid place-items-center text-ink-3 hover:text-primary hover:bg-primary-soft transition">
+            <Icon d={I.edit} size={15}/>
+          </button>
+          {canDelete&&<button type="button" title="Delete voice" onClick={e=>{e.stopPropagation();onDelete(voice.id);}}
+            className="w-8 h-8 rounded-input grid place-items-center text-ink-3 hover:text-danger hover:bg-danger/10 transition">
+            <Icon d={I.trash} size={15}/>
+          </button>}
+        </div>
+      </div>
+      {voice.description&&(
+        <p className="text-[12.5px] text-ink-2 leading-relaxed line-clamp-2 mb-3">{voice.description}</p>
+      )}
+      {voice.traits.length>0&&(
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {voice.traits.map(t=>(
+            <span key={t} className="px-2.5 py-0.5 rounded-pill text-[11px] font-medium bg-primary-soft text-primary">{t}</span>
+          ))}
+        </div>
+      )}
+    </div>
+    {voice.channels.length>0&&(
+      <div className="px-5 py-3 border-t border-border bg-lavender/40 flex items-center gap-2 flex-wrap">
+        <span className="text-[10.5px] mono uppercase tracking-[0.12em] text-ink-3 shrink-0">Applied to</span>
+        {voice.channels.map(c=>(
+          <span key={c} className="px-2 py-0.5 rounded-pill text-[11px] font-medium bg-ink text-white">{c}</span>
+        ))}
+      </div>
+    )}
+    <div className="px-5 py-3 border-t border-border flex items-center gap-4 text-[11.5px] text-ink-3">
+      <span>Formality <span className="text-ink-2 font-medium mono">{voice.formality}/7</span></span>
+      <span>Energy <span className="text-ink-2 font-medium mono">{voice.energy}/7</span></span>
+      <span>Depth <span className="text-ink-2 font-medium mono">{voice.depth}/7</span></span>
+    </div>
+  </div>
+);
+
+/* ── Brand Library workspace ─────────────────────────────── */
+const KB_TABS=[
+  {id:"brand",label:"Brand Voices",icon:I.voice,kicker:"Voice",title:"Brand Voices",description:"Manage reusable voices for episode titles, briefs, captions, newsletters, and approval-ready copy."},
+  {id:"knowledge",label:"Knowledge Base",icon:I.brief,kicker:"Facts",title:"Knowledge Base",description:"Manage approved company, product, people, event, and source material for factual podcast output."},
+  {id:"audience",label:"Audiences",icon:I.ideation,kicker:"Audience",title:"Audience Segments",description:"Configure the target segment taxonomy used by Ideation, topic scoring, briefs, and distribution copy."},
+];
+
+const COMPANY_DEFAULT={
+  name:"Podium AI",
+  website:"podium.ai",
+  overview:"Podium AI is an AI-first podcast planning platform that helps content teams move from strategic ideation to approved briefs, recordings, and distribution assets.",
+  mission:"Help teams turn expert conversations into strategic, approval-ready podcast content without manual coordination across disconnected tools.",
+  productContext:"Podium supports topic strategy, episode planning, persona recommendations, brief generation, recording analysis, and platform-ready distribution copy.",
+};
+
+const AUDIENCE_SEGMENTS=[
+  {
+    group:"Potential",
+    color:"#2A6FDB",
+    soft:"#DBEAFE",
+    rows:[
+      {
+        segment:"Ideation (1)",
+        score:2,
+        demographic:["Gender: Male/Female","Location: United States","Title/Position: Founders/CEOs","Seniority Level: C-suite"],
+        firmographic:["Industry: Tech/Non-Tech","Headcount: Few Initial People, Less than 2","Revenue: Initial Stages / N/A"],
+        other:["Investment/Funding:","Business Need:"],
+      },
+      {
+        segment:"Boutiques (3)",
+        score:2,
+        demographic:["Gender: Male/Female","Location: United States","Title/Position: Owner, Founder, CEO","Seniority Level: C-suite"],
+        firmographic:["Industry: Tech/Services","Headcount: 50-200 FTEs","Revenue: Less than $2M"],
+        other:["Investment/Funding:","Business Need:"],
+      },
+    ],
+  },
+  {
+    group:"Sweetspot",
+    color:"#6B4EFF",
+    soft:"#EDE9FF",
+    rows:[
+      {
+        segment:"Startups (2)",
+        score:3,
+        demographic:["Gender: Male/Female","Location: United States","Title/Position: CEO, CTO","Seniority Level: C-suite"],
+        firmographic:["Industry: Non-Tech","Headcount: 2-50 FTEs","Revenue: Pre-series, Series A, B, C or beyond"],
+        other:["Investment/Funding:","Business Need:"],
+      },
+      {
+        segment:"SMB's (4)",
+        score:5,
+        demographic:["Gender: Male/Female","Location: United States","Title/Position: CEO, CTO, CIO, Director","Seniority Level: C-suite/Director Level"],
+        firmographic:["Industry: Tech/Non-Tech","Headcount: 201-500 FTEs","Revenue: $2M - $50M"],
+        other:["Investment/Funding:","Business Need:"],
+      },
+      {
+        segment:"SME's (5)",
+        score:5,
+        demographic:["Gender: Male/Female","Location: United States","Title/Position: CEO, CIO, Director of IT","Seniority Level: C-suite, Director Level"],
+        firmographic:["Industry: Tech/Non-Tech","Headcount: 501-1000 FTEs","Revenue: $50M - $500M"],
+        other:["Investment/Funding:","Business Need:"],
+      },
+    ],
+  },
+  {
+    group:"Desired",
+    color:"#34A853",
+    soft:"#D9F1E2",
+    rows:[
+      {
+        segment:"Enterprise (6)",
+        score:5,
+        demographic:["Gender: Male/Female","Location: United States","Title/Position: Director/VPs IT","Seniority Level: Director/VP Level"],
+        firmographic:["Industry: Tech/Non-Tech","Headcount: 1000+ FTEs","Revenue: $500M+"],
+        other:["Investment/Funding:","Business Need:"],
+      },
+    ],
+  },
+];
+const AUDIENCE_GROUPS=["Potential","Sweetspot","Desired"];
+const AUDIENCE_GROUP_META=AUDIENCE_SEGMENTS.reduce((acc,group)=>{
+  acc[group.group]={color:group.color,soft:group.soft};
+  return acc;
+},{});
+const buildAudienceSegmentList=()=>AUDIENCE_SEGMENTS.flatMap((group,groupIdx)=>
+  group.rows.map((row,rowIdx)=>({
+    id:`aud-${groupIdx}-${rowIdx}`,
+    group:group.group,
+    segment:row.segment,
+    demographic:row.demographic.join("\n"),
+    firmographic:row.firmographic.join("\n"),
+    other:row.other.join("\n"),
+    score:row.score,
+  }))
+);
+const EMPTY_AUDIENCE_SEGMENT={
+  id:null,
+  group:"Potential",
+  segment:"",
+  demographic:"Gender: Male/Female\nLocation: United States\nTitle/Position:\nSeniority Level:",
+  firmographic:"Industry:\nHeadcount:\nRevenue:",
+  other:"Investment/Funding:\nBusiness Need:",
+  score:3,
+};
+
+const PLATFORM_REQUIREMENTS=[
+  {name:"Ideation",platform:"Topic workflow",required:"Company context, ICP, content depth, source preferences",output:"Strategic topics and AI recommendation rationale"},
+  {name:"Episode Topics",platform:"Planning workflow",required:"Approved topic, episode plan, host availability, guest fit",output:"Episode-ready plans with persona lock requirements"},
+  {name:"Brief Builder",platform:"Production workflow",required:"Locked host, guest persona, brand voice, discussion areas",output:"Questions, talking points, visual instructions"},
+  {name:"Recordings",platform:"Post-recording workflow",required:"Recording, transcript, linked brief, platform target",output:"Tagged recordings, clips, captions, distribution copy"},
+];
+
+const KNOWLEDGE_ASSETS=[
+  {name:"Company positioning",type:"Text",scope:"Workspace",usedBy:"Ideation, Brief Builder",status:"Approved"},
+  {name:"Product workflow notes",type:"Doc",scope:"Workspace",usedBy:"Brief Builder, Distribution",status:"Approved"},
+  {name:"Episode transcript library",type:"Audio + transcript",scope:"Production",usedBy:"Recordings, Clips",status:"Synced"},
+  {name:"Customer proof points",type:"URL",scope:"Marketing",usedBy:"Show notes, Social",status:"Needs review"},
+];
+
+const SOURCE_TYPES=["Text","URL","PDF / Doc","Audio","Video","Transcript"];
+
+const STYLE_RULES=[
+  {title:"Brand terms",detail:"Use Podium AI on first mention, Podium after that. Keep product workflow names exact.",meta:"Terminology"},
+  {title:"Episode titles",detail:"Use sentence case, specific audience value, and a clear tension. Avoid broad trend labels.",meta:"Format"},
+  {title:"Claims",detail:"Tie statistics, customer statements, and product proof to approved sources before publication.",meta:"Accuracy"},
+  {title:"Punctuation",detail:"Prefer short sentences and commas. Avoid ornamental punctuation in captions and titles.",meta:"Readability"},
+];
+
+const PREVIEW_FORMATS=["Show notes","LinkedIn clip caption","Episode description","Newsletter intro"];
+
+const DEFAULT_AUDIENCE_NOTES={
+  assumptions:"Prefers practical, executive-level conversations with enough technical depth to feel credible. Avoid generic AI commentary unless it is tied to implementation, risk, or commercial outcome.",
+  depth:"Ideation should recommend a series when the topic contains multiple buyer questions, implementation stages, or stakeholder conflicts. Briefs should push for specific examples and measurable outcomes.",
+};
+
+const DEFAULT_STYLE_GUIDE={
+  name:"Podcast Growth Style Guide",
+  scope:"Workspace",
+  formatting:"Use short paragraphs, sentence-case headings, and scannable bullets for show notes. Keep clip captions under two short paragraphs unless the platform requires more context.",
+  review:"Flag unsupported claims, sensitive customer references, missing source links, and transcript quotes that require producer review before publishing.",
+};
+
+const APPROVED_EXAMPLES=[
+  {type:"Show notes",workflow:"Brief Builder · Episode pages",title:"EP 47 — When the Deal Dies in Legal",sample:"Every revenue leader has a story: the deal that was done, until it wasn't. This week, we unpack why legal and procurement kill more late-stage deals than any competitor does — and what the best sales teams do differently."},
+  {type:"LinkedIn caption",workflow:"Recordings · Distribution",title:"AI adoption clip caption",sample:"Most AI adoption stories skip the part where the rollout almost failed. This episode gets into the operating decisions that actually changed the outcome."},
+  {type:"Episode title pattern",workflow:"Ideation · Topic approval",title:"Title guidance",sample:"Use direct, editorial titles: specific tension + clear audience value. Avoid vague labels like \"AI Trends\" or \"The Future of Work.\""},
+];
+
+const makePreviewOutput=({format,topic,voice})=>{
+  const subject=topic.trim()||"the selected episode topic";
+  if(format==="LinkedIn clip caption")return `Most teams talk about ${subject} like it is a roadmap problem. The sharper question is what changed after the first messy rollout. This clip pulls out the decision that made the strategy usable.`;
+  if(format==="Episode description")return `A focused conversation on ${subject}, built for ${voice.audience||"the target audience"}. Expect practical examples, clear tradeoffs, and the operating decisions behind the outcome.`;
+  if(format==="Newsletter intro")return `This week's episode looks at ${subject} without the usual hand-waving. The useful part is not the trend itself, but the way operators turn it into decisions their teams can actually execute.`;
+  return `${subject}: what changes when the strategy meets the real workflow. This episode leads with practical operator insight, then uses examples and context to make the takeaway easy to apply.`;
+};
+
+const APPROVAL_RULES=[
+  {label:"Company overview present",detail:"Required before topic generation can produce strategic recommendations.",done:true},
+  {label:"ICP or audience segment selected",detail:"Required before ideation, brief writing, and platform copy.",done:true},
+  {label:"Brand voice locked",detail:"Required before final show notes, captions, and approval-ready copy.",done:true},
+  {label:"Host and guest persona locked",detail:"Required before brief generation and MM approval.",done:false},
+  {label:"Recording linked to brief",detail:"Required before transcript analysis, clips, and distribution assets.",done:false},
+];
+
+const KnowledgeField=({label,children})=>(
+  <div className="space-y-2">
+    <label className="mono block text-[11px] uppercase tracking-[0.16em] text-ink-2">{label}</label>
+    {children}
+  </div>
+);
+
+const VoicePill=({children,active=true})=>(
+  <span className={["inline-flex items-center rounded-pill px-2.5 py-1 text-[12px] font-medium",active?"bg-primary-soft text-primary":"bg-lavender text-ink-2"].join(" ")}>{children}</span>
+);
+
+const hubInputCls="w-full h-10 rounded-input border border-border bg-lavender/40 px-3.5 text-[13.5px] text-ink focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition";
+const hubSelectCls=`${hubInputCls} hub-select`;
+const hubTextareaCls="w-full rounded-input border border-border bg-lavender/40 px-3.5 py-3 text-[13.5px] leading-relaxed text-ink focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition";
+
+const KnowledgeDivider=({label,note,tone="neutral"})=>(
+  <div className="flex items-center gap-3 mb-3">
+    <span className={["rounded-pill px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em]",tone==="primary"?"bg-primary-soft text-primary":"bg-lavender text-ink-2"].join(" ")}>{label}</span>
+    {note&&<span className="mono text-[10.5px] uppercase tracking-[0.16em] text-ink-3">{note}</span>}
+    <span className="h-px bg-border flex-1"/>
+  </div>
+);
+
+const InfoRow=({title,detail,meta})=>(
+  <div className="rounded-input border border-border bg-white px-4 py-3">
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <div className="text-[13.5px] font-semibold text-ink">{title}</div>
+        <div className="text-[12.5px] text-ink-2 leading-relaxed mt-1">{detail}</div>
+      </div>
+      {meta&&<span className="shrink-0 rounded-pill bg-primary-soft px-2.5 py-1 text-[11px] font-semibold text-primary">{meta}</span>}
+    </div>
+  </div>
+);
+
+const IQSummaryCard=({item})=>(
+  <div className="rounded-card border border-border bg-white px-4 py-3">
+    <div className="mono text-[10px] uppercase tracking-[0.16em] text-ink-3">{item.label}</div>
+    <div className="text-[15px] font-bold text-ink mt-1">{item.value}</div>
+    <div className="text-[12px] text-ink-2 mt-0.5 truncate">{item.meta}</div>
+  </div>
+);
+
+const AssetRow=({asset})=>(
+  <div className="grid grid-cols-[minmax(0,1.35fr)_120px_120px_150px_112px] gap-3 items-center rounded-input border border-border bg-white px-4 py-3">
+    <div className="min-w-0">
+      <div className="text-[13.5px] font-semibold text-ink truncate">{asset.name}</div>
+      <div className="text-[12px] text-ink-3 mt-0.5">{asset.usedBy}</div>
+    </div>
+    <span className="text-[12.5px] text-ink-2">{asset.type}</span>
+    <span className="text-[12.5px] text-ink-2">{asset.scope}</span>
+    <span className="text-[12.5px] text-ink-2 truncate">{asset.usedBy}</span>
+    <span className={["justify-self-start rounded-pill px-2.5 py-1 text-[11px] font-semibold",
+      asset.status==="Approved"?"bg-[#D9F1E2] text-[#1E7E34]":asset.status==="Synced"?"bg-primary-soft text-primary":"bg-[#FFE9C0] text-[#A86A00]"].join(" ")}>{asset.status}</span>
+  </div>
+);
+
+const RequirementRow=({item})=>(
+  <div className="flex items-start gap-3 rounded-input px-3 py-3 hover:bg-lavender/45 transition">
+    <span className={["mt-0.5 w-5 h-5 rounded-full grid place-items-center shrink-0",item.done?"bg-success text-white":"bg-white border border-border text-ink-3"].join(" ")}>
+      {item.done&&<Icon d={I.check} size={12} stroke={2.6}/>}
+    </span>
+    <div className="min-w-0">
+      <div className="text-[13.5px] font-semibold text-ink">{item.label}</div>
+      <div className="text-[12.5px] text-ink-2 mt-0.5 leading-relaxed">{item.detail}</div>
+    </div>
+  </div>
+);
+
+const PrincipleRow=({text,onRemove})=>(
+  <div className="group flex items-start gap-3 rounded-input px-3 py-3 hover:bg-lavender/50 transition">
+    <span className="mt-0.5 w-5 h-5 rounded-full bg-primary-soft text-primary grid place-items-center shrink-0">
+      <Icon d={I.check} size={12} stroke={2.5}/>
+    </span>
+    <div contentEditable suppressContentEditableWarning className="flex-1 text-[13.5px] leading-relaxed text-ink focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/10 focus:rounded-input focus:px-2 focus:py-1 -mx-2 -my-1 transition">
+      {text}
+    </div>
+    <button onClick={onRemove} className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-danger hover:bg-danger/10 transition">
+      <Icon d={I.x} size={13} stroke={2.4}/>
+    </button>
+  </div>
+);
+
+const KnowledgeBaseTab=({company,setCompanyField})=>(
+  <div className="space-y-7">
+    <div className="grid grid-cols-2 gap-5">
+      <KnowledgeField label="Company name">
+        <input value={company.name} onChange={e=>setCompanyField("name",e.target.value)} className={hubInputCls}/>
+      </KnowledgeField>
+      <KnowledgeField label="Website">
+        <input value={company.website} onChange={e=>setCompanyField("website",e.target.value)} className={hubInputCls}/>
+      </KnowledgeField>
+    </div>
+
+    <KnowledgeField label="Company overview">
+      <textarea value={company.overview} onChange={e=>setCompanyField("overview",e.target.value)} rows={5} className={hubTextareaCls}/>
+    </KnowledgeField>
+
+    <KnowledgeField label="Mission statement">
+      <textarea value={company.mission} onChange={e=>setCompanyField("mission",e.target.value)} rows={4} className={hubTextareaCls}/>
+    </KnowledgeField>
+
+    <KnowledgeField label="Platform context">
+      <textarea value={company.productContext} onChange={e=>setCompanyField("productContext",e.target.value)} rows={4} className={hubTextareaCls}/>
+    </KnowledgeField>
+
+  </div>
+);
+
+const AudienceTab=({segments,setSegments})=>{
+  const firstSegment=segments[0]||EMPTY_AUDIENCE_SEGMENT;
+  const [selectedId,setSelectedId]=useState(firstSegment.id);
+  const [draft,setDraft]=useState({...firstSegment});
+  const selected=segments.find(item=>item.id===selectedId);
+  const selectedMeta=AUDIENCE_GROUP_META[draft.group]||AUDIENCE_GROUP_META.Potential;
+  const setDraftField=(field,value)=>setDraft(current=>({...current,[field]:value}));
+  const selectSegment=item=>{
+    setSelectedId(item.id);
+    setDraft({...item});
+  };
+  const startNew=()=>{
+    setSelectedId(null);
+    setDraft({...EMPTY_AUDIENCE_SEGMENT});
+  };
+  const saveSegment=()=>{
+    const clean={
+      ...draft,
+      id:draft.id||`aud-${Date.now()}`,
+      segment:draft.segment.trim(),
+      demographic:draft.demographic.trim(),
+      firmographic:draft.firmographic.trim(),
+      other:draft.other.trim(),
+      score:Math.min(5,Math.max(1,Number(draft.score)||1)),
+    };
+    if(!clean.segment)return;
+    setSegments(current=>clean.id&&current.some(item=>item.id===clean.id)
+      ? current.map(item=>item.id===clean.id?clean:item)
+      : [...current,clean]
+    );
+    setSelectedId(clean.id);
+    setDraft(clean);
+  };
+  const deleteSegment=()=>{
+    if(!draft.id)return;
+    const next=segments.filter(item=>item.id!==draft.id);
+    const fallback=next[0]||EMPTY_AUDIENCE_SEGMENT;
+    setSegments(next);
+    setSelectedId(fallback.id||null);
+    setDraft({...fallback});
+  };
+  const groupedSegments=AUDIENCE_GROUPS.map(group=>({
+    group,
+    meta:AUDIENCE_GROUP_META[group],
+    rows:segments.filter(item=>item.group===group),
+  }));
+  const linePreview=value=>(value||"").split("\n").filter(Boolean).slice(0,2).join(" · ");
+
+  return(
+    <div className="space-y-7">
+      <div>
+        <KnowledgeDivider label="Target segments" note="configured audience records" tone="primary"/>
+        <div className="rounded-card border border-primary/15 bg-primary-soft/35 px-4 py-3 mb-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-[13.5px] font-semibold text-ink">Editable audience taxonomy</div>
+              <p className="text-[12.5px] text-ink-2 leading-relaxed mt-1 max-w-[760px]">
+                These configured records feed the Ideation target segment choices. Select a row to update it, or add a new audience segment with its demographic, firmographic, other, and score fields.
+              </p>
+            </div>
+            <button type="button" onClick={startNew} className="shrink-0 h-8 px-3.5 rounded-pill bg-primary text-white text-[12px] font-semibold hover:bg-primary-hover inline-flex items-center gap-1.5 transition">
+              <Icon d={I.plus} size={12} stroke={2.4}/>Add segment
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-5 items-stretch">
+          <div className="min-h-[640px] rounded-card border border-border bg-white shadow-card overflow-hidden flex flex-col">
+            <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+              <div>
+                <div className="text-[13.5px] font-semibold text-ink">Configured listing</div>
+                <div className="text-[11.5px] text-ink-3 mt-0.5">{segments.length} audience segment{segments.length!==1?"s":""}</div>
+              </div>
+              <span className="rounded-pill bg-primary-soft px-2.5 py-1 text-[11px] font-bold text-primary">Source of truth</span>
+            </div>
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {groupedSegments.map(group=>(
+                <div key={group.group} className="border-b border-border last:border-b-0">
+                  <div className="sticky top-0 z-10 px-5 py-3 border-b border-border text-[12px] font-bold text-ink" style={{background:group.meta.soft}}>
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{background:group.meta.color}}/>
+                      {group.group}
+                    </span>
+                  </div>
+                  {group.rows.length>0 ? group.rows.map(item=>{
+                    const active=item.id===selectedId;
+                    const meta=AUDIENCE_GROUP_META[item.group]||AUDIENCE_GROUP_META.Potential;
+                    return (
+                      <button key={item.id} type="button" onClick={()=>selectSegment(item)}
+                        className={["w-full text-left px-5 py-4 border-b border-border last:border-b-0 transition",active?"bg-primary-soft/70":"bg-white hover:bg-lavender/45"].join(" ")}>
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="min-w-0">
+                            <div className="text-[13.5px] font-semibold text-ink truncate">{item.segment}</div>
+                            <div className="text-[12px] text-ink-2 mt-1.5 leading-relaxed line-clamp-2">{linePreview(item.demographic)}</div>
+                            <div className="text-[11.5px] text-ink-3 mt-1.5 truncate">{linePreview(item.firmographic)}</div>
+                          </div>
+                          <span className="shrink-0 inline-flex w-7 h-7 rounded-full items-center justify-center text-[12px] font-bold text-white" style={{background:item.score>=5?"#34A853":item.score>=3?"#F9AB00":meta.color}}>
+                            {item.score}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  }) : (
+                    <div className="px-4 py-4 text-[12.5px] text-ink-3">No configured segments yet.</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="min-h-[640px] rounded-card border border-border bg-white shadow-card overflow-hidden flex flex-col">
+            <div className="px-5 py-4 border-b border-border flex items-start justify-between gap-4" style={{background:selectedMeta.soft}}>
+              <div>
+                <div className="text-[14px] font-bold text-ink">{draft.id?"Update audience segment":"Add audience segment"}</div>
+                <div className="text-[12px] text-ink-2 mt-0.5">Configure every field used by Ideation's audience selection.</div>
+              </div>
+              {draft.id&&(
+                <button type="button" onClick={deleteSegment} className="h-8 px-3 rounded-pill border border-danger/25 text-danger text-[12px] font-medium hover:bg-danger/10 transition inline-flex items-center gap-1.5">
+                  <Icon d={I.trash} size={12}/>Remove
+                </button>
+              )}
+            </div>
+            <div className="p-5 space-y-5 flex-1">
+              <div className="grid grid-cols-[1fr_1fr_96px] gap-4">
+                <KnowledgeField label="Group">
+                  <select value={draft.group} onChange={e=>setDraftField("group",e.target.value)} className={hubSelectCls}>
+                    {AUDIENCE_GROUPS.map(group=><option key={group} value={group}>{group}</option>)}
+                  </select>
+                </KnowledgeField>
+                <KnowledgeField label="Segment">
+                  <input value={draft.segment} onChange={e=>setDraftField("segment",e.target.value)} placeholder="e.g. Enterprise (6)" className={hubInputCls}/>
+                </KnowledgeField>
+                <KnowledgeField label="Points">
+                  <select value={draft.score} onChange={e=>setDraftField("score",Number(e.target.value))} className={hubSelectCls}>
+                    {[1,2,3,4,5].map(score=><option key={score} value={score}>{score}</option>)}
+                  </select>
+                </KnowledgeField>
+              </div>
+              <KnowledgeField label="Demographic">
+                <textarea value={draft.demographic} onChange={e=>setDraftField("demographic",e.target.value)} rows={5} className={hubTextareaCls}/>
+              </KnowledgeField>
+              <KnowledgeField label="Firmographics">
+                <textarea value={draft.firmographic} onChange={e=>setDraftField("firmographic",e.target.value)} rows={5} className={hubTextareaCls}/>
+              </KnowledgeField>
+              <KnowledgeField label="Others">
+                <textarea value={draft.other} onChange={e=>setDraftField("other",e.target.value)} rows={3} className={hubTextareaCls}/>
+              </KnowledgeField>
+              <div className="flex items-center justify-between pt-1">
+                <div className="text-[12px] text-ink-3">{selected?`Editing ${selected.segment}`:"New segment will be added to the configured listing."}</div>
+                <button type="button" onClick={saveSegment} className="h-9 px-4 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13px] font-semibold inline-flex items-center gap-1.5 transition shadow-[0_4px_10px_-2px_rgba(107,78,255,0.45)]">
+                  <Icon d={I.check} size={13} stroke={2.4}/>{draft.id?"Update segment":"Save segment"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-5">
+        <KnowledgeField label="Audience assumptions">
+          <textarea rows={5} defaultValue={"Target segments should be selected from the configured listing above before ideation. Sweetspot and Desired audiences should receive deeper executive framing, while Potential audiences should keep topics simpler and more practical."} className={hubTextareaCls}/>
+        </KnowledgeField>
+        <KnowledgeField label="Content depth rules">
+          <textarea rows={5} defaultValue={"Use the desired score to guide topic depth. Scores 5 can support series recommendations and specialist guests; scores 2-3 should stay focused, concise, and easier to validate before deeper production work."} className={hubTextareaCls}/>
+        </KnowledgeField>
+      </div>
+    </div>
+  );
+};
+
+const BrandVoiceRulesTab=({voice,setVoiceField,newPrinciple,setNewPrinciple})=>{
+  const principles=voice.principles?.length?voice.principles:DEFAULT_PRINCIPLES;
+  const addPrinciple=()=>{
+    const value=newPrinciple.trim();
+    if(!value)return;
+    setVoiceField("principles",[...principles,value]);
+    setNewPrinciple("");
+  };
+  const removePrinciple=index=>setVoiceField("principles",principles.filter((_,idx)=>idx!==index));
+
+  return(
+  <div className="space-y-7">
+    <div className="grid grid-cols-[minmax(0,1fr)_220px] gap-5">
+      <KnowledgeField label="Voice name">
+        <input value={voice.name} onChange={e=>setVoiceField("name",e.target.value)} className={hubInputCls}/>
+      </KnowledgeField>
+      <KnowledgeField label="Visibility">
+        <select defaultValue="Workspace default" className={hubSelectCls}>
+          <option>Workspace default</option>
+          <option>Private draft</option>
+          <option>Team workspace</option>
+        </select>
+      </KnowledgeField>
+    </div>
+
+    <div className="grid grid-cols-[minmax(0,1fr)_220px] gap-5">
+      <KnowledgeField label="Primary audience">
+        <input value={voice.audience} onChange={e=>setVoiceField("audience",e.target.value)} className={hubInputCls}/>
+      </KnowledgeField>
+      <KnowledgeField label="Preview format">
+        <select defaultValue="Show notes" className={hubSelectCls}>
+          {PREVIEW_FORMATS.map(format=><option key={format}>{format}</option>)}
+        </select>
+      </KnowledgeField>
+    </div>
+
+    <KnowledgeField label="Voice overview">
+      <textarea value={voice.description} onChange={e=>setVoiceField("description",e.target.value)} rows={5} className={hubTextareaCls}/>
+    </KnowledgeField>
+
+    <div className="rounded-card border border-border bg-white px-4 py-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="text-[14px] font-semibold text-ink">Voice preview</div>
+          <div className="text-[12.5px] text-ink-2 mt-0.5">Test how the current voice handles a platform-specific episode asset.</div>
+        </div>
+        <VoicePill>Workspace voice</VoicePill>
+      </div>
+      <div className="grid grid-cols-[minmax(0,1fr)_160px] gap-3 mt-4">
+        <input defaultValue="How enterprise teams operationalize AI adoption" className={hubInputCls}/>
+        <button className="h-10 rounded-pill bg-ink text-white text-[12.5px] font-semibold hover:bg-primary transition">Preview output</button>
+      </div>
+    </div>
+
+    <div>
+      <KnowledgeDivider label="Principles" note="how the AI should write" tone="primary"/>
+      <div className="space-y-1">
+        {principles.map((p,i)=>(
+          <PrincipleRow key={`${p}-${i}`} text={p} onRemove={()=>removePrinciple(i)}/>
+        ))}
+      </div>
+      <div className="mt-3 flex items-center gap-2">
+        <input value={newPrinciple} onChange={e=>setNewPrinciple(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")addPrinciple();}}
+          placeholder="+ Add principle" className="flex-1 h-9 rounded-input border border-dashed border-border bg-white px-3 text-[13px] text-ink placeholder:text-ink-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition"/>
+        <button onClick={addPrinciple} className="h-9 px-3 rounded-pill text-[12.5px] font-medium text-primary hover:bg-primary-soft transition">Add</button>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 gap-5">
+      <KnowledgeField label="Preferred language">
+        <textarea value={voice.preferredWords} onChange={e=>setVoiceField("preferredWords",e.target.value)} rows={4} className={hubTextareaCls}/>
+      </KnowledgeField>
+      <KnowledgeField label="Avoid">
+        <textarea value={voice.bannedWords} onChange={e=>setVoiceField("bannedWords",e.target.value)} rows={4} className={hubTextareaCls}/>
+      </KnowledgeField>
+    </div>
+
+    <div className="grid grid-cols-2 gap-5">
+      <KnowledgeField label="Do">
+        <textarea value={voice.dos} onChange={e=>setVoiceField("dos",e.target.value)} rows={4} className={hubTextareaCls}/>
+      </KnowledgeField>
+      <KnowledgeField label="Do not">
+        <textarea value={voice.donts} onChange={e=>setVoiceField("donts",e.target.value)} rows={4} className={hubTextareaCls}/>
+      </KnowledgeField>
+    </div>
+  </div>
+  );
+};
+
+const BrandVoiceManagerTab=({voices,setVoices,selectedVoiceId,setSelectedVoiceId})=>{
+  const [view,setView]=useState("list");
+  const [editing,setEditing]=useState(null);
+
+  const nextVoiceId=()=>{
+    const numericIds=voices.map(v=>Number(String(v.id||"").replace(/\D/g,""))).filter(Boolean);
+    const next=(numericIds.length?Math.max(...numericIds):0)+1;
+    return `BV-${String(next).padStart(3,"0")}`;
+  };
+  const openNew=()=>{setEditing({});setView("editor");};
+  const openEdit=voice=>{setEditing(voice);setSelectedVoiceId(voice.id);setView("editor");};
+  const deleteVoice=id=>{
+    if(voices.length<=1)return;
+    if(confirm("Delete this brand voice?")){
+      const next=voices.filter(v=>v.id!==id);
+      setVoices(next);
+      if(selectedVoiceId===id)setSelectedVoiceId(next[0]?.id||null);
+    }
+  };
+  const saveVoice=formData=>{
+    if(editing?.id){
+      setVoices(vs=>vs.map(v=>v.id===editing.id?{...formData,id:editing.id,principles:v.principles||DEFAULT_PRINCIPLES}:v));
+      setSelectedVoiceId(editing.id);
+    } else {
+      const id=nextVoiceId();
+      setVoices(vs=>[...vs,{...formData,id,principles:DEFAULT_PRINCIPLES}]);
+      setSelectedVoiceId(id);
+    }
+    setView("list");
+    setEditing(null);
+  };
+  const backToList=()=>{setView("list");setEditing(null);};
+
+  if(view==="editor"){
+    return <VoiceEditor embedded initial={editing||{}} onSave={saveVoice} onCancel={backToList}/>;
+  }
+
+  return(
+    <div className="max-w-[900px] mx-auto">
+      <div className="mb-7">
+        <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1.5">Brand Voice</div>
+        <h1 className="text-[28px] font-bold display">Writing Styles</h1>
+        <p className="text-[13.5px] text-ink-2 mt-1.5">Each voice defines a distinct writing style — tone, language rules, and reference samples — that the AI applies when generating episode titles, show notes, captions, and more.</p>
+      </div>
+
+      {voices.length===0?(
+        <div className="bg-white rounded-card shadow-card px-8 py-16 text-center">
+          <div className="w-12 h-12 rounded-full bg-primary-soft grid place-items-center mx-auto mb-4">
+            <Icon d={I.voice} size={22} className="text-primary"/>
+          </div>
+          <div className="text-[17px] font-bold text-ink mb-1.5">No brand voices yet</div>
+          <div className="text-[13.5px] text-ink-2 mb-5 max-w-md mx-auto">Create your first voice to start guiding how the AI writes your podcast content.</div>
+          <button type="button" onClick={openNew}
+            className="h-10 px-6 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13px] font-medium transition inline-flex items-center gap-2 shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]">
+            <Icon d={I.plus} size={14}/>Create first voice
+          </button>
+        </div>
+      ):(
+        <>
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <div className="text-[12px] text-ink-3">{voices.length} voice{voices.length!==1?"s":""} · Voices are applied automatically when generating content in their assigned channels</div>
+            <button type="button" onClick={openNew}
+              className="h-9 px-4 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13px] font-medium transition inline-flex items-center gap-1.5 shadow-[0_4px_10px_-2px_rgba(107,78,255,0.45)]">
+              <Icon d={I.plus} size={14}/>New Brand Voice
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {voices.map(v=>(
+              <VoiceCard key={v.id} voice={v} active={v.id===selectedVoiceId} canDelete={voices.length>1} onEdit={openEdit} onDelete={deleteVoice}/>
+            ))}
+            <button type="button" onClick={openNew}
+              className="bg-white rounded-card shadow-card border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary-soft/20 transition min-h-[140px] flex flex-col items-center justify-center gap-2 group">
+              <div className="w-9 h-9 rounded-full bg-lavender group-hover:bg-primary-soft grid place-items-center transition">
+                <Icon d={I.plus} size={18} className="text-ink-3 group-hover:text-primary transition"/>
+              </div>
+              <span className="text-[13px] font-medium text-ink-3 group-hover:text-primary transition">Add brand voice</span>
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+const StyleGuideTab=()=>(
+  <div className="space-y-7">
+    <div>
+      <KnowledgeDivider label="Style rules" note="applied to generated podcast assets" tone="primary"/>
+      <div className="grid grid-cols-2 gap-3">
+        {STYLE_RULES.map(rule=><InfoRow key={rule.title} title={rule.title} detail={rule.detail} meta={rule.meta}/>)}
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 gap-5">
+      <KnowledgeField label="Formatting policy">
+        <textarea rows={5} defaultValue={"Use short paragraphs, sentence-case headings, and scannable bullets for show notes. Keep clip captions under two short paragraphs unless the platform requires more context."} className={hubTextareaCls}/>
+      </KnowledgeField>
+      <KnowledgeField label="Review policy">
+        <textarea rows={5} defaultValue={"Flag unsupported claims, sensitive customer references, missing source links, and transcript quotes that require producer review before publishing."} className={hubTextareaCls}/>
+      </KnowledgeField>
+    </div>
+  </div>
+);
+
+const ExamplesTab=({voice})=>(
+  <div className="space-y-7">
+    <div>
+      <KnowledgeDivider label="Approved samples" note="teaches style by output type" tone="primary"/>
+      <div className="space-y-3">
+        <div className="rounded-card border border-border bg-lavender/35 px-4 py-4">
+          <div className="flex items-center gap-2 mb-2">
+            <VoicePill>Show notes</VoicePill>
+            <span className="text-[11.5px] text-ink-3">Brief Builder · Episode pages</span>
+          </div>
+          <div className="text-[13px] font-semibold text-ink mb-1">{voice.examples[0]?.titleOrUrl||"Show notes sample"}</div>
+          <p className="text-[13px] leading-relaxed text-ink-2">{voice.examples[0]?.sample||"Add a sample that reflects the final voice."}</p>
+        </div>
+        <div className="rounded-card border border-border bg-white px-4 py-4">
+          <div className="flex items-center gap-2 mb-2">
+            <VoicePill>LinkedIn caption</VoicePill>
+            <span className="text-[11.5px] text-ink-3">Recordings · Distribution</span>
+          </div>
+          <textarea rows={4} defaultValue={"Most AI adoption stories skip the part where the rollout almost failed. This episode gets into the operating decisions that actually changed the outcome."} className={hubTextareaCls}/>
+        </div>
+        <div className="rounded-card border border-border bg-white px-4 py-4">
+          <div className="flex items-center gap-2 mb-2">
+            <VoicePill>Episode title pattern</VoicePill>
+            <span className="text-[11.5px] text-ink-3">Ideation · Topic approval</span>
+          </div>
+          <textarea rows={3} defaultValue={"Use direct, editorial titles: specific tension + clear audience value. Avoid vague labels like \"AI Trends\" or \"The Future of Work.\""} className={hubTextareaCls}/>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const PlatformsTab=()=>(
+  <div className="space-y-7">
+    <div>
+      <KnowledgeDivider label="Workflow mapping" note="required context by platform area" tone="primary"/>
+      <div className="space-y-3">
+        {PLATFORM_REQUIREMENTS.map(item=>(
+          <InfoRow key={item.name} title={`${item.name} · ${item.platform}`} detail={`${item.required} → ${item.output}`} meta="Required"/>
+        ))}
+      </div>
+    </div>
+
+    <div>
+      <KnowledgeDivider label="Approval gates" note="required before generation and publishing" tone="primary"/>
+      <div className="space-y-1">
+        {APPROVAL_RULES.map(rule=><RequirementRow key={rule.label} item={rule}/>)}
+      </div>
+    </div>
+
+  </div>
+);
+
+const BrandLibrary=()=>{
+  const [activeTab,setActiveTab]=useState("brand");
+  const [company,setCompany]=useState(COMPANY_DEFAULT);
+  const [voices,setVoices]=useState(()=>SEED_VOICES.map(v=>({...v,principles:v.principles||DEFAULT_PRINCIPLES})));
+  const [selectedVoiceId,setSelectedVoiceId]=useState(SEED_VOICES[0]?.id||null);
+  const [audienceSegments,setAudienceSegments]=useState(()=>buildAudienceSegmentList());
+  const [showSaveToast,setShowSaveToast]=useState(false);
+
+  const voice=voices.find(v=>v.id===selectedVoiceId)||voices[0]||null;
+
+  const setCompanyField=(field,value)=>setCompany(v=>({...v,[field]:value}));
+  const activeMeta=KB_TABS.find(tab=>tab.id===activeTab)||KB_TABS[0];
+  const iqOverview=[
+    {label:"Brand Voices",value:`${voices.length} voice${voices.length!==1?"s":""}`,meta:voice?.name||"No active voice"},
+    {label:"Knowledge Base",value:"4 fields",meta:"Company, product, mission, context"},
+    {label:"Audiences",value:`${audienceSegments.length} segment${audienceSegments.length!==1?"s":""}`,meta:"Potential, Sweetspot, Desired"},
+  ];
+
+  const renderTabContent=()=>{
+    if(activeTab==="brand")return <BrandVoiceManagerTab voices={voices} setVoices={setVoices} selectedVoiceId={voice?.id} setSelectedVoiceId={setSelectedVoiceId}/>;
+    if(activeTab==="knowledge")return <KnowledgeBaseTab company={company} setCompanyField={setCompanyField}/>;
+    if(activeTab==="audience")return <AudienceTab segments={audienceSegments} setSegments={setAudienceSegments}/>;
+    return null;
+  };
+  const saveLibrary=()=>{
+    setShowSaveToast(true);
+    window.clearTimeout(window.__brandLibraryToastTimer);
+    window.__brandLibraryToastTimer=window.setTimeout(()=>setShowSaveToast(false),2600);
+  };
+
+  return(
+    <div className="h-full flex">
+      <Sidebar/>
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-white">
+        <Topbar crumb={["Configuration","Brand Library"]} action={
+          <div className="inline-flex items-center gap-2 rounded-pill bg-primary-soft text-primary px-3 py-1.5 text-[12px] font-medium">
+            <Icon d={I.check} size={13} stroke={2.4}/>Brand Library synced
+          </div>
+        }/>
+        <main className="flex-1 min-h-0 flex flex-col overflow-hidden bg-[#FAFAFE]">
+          <div className="px-8 pt-7 pb-5 border-b border-border bg-white">
+            <div className="flex items-start justify-between gap-6">
+              <div>
+                <h1 className="text-[26px] font-bold display text-ink">Brand Library</h1>
+                <p className="text-[13.5px] text-ink-2 mt-1.5 max-w-2xl">Configure brand voices, company knowledge, and audience segments — the context the AI uses across every workflow.</p>
+              </div>
+              <button type="button" onClick={saveLibrary} className="h-9 px-4 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13px] font-medium transition inline-flex items-center gap-1.5 shadow-[0_4px_10px_-2px_rgba(107,78,255,0.45)]">
+                <Icon d={I.check} size={14}/>Save Library
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-3 mt-5">
+              {iqOverview.map(item=><IQSummaryCard key={item.label} item={item}/>)}
+            </div>
+          </div>
+
+          <div className="flex-1 min-h-0 flex overflow-hidden">
+            <aside className="w-[252px] shrink-0 border-r border-border bg-white px-4 py-5 overflow-y-auto">
+              <div className="mono text-[10.5px] uppercase tracking-[0.18em] text-ink-3 px-2 mb-3">Library controls</div>
+              <div className="space-y-1.5">
+                {KB_TABS.map(tab=>{
+                  const active=activeTab===tab.id;
+                  return (
+                    <button key={tab.id} onClick={()=>setActiveTab(tab.id)}
+                      className={["w-full rounded-input px-3 py-3 text-left flex items-start gap-3 border transition",
+                        active?"bg-primary-soft border-primary/25 text-primary":"bg-white border-transparent text-ink-2 hover:bg-lavender/70 hover:text-ink"].join(" ")}>
+                      <span className={["w-8 h-8 rounded-input grid place-items-center shrink-0 transition",
+                        active?"bg-primary text-white":"bg-lavender text-ink-2"].join(" ")}>
+                        <Icon d={tab.icon} size={15}/>
+                      </span>
+                      <span className="min-w-0">
+                        <span className={["block text-[13px] font-semibold leading-snug",active?"text-primary":"text-ink"].join(" ")}>{tab.label}</span>
+                        <span className="block text-[11.5px] text-ink-3 leading-snug mt-0.5">{tab.kicker}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </aside>
+
+            <section className="flex-1 min-w-0 overflow-y-auto px-8 py-7 bg-[#FAFAFE]">
+              <div className={activeTab==="brand"?"max-w-none":"max-w-[1040px]"}>
+                {activeTab!=="brand"&&<div className="mb-7">
+                  <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-2">{activeMeta.kicker}</div>
+                  <h2 className="text-[20px] font-bold text-ink display">{activeMeta.title}</h2>
+                  <p className="text-[13px] text-ink-2 mt-1 max-w-2xl">{activeMeta.description}</p>
+                </div>}
+                {renderTabContent()}
+              </div>
+            </section>
+          </div>
+        </main>
+        {showSaveToast&&(
+          <div className="fixed top-5 right-6 z-[80] rounded-card border border-success/20 bg-white px-4 py-3 shadow-[0_12px_32px_rgba(26,26,46,0.16)] flex items-start gap-3 slide-up">
+            <span className="mt-0.5 w-7 h-7 rounded-full bg-[#D9F1E2] text-success grid place-items-center shrink-0">
+              <Icon d={I.check} size={14} stroke={2.6}/>
+            </span>
+            <span>
+              <span className="block text-[13.5px] font-semibold text-ink">Brand Library saved</span>
+              <span className="block text-[12px] text-ink-2 mt-0.5">Your voices, knowledge, audiences, and rules are synced.</span>
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/* ── Main App ─────────────────────────────────────────────── */
+const App=()=>{
+  return <BrandLibrary/>;
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+<script>window.parent.postMessage({type:'podium_navigate',page:'screens/BrandVoice.html'},'*');</script></body>
+</html>

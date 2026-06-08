@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Topic Generation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  .topic-card{transition:box-shadow .16s,opacity .16s,transform .16s}
+  .topic-card.unselected{opacity:0.62}
+  .topic-card.unselected:hover{opacity:.86;transform:translateY(-1px)}
+  .topic-card.selected{box-shadow:inset 0 0 0 2px #6B4EFF,0 2px 8px rgba(107,78,255,0.10)}
+  @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+  .ai-pill{background:linear-gradient(90deg,#EDE9FF,#FFE0DA,#EDE9FF);background-size:200% 100%;animation:shimmer 4s linear infinite}
+  @keyframes fadeIn{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
+  .fade-in{animation:fadeIn .2s ease both}
+  .step-btn{width:28px;height:28px;border:1.5px solid #E2E2EE;border-radius:8px;background:#fff;display:grid;place-items:center;cursor:pointer;color:#5F6368;transition:border-color .14s,color .14s,background .14s;flex-shrink:0}
+  .step-btn:hover{border-color:#6B4EFF;color:#6B4EFF;background:#EDE9FF}
+  .step-btn:disabled{opacity:0.3;cursor:not-allowed}
+  .ep-num{width:32px;text-align:center;font-weight:700;font-size:15px;color:#6B4EFF;font-family:'Inter',sans-serif}
+  ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#E2E2EE;border-radius:4px}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,check:<path d="M5 12l5 5L20 7"/>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  mic:<><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,video:<><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/></>,share2:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8-3M8.6 10.5l6.8 3"/></>,studio:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 8l5 3-5 3V8z"/></>,voice:<><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></>,
+  clock:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
+  refresh:<path d="M21 12a9 9 0 11-3-6.7L21 8M21 3v5h-5"/>,
+  minus:<path d="M5 12h14"/>,plus:<><path d="M12 5v14M5 12h14"/></>,
+};
+const Logo=()=>(<a href="CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const RoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>Content Marketer</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="ideation"})=>{const [menu,setMenu]=useState(false);const u={name:"Fizza Asad",role:"Content Marketer"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="CMDashboard.html"/><NavItem icon={I.ideation} label="Ideation" active={active==="ideation"} href="IdeationList.html"/><NavItem icon={I.mic} label="Episode Topics" active={active==="episodes"} href="EpisodeTopics.html"/><NavItem icon={I.brief} label="Brief Builder" active={active==="brief"} href="BriefList.html"/></div><SectionLabel>Production</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.video} label="Recordings" active={active==="recordings"} href="RecordingsList.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.sliders} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="relative"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>e.stopPropagation()}><Icon d={I.moreV} size={16}/></button></div>{menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}</div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}><span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span>{i<items.length-1&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}</React.Fragment>))}</nav>);
+const Topbar=({breadcrumb,actions})=>(<header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0"><div className="flex-1 min-w-0"><Crumb items={breadcrumb}/></div><button className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink"><Icon d={I.bell} size={18}/></button><RoleBadge/>{actions}</header>);
+</script>
+
+<script type="text/babel">
+const { useState } = React;
+
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+
+const TOPICS = [
+  { idx:1, rel:92, vir:87, title:"Why SaaS is dead — and what replaces it", rationale:"Three Series-C founders flipped their pricing pages last quarter. Reddit + LinkedIn discourse is louder than at any prior inflection.", evidence:["trending","viral","contrarian","community"], sources:["r/SaaS · 412 posts","LinkedIn · 38 hot takes","The Information"],
+    subtopics:["The pricing-page rebellion: what founders actually changed and why","Usage-based vs seat-based: the CFO math that's reshaping deals","When SaaS becomes a service: the blurring line with managed offerings","Marketplace dynamics eating the subscription model","How infrastructure commoditisation kills the SaaS margin story","The acqui-hire arbitrage replacing traditional SaaS exits","Open-source led growth as the quiet SaaS successor","AI-native products and the end of the per-seat assumption","Revenue models that actually work post-SaaS","What Series C founders wish they'd known before flipping pricing"] },
+  { idx:2, rel:88, vir:71, title:"The procurement bottleneck: why your AI POC died", rationale:"CIO.com & Gartner agree: procurement is the #1 reason 2025 POCs never reached production. Audience pain match: 4/5.", evidence:["pain","data","search"], sources:["CIO.com · 9 articles","Gartner Q1 report","r/CIO"],
+    subtopics:["The 9-month vendor approval loop killing AI momentum","Security reviews that block every LLM vendor — and how to navigate them","Build vs buy: the procurement angle CTOs ignore","Shadow AI and why employees route around IT to get things done","Procurement playbooks that actually accelerate AI rollouts","The legal team veto: data residency clauses ending POCs","How to structure a POC contract procurement will actually sign","Negotiating SLA terms with AI vendors who can't guarantee uptime","The internal champion playbook for surviving procurement","From POC to production: the contract language that matters"] },
+  { idx:3, rel:95, vir:64, title:"Eval-driven development as the new TDD", rationale:"Highest audience-need alignment. 'Production evals' is the most-clicked term in your subscriber base over 30 days.", evidence:["trending","search","evergreen"], sources:["3 podcast episodes","OpenAI eng blog","r/MLOps"],
+    subtopics:["What eval-driven development actually looks like in a sprint","Writing evals before prompts: the discipline most teams skip","The eval coverage problem — why 80% still feels like guessing","Golden datasets: building the ground truth your evals depend on","Regression evals vs exploration evals: knowing which to run when","Human-in-the-loop eval pipelines that don't slow shipping","LLM-as-judge: when it works and when it quietly lies","Continuous eval in CI: the pipeline that catches prompt drift","Eval frameworks compared: Braintrust, LangSmith, and rolling your own","From red-teaming to eval suites: closing the adversarial gap"] },
+  { idx:4, rel:81, vir:78, title:"On-prem AI is back (and CFOs are pushing it)", rationale:"Counter-trend angle. CFO-led on-prem revival quietly visible on LinkedIn — under-covered by mainstream press.", evidence:["emerging","contrarian","gap"], sources:["LinkedIn · CFO posts","Bessemer State of AI","Dell case studies"],
+    subtopics:["The cloud bill that turned a CFO into an on-prem believer","GPU procurement in 2025: colocation vs owned hardware economics","Data gravity arguments winning on-prem budget approvals","The compliance case: why regulated industries are pulling AI in-house","Latency wins that the cloud vendors don't advertise","Hybrid AI architectures: what actually runs on-prem vs cloud","Vendor lock-in fears fuelling on-prem revivals at Series B","The ops burden of on-prem AI — what finance doesn't account for","Dell, HPE, and the enterprise AI appliance renaissance","Total cost of ownership models that make the CFO case"] },
+  { idx:5, rel:74, vir:89, title:"The shadow eval problem nobody talks about", rationale:"High virality on Hacker News. Audience needs 'production evals' but few are catching the silent-failure mode this surfaces.", evidence:["viral","community","emerging"], sources:["HN · 4 front-page","r/MachineLearning","EleutherAI"],
+    subtopics:["Silent failures: when your model degrades and no metric catches it","The leaderboard trap — why benchmark performance doesn't predict production","Eval set leakage and why your numbers lie","Distributional shift: the shadow eval problem in slow motion","Metric gaming: how optimising one eval breaks five others","The eval you never wrote — and the bug it would have caught","User feedback as a shadow eval signal teams ignore","Canary evals: catching regressions before users notice","The monitoring gap between evals and observability","Building an eval culture in teams that never had one"] },
+  { idx:6, rel:86, vir:72, title:"Why every CTO is hiring a head of AI cost", rationale:"Brand-new function emerging at Series B+. Maps cleanly to 'LLM costs unpredictable' pain — your top-ranked input.", evidence:["emerging","trending","pain"], sources:["LinkedIn job listings · 47","FinOps Foundation","a16z"],
+    subtopics:["The new role: what a head of AI cost actually owns","Token budgeting as an engineering discipline","Prompt compression techniques that cut bills without hurting quality","Caching strategies that most LLM apps still aren't using","Model routing: when to use GPT-4o vs a smaller fine-tune","The batch API unlock — async workloads most teams haven't migrated","Chargebacks and cost attribution across product lines","Forecasting LLM spend: the models finance actually accepts","FinOps principles applied to inference infrastructure","Building the internal tooling to make AI costs visible"] },
+];
+
+const TOPIC_PLANS = {
+  1: {
+    recommendation: "Multi-episode series",
+    recommendedCount: 3,
+    confidence: 91,
+    headline: "Treat this as a strategic market-shift series.",
+    reasoning: "The topic spans pricing, packaging, and business-model change. Compressing it into one episode would flatten the strongest argument: SaaS is not disappearing, it is being unbundled into usage, service, and AI-native revenue models.",
+    depth: "High narrative breadth with three clean editorial chapters: the rebellion, the CFO math, and the replacement model.",
+    audience: "Founders and revenue leaders need a point of view they can use in board and pricing conversations.",
+    insight: "The strongest signal is not virality alone. It is the pattern of operators changing pricing pages before analysts have named the shift.",
+    episodes: [
+      { title:"The Pricing-Page Rebellion", format:"Interview", promise:"Show what founders changed, why they changed it, and what broke first.", angle:"Market signal", guest:"Series C founder or growth lead" },
+      { title:"The CFO Math That Breaks SaaS", format:"Solo", promise:"Explain why seat-based models fail under AI-native usage patterns.", angle:"Economic analysis", guest:"Internal host deep dive" },
+      { title:"What Comes After SaaS", format:"Panel", promise:"Compare usage, service, marketplace, and open-source-led revenue models.", angle:"Future model", guest:"Founder + investor panel" },
+    ],
+  },
+  2: {
+    recommendation: "Multi-episode series",
+    recommendedCount: 2,
+    confidence: 88,
+    headline: "Split the story into diagnosis and playbook.",
+    reasoning: "Procurement failure has a clear before-and-after structure: first establish why AI POCs stall, then give operators a contract and champion playbook.",
+    depth: "Medium-high depth. Two episodes are enough to avoid repetition while giving both pain and resolution room.",
+    audience: "CTOs and product leaders need language for security, legal, and procurement stakeholders.",
+    insight: "The pain is familiar, but the AI-specific contract language is where the differentiated value sits.",
+    episodes: [
+      { title:"The 9-Month Trap", format:"Interview", promise:"Break down the approval loop that turns AI momentum into stalled pilots.", angle:"Problem anatomy", guest:"CIO or procurement lead" },
+      { title:"The Internal Champion Playbook", format:"Solo", promise:"Give operators the checklist for getting AI tools through procurement.", angle:"Operator guide", guest:"Internal host deep dive" },
+    ],
+  },
+  3: {
+    recommendation: "Standalone episode",
+    recommendedCount: 1,
+    confidence: 94,
+    headline: "Publish this as one authoritative flagship episode.",
+    reasoning: "Eval-driven development has deep practitioner demand, but the best arc is a single complete operating model. A series would dilute the urgency; one dense episode can make the idea feel immediately usable.",
+    depth: "High technical depth, narrow scope. Best handled as one rigorous walkthrough rather than a broad narrative arc.",
+    audience: "VP Eng and AI product leads already know prompt quality is fragile. They need a repeatable evaluation discipline.",
+    insight: "The term 'production evals' is your highest-clicked subscriber signal over 30 days, which means this audience is ready for implementation detail, not trend framing.",
+    episodes: [
+      { title:"Eval-Driven Development: The Discipline Teams Skip", format:"Interview", promise:"Turn evals from a vague quality check into a sprint-level engineering workflow.", angle:"Flagship operator playbook", guest:"MLOps lead or AI infrastructure founder" },
+    ],
+  },
+  4: {
+    recommendation: "Multi-episode series",
+    recommendedCount: 2,
+    confidence: 86,
+    headline: "Use a two-part finance and architecture arc.",
+    reasoning: "The CFO argument and the technical architecture are different enough to deserve separation. Together they make the on-prem revival feel strategic rather than nostalgic.",
+    depth: "Two distinct depths: board-level economics first, implementation trade-offs second.",
+    audience: "Finance-aware CTOs and infrastructure leaders deciding whether cloud AI economics still work.",
+    insight: "This is a counter-consensus topic. Its authority comes from showing the math before debating the architecture.",
+    episodes: [
+      { title:"The CFO Case for On-Prem AI", format:"Interview", promise:"Explain the cost, compliance, and control reasons CFOs are revisiting owned infrastructure.", angle:"Boardroom case", guest:"CFO or infrastructure investor" },
+      { title:"Building the On-Prem AI Stack", format:"Solo", promise:"Map what should run on-prem, what stays cloud, and where hybrid designs fail.", angle:"Technical architecture", guest:"Internal host deep dive" },
+    ],
+  },
+  5: {
+    recommendation: "Standalone episode",
+    recommendedCount: 1,
+    confidence: 89,
+    headline: "Make this a sharp single-episode warning.",
+    reasoning: "The idea is highly viral, but narrow. It works best as a concise, memorable episode about silent model failure rather than a stretched series.",
+    depth: "Focused technical depth with one strong thesis: your eval set is not the same thing as production truth.",
+    audience: "AI engineering teams that already ship models and need better failure detection.",
+    insight: "The Hacker News signal suggests this will travel if the framing is crisp and slightly uncomfortable.",
+    episodes: [
+      { title:"The Shadow Eval Problem: When Your Numbers Lie", format:"Solo", promise:"Show how benchmark comfort hides leakage, drift, and silent failures.", angle:"Technical warning", guest:"Internal host deep dive" },
+    ],
+  },
+  6: {
+    recommendation: "Multi-episode series",
+    recommendedCount: 2,
+    confidence: 87,
+    headline: "Frame this as the birth of a new operating function.",
+    reasoning: "The role itself needs definition before the tactics land. A two-part series lets the audience understand why AI cost needs ownership, then how the function actually reduces spend.",
+    depth: "Medium depth with strong practical application across finance, infra, and product teams.",
+    audience: "CTOs, FinOps leads, and engineering managers being asked to explain unpredictable LLM spend.",
+    insight: "Job-listing growth is an unusually concrete signal. It turns a cost-management topic into an organizational design story.",
+    episodes: [
+      { title:"The New Role: Head of AI Cost", format:"Interview", promise:"Define who owns AI cost, why the role is appearing, and what success looks like.", angle:"Org design", guest:"FinOps lead or CTO" },
+      { title:"Token Budgets, Caching & Model Routing", format:"Solo", promise:"Give teams the operational playbook for bringing inference spend under control.", angle:"Tactical playbook", guest:"Internal host deep dive" },
+    ],
+  },
+};
+
+/* ── Shared agent logo mark ───────────────────────────────────── */
+const AgentMark = () => (
+  <span className="w-6 h-6 rounded-full shrink-0 inline-flex items-center justify-center" style={{background:"#1A1A2E"}}>
+    <svg viewBox="0 0 40 40" width="14" height="14" fill="none">
+      <rect x="10" y="9" width="5" height="22" rx="1.5" fill="#FFF"/>
+      <path d="M15 9h7a7 7 0 010 14h-7" stroke="#FFF" strokeWidth="5" strokeLinejoin="round" fill="none"/>
+      <circle cx="27.5" cy="30.5" r="2.4" fill="#6B4EFF"/>
+    </svg>
+  </span>
+);
+
+const ScoreBadge = ({ kind, value }) => {
+  const grad = kind==="rel" ? "linear-gradient(90deg,#6B4EFF 0%,#B26BFF 100%)" : "linear-gradient(90deg,#FF7A59 0%,#FFB572 100%)";
+  const label = kind==="rel" ? "REL" : "VIR";
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-pill text-white px-2 py-0.5" style={{ background:grad }}>
+      <span className="mono uppercase tracking-wider opacity-95 text-[9px]">{label}</span>
+      <span className="font-bold leading-none text-[12px]">{value}</span>
+    </span>
+  );
+};
+
+const SourcePill = ({ children }) => (
+  <span className="px-2 py-0.5 rounded-pill text-[10.5px] font-medium" style={{ background:"#F1F1F8", color:"#5F6368" }}>{children}</span>
+);
+const EVIDENCE_LABELS={trending:{label:"Trending",bg:"#FFF3CD",fg:"#92600A"},viral:{label:"High virality",bg:"#FFE0DA",fg:"#B92E22"},search:{label:"Search demand",bg:"#D1E8FF",fg:"#0D5FAB"},pain:{label:"Pain point",bg:"#FFDDE1",fg:"#AD1F35"},emerging:{label:"Emerging",bg:"#D4EDDA",fg:"#1A5C2B"},evergreen:{label:"Evergreen",bg:"#D0F0EE",fg:"#0D6B62"},data:{label:"Data-backed",bg:"#E8E8F8",fg:"#3D3D8F"},contrarian:{label:"Contrarian",bg:"#EDE9FF",fg:"#5A3FE0"},community:{label:"Community signal",bg:"#FFF9C4",fg:"#7A6400"},gap:{label:"Competitor gap",bg:"#F0F0F0",fg:"#5F5F5F"}};
+const EvidencePill=({type})=>{const e=EVIDENCE_LABELS[type];if(!e)return null;return<span className="px-2 py-0.5 rounded-pill text-[10.5px] font-medium" style={{background:e.bg,color:e.fg}}>{e.label}</span>;};
+
+const StepBar = () => {
+  const steps = ["Configure", "Topic Plan", "Approval"];
+  return (
+    <div className="bg-white rounded-card shadow-card px-6 py-4 mb-6">
+      <div className="flex items-center">
+        {steps.map((s,i)=>{
+          const done=i<1; const active=i===1;
+          return (
+            <React.Fragment key={s}>
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-pill text-[12px] font-medium whitespace-nowrap ${active?"bg-primary text-white":done?"bg-success/10 text-success":"text-ink-3"}`}>
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${active?"bg-white text-primary":done?"bg-success text-white":"bg-lavender text-ink-3"}`}>
+                  {done?<Icon d={I.check} size={10} stroke={3}/>:i+1}
+                </span>
+                {s}
+              </div>
+              {i<steps.length-1&&<div className={`flex-1 h-px mx-1.5 ${done?"bg-success":"bg-border"}`}/>}
+            </React.Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const ConfigSummary = () => (
+  <aside className="bg-white rounded-card shadow-card px-5 py-5 sticky top-6">
+    <div className="mb-5">
+      <div className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 mb-1.5">Ideation context</div>
+      <h2 className="text-[17px] font-semibold display text-ink leading-tight">AI planning inputs</h2>
+      <span className="ai-pill rounded-pill px-2.5 py-1 text-[11px] font-semibold text-ink inline-flex items-center gap-1.5 mt-3">
+        <AgentMark/>Podium Agent
+      </span>
+    </div>
+
+    <div className="space-y-5">
+      <section>
+        <div className="text-[11px] text-ink-3 mb-1">Segment</div>
+        <div className="text-[13.5px] font-semibold text-ink">Sweetspot</div>
+        <div className="text-[12px] text-ink-2 mt-1 leading-relaxed">SMBs, SMEs, startups</div>
+      </section>
+
+      <section>
+        <div className="text-[11px] text-ink-3 mb-1">Audience</div>
+        <div className="text-[13.5px] font-semibold text-ink">VP Eng / CTO</div>
+        <div className="text-[12px] text-ink-2 mt-1 leading-relaxed">Series B-D SaaS teams scaling AI workloads</div>
+      </section>
+    </div>
+  </aside>
+);
+
+const planEpisode = (topic, plan, idx) => {
+  const seeded = plan.episodes[idx];
+  if (seeded) return seeded;
+  const formats = ["Interview","Solo","Panel","Q&A"];
+  return {
+    title: topic.subtopics[idx],
+    format: formats[idx % formats.length],
+    promise: "AI-generated angle based on the audience need, source graph, and brand voice.",
+    angle: idx < plan.recommendedCount ? "Recommended arc" : "Extended option",
+    guest: idx % 2 === 0 ? "Operator guest" : "Internal host deep dive",
+  };
+};
+
+const TopicGenerationPage = () => {
+  const initialSelections = { 3: [0] };
+  const [selections, setSelections] = useState(initialSelections);
+  const [regenerating, setRegenerating] = useState({});
+
+  const isTopicSelected = idx => !!(selections[idx] && selections[idx].length > 0);
+  const isEpisodeSelected = (topicIdx, epIdx) => (selections[topicIdx] || []).includes(epIdx);
+  const episodeCount = idx => (selections[idx] || []).length;
+
+  const selectFirstN = (topicIdx, count) => {
+    const topic = TOPICS.find(t => t.idx === topicIdx);
+    const n = Math.max(1, Math.min(topic.subtopics.length, count));
+    setSelections(prev => ({...prev, [topicIdx]: Array.from({length:n},(_,i)=>i)}));
+  };
+
+  const toggleTopic = idx => {
+    setSelections(prev => {
+      if (prev[idx] && prev[idx].length > 0) {
+        const next = {...prev}; delete next[idx]; return next;
+      }
+      const plan = TOPIC_PLANS[idx];
+      return {...prev, [idx]: Array.from({length:plan.recommendedCount},(_,i)=>i)};
+    });
+  };
+
+  const toggleEpisode = (topicIdx, epIdx) => {
+    setSelections(prev => {
+      const current = prev[topicIdx] || [];
+      const next = current.includes(epIdx) ? current.filter(i=>i!==epIdx) : [...current, epIdx].sort((a,b)=>a-b);
+      if (next.length === 0) { const copy = {...prev}; delete copy[topicIdx]; return copy; }
+      return {...prev, [topicIdx]: next};
+    });
+  };
+
+  const regenTopic = idx => {
+    setRegenerating(prev => ({...prev, [idx]: true}));
+    setTimeout(()=>setRegenerating(prev => ({...prev, [idx]: false})), 1300);
+  };
+
+  const regenAll = () => {
+    setRegenerating(Object.fromEntries(TOPICS.map(t => [t.idx, true])));
+    setTimeout(()=>setRegenerating({}), 1500);
+  };
+
+  const selectedTopicCount = Object.values(selections).filter(v=>v&&v.length>0).length;
+  const totalEpisodes = Object.values(selections).reduce((sum, eps)=>sum+(eps?eps.length:0),0);
+  const canProceed = selectedTopicCount > 0;
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar
+        breadcrumb={["Workspace","Ideation","New Ideation","Topic Plan"]}
+        actions={
+          <button onClick={regenAll} className="ml-1 inline-flex items-center gap-2 h-9 px-4 rounded-pill bg-white border border-border text-ink text-[13px] font-medium hover:bg-lavender transition">
+            <Icon d={I.refresh} size={14} stroke={2}/>Regenerate all
+          </button>
+        }
+      />
+
+      <main className="flex-1 overflow-y-auto pb-28">
+        <div className="max-w-[1180px] mx-auto px-8 py-8">
+          <StepBar/>
+
+          <div className="mb-6">
+            <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1.5 flex items-center gap-2">
+              Step 2 of 3 · Topic plan
+              <span className="ai-pill rounded-pill px-2 py-0.5 text-ink mono text-[10px] inline-flex items-center gap-1">
+                <Icon d={I.ideation} size={10}/>AI generated
+              </span>
+            </div>
+            <h1 className="text-[24px] font-bold display leading-tight">Review your topic plan</h1>
+            <p className="text-[13px] text-ink-2 mt-1.5 max-w-[680px]">
+              Select topics and adjust episode counts. Episode creation happens after approval.
+            </p>
+          </div>
+
+          <div>
+            <div className="min-w-0">
+              <div className="bg-white rounded-card shadow-card px-5 py-3.5 mb-5 flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-1.5 text-[12px] text-ink-2 pr-4 border-r border-border">
+                  <AgentMark/>
+                  <span className="font-medium text-ink">Sweetspot</span>
+                  <span className="text-ink-3">·</span>
+                  <span>VP Eng / CTO</span>
+                </div>
+                <div className="flex items-center gap-5 flex-1 text-[12.5px]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-ink-3"/>
+                    <span className="text-ink-2"><span className="font-semibold text-ink">{selectedTopicCount} of {TOPICS.length}</span> topics selected</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-success"/>
+                    <span className="text-ink-2"><span className="font-semibold text-success">{totalEpisodes}</span> {totalEpisodes === 1 ? "episode" : "episodes"} in plan</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-[12px]">
+                  <button onClick={()=>setSelections(Object.fromEntries(TOPICS.map(t=>[t.idx,Array.from({length:TOPIC_PLANS[t.idx].recommendedCount},(_,i)=>i)])))} className="text-primary font-medium hover:underline">Select all</button>
+                  <span className="text-ink-3">·</span>
+                  <button onClick={()=>setSelections({})} className="text-ink-2 hover:text-ink font-medium hover:underline">Clear All</button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {TOPICS.map(topic => {
+              const plan = TOPIC_PLANS[topic.idx];
+              const topicSelected = isTopicSelected(topic.idx);
+              const selectedCount = episodeCount(topic.idx);
+              const isRegen = !!regenerating[topic.idx];
+              const allEpisodes = topic.subtopics.map((_, i) => planEpisode(topic, plan, i));
+
+              const isCollapsed = selectedTopicCount > 0 && !topicSelected;
+
+              return (
+                <article key={topic.idx} className={`topic-card bg-white rounded-card overflow-hidden transition-all ${topicSelected ? "selected border-2 border-primary shadow-[0_0_0_1px_rgba(107,78,255,0.08)]" : "border border-border"}`}>
+                  <div className={`px-5 ${isCollapsed ? "py-3" : "pt-4 pb-4"}`}>
+                    <div className="flex items-start gap-4">
+                      <button onClick={()=>toggleTopic(topic.idx)}
+                        className={`w-5 h-5 rounded-[5px] border-2 flex items-center justify-center shrink-0 mt-0.5 transition ${topicSelected?"bg-primary border-primary":"bg-white border-border hover:border-primary"}`}>
+                        {topicSelected&&<Icon d={I.check} size={11} stroke={3} className="text-white"/>}
+                      </button>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                          <span className="mono text-[10.5px] font-semibold text-ink-3">#{String(topic.idx).padStart(2,"0")}</span>
+                          <ScoreBadge kind="rel" value={topic.rel}/>
+                          <ScoreBadge kind="vir" value={topic.vir}/>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-[11px] font-semibold" style={{background:"#EDE9FF",color:"#5A3FE0"}}>
+                            <AgentMark/>{plan.recommendation} · {plan.recommendedCount} ep
+                          </span>
+                        </div>
+                        <h3 className={`text-[16px] font-semibold display leading-snug ${topicSelected?"text-ink":isCollapsed?"text-ink-3":"text-ink-2"}`}>{topic.title}</h3>
+                        {!isCollapsed&&(
+                          <>
+                            <p className="text-[12.5px] text-ink-2 mt-1.5 leading-relaxed">{topic.rationale}</p>
+                            <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+                              <span className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mr-0.5">Evidence</span>
+                              {topic.evidence?.map(e=><EvidencePill key={e} type={e}/>)}
+                              {topic.sources.map(s=><SourcePill key={s}>{s}</SourcePill>)}
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-3 shrink-0">
+                        {topicSelected&&(
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] text-ink-2 font-medium">Episodes</span>
+                            <button className="step-btn" onClick={()=>selectFirstN(topic.idx, selectedCount-1)} disabled={selectedCount<=1}>
+                              <Icon d={I.minus} size={13} stroke={2.5}/>
+                            </button>
+                            <span className="ep-num">{selectedCount}</span>
+                            <button className="step-btn" onClick={()=>selectFirstN(topic.idx, selectedCount+1)} disabled={selectedCount>=topic.subtopics.length}>
+                              <Icon d={I.plus} size={13} stroke={2.5}/>
+                            </button>
+                          </div>
+                        )}
+                        {isCollapsed ? (
+                          <button onClick={()=>toggleTopic(topic.idx)} className="text-[11.5px] text-primary font-medium hover:underline shrink-0">+ Select</button>
+                        ) : (
+                          <button onClick={()=>regenTopic(topic.idx)}
+                            className={`w-8 h-8 rounded-input grid place-items-center transition ${isRegen?"bg-primary-soft text-primary":"text-ink-3 hover:text-primary hover:bg-primary-soft"}`}
+                            title="Regenerate this topic">
+                            <Icon d={I.refresh} size={14} stroke={2} className={isRegen?"animate-spin":""}/>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {topicSelected&&(
+                    <div className="fade-in border-t border-border bg-lavender/60 px-5 py-4">
+                      {isRegen ? (
+                        <div className="flex items-center gap-2 text-[12.5px] text-ink-2 py-2">
+                          <Icon d={I.refresh} size={14} className="text-primary animate-spin"/>Regenerating recommendation and episode plan…
+                        </div>
+                      ) : (
+                        <>
+                          <div className="bg-white rounded-input border border-[#DDD8FF] p-4 mb-4">
+                            <div className="flex items-start gap-3">
+                              <AgentMark/>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-[13px] font-semibold text-ink"></span>
+                                  <span className="px-2 py-0.5 rounded-pill text-[10.5px] font-medium" style={{background:"#D9F1E2",color:"#1E7E34"}}>{plan.confidence}% confidence</span>
+                                </div>
+                                <p className="text-[13px] text-ink-2 leading-relaxed mt-2">{plan.reasoning}</p>
+                                <div className="grid sm:grid-cols-2 gap-4 mt-3">
+                                  <div>
+                                    <div className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 mb-1">Audience insight</div>
+                                    <p className="text-[12.5px] leading-relaxed text-ink">{plan.audience}</p>
+                                  </div>
+                                  <div>
+                                    <div className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 mb-1">Content depth</div>
+                                    <p className="text-[12.5px] leading-relaxed text-ink">{plan.depth}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3">Episode Plan</span>
+                              <span className="px-2 py-0.5 rounded-pill text-[10px] font-semibold" style={{background:"#EDE9FF",color:"#5A3FE0"}}>{selectedCount} of {allEpisodes.length} selected</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-[11.5px]">
+                              <button onClick={()=>selectFirstN(topic.idx, plan.recommendedCount)} className="text-primary font-medium hover:underline">Use recommendation</button>
+                              <button onClick={()=>setSelections(prev=>{const next={...prev};delete next[topic.idx];return next;})} className="text-ink-2 hover:text-danger font-medium hover:underline">Clear</button>
+                            </div>
+                          </div>
+
+                          <div className="grid gap-1.5">
+                            {allEpisodes.map((episode, epIdx)=>{
+                              const epSelected = isEpisodeSelected(topic.idx, epIdx);
+                              return (
+                                <button key={epIdx} onClick={()=>toggleEpisode(topic.idx, epIdx)}
+                                  className={`w-full flex items-start gap-3 px-3.5 py-2.5 rounded-input text-left transition ${epSelected?"bg-white shadow-sm border border-primary/20":"bg-white/50 border border-transparent hover:bg-white hover:border-border"}`}>
+                                  <span className={`w-4 h-4 rounded-[4px] border-2 flex items-center justify-center shrink-0 mt-0.5 transition ${epSelected?"bg-primary border-primary":"bg-white border-border"}`}>
+                                    {epSelected&&<Icon d={I.check} size={9} stroke={3} className="text-white"/>}
+                                  </span>
+                                  <span className="mono text-[10px] font-bold shrink-0 mt-0.5 w-5" style={{color:epSelected?"#6B4EFF":"#ADADBE"}}>E{epIdx+1}</span>
+                                  <span className="flex-1 min-w-0">
+                                    <span className={`block text-[12.5px] leading-snug ${epSelected?"text-ink":"text-ink-3"}`}>{episode.title}</span>
+                                    <span className="block text-[11.5px] text-ink-3 mt-1">{episode.format} · {episode.angle}</span>
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {!topicSelected&&!isCollapsed&&(
+                    <div className="border-t border-border/50 px-5 py-2 flex items-center justify-end">
+                      <button onClick={()=>toggleTopic(topic.idx)} className="text-[11.5px] text-primary font-medium hover:underline">+ Select topic</button>
+                    </div>
+                  )}
+                </article>
+              );
+                })}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </main>
+
+      <div className="fixed bottom-0 left-[220px] right-0 bg-white border-t border-border px-8 py-4 flex items-center justify-between z-10 shadow-[0_-4px_16px_rgba(26,26,46,0.06)]">
+        <div className="text-[13px] text-ink-2">
+          {canProceed ? (
+            <><span className="font-semibold text-ink">{selectedTopicCount}</span> topic{selectedTopicCount!==1?"s":""} selected · <span className="font-semibold text-primary">{totalEpisodes}</span> episodes selected</>
+          ) : (
+            <span className="text-ink-3">Select at least 1 AI topic recommendation to continue</span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <a href="IdeationForm.html" className="h-10 px-4 rounded-pill text-[13.5px] font-medium text-ink hover:bg-lavender transition inline-flex items-center">
+            Back
+          </a>
+          {canProceed ? (
+            <a href="IdeationSubmit.html" className="h-10 px-5 rounded-pill bg-primary hover:bg-primary-hover transition text-white text-[13.5px] font-medium inline-flex items-center gap-2 shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]">
+              Continue to Approval<Icon d={I.chevR} size={15} stroke={2.25}/>
+            </a>
+          ) : (
+            <button disabled className="h-10 px-5 rounded-pill bg-ink-3 text-white text-[13.5px] font-medium inline-flex items-center gap-2 cursor-not-allowed">
+              Continue to Approval<Icon d={I.chevR} size={15} stroke={2.25}/>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Topic Generation">
+      <Sidebar active="ideation"/>
+      <div className="flex-1 min-w-0 flex flex-col"><TopicGenerationPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+<script>window.parent.postMessage({type:'podium_navigate',page:'screens/TopicGeneration.html'},'*');</script></body>
+</html>
