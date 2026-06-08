@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Recordings</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  .rec-row{transition:background .12s}.rec-row:hover{background:#FAFAFC}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,chevL:<path d="M15 18l-6-6 6-6"/>,
+  x:<><path d="M18 6L6 18"/><path d="M6 6l12 12"/></>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  mic:<><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,
+  video:<><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/></>,
+  share2:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8-3M8.6 10.5l6.8 3"/></>,
+  studio:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 8l5 3-5 3V8z"/></>,voice:<><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></>,
+  play:<path d="M5 3l14 9-14 9V3z" fill="currentColor" stroke="none"/>,
+  clock:<><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></>,
+  file:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 12h6M9 16h4"/></>,
+  upload:<><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></>,
+  tag:<><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></>,
+  sparkle:<><path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z"/><path d="M19 3l.9 2.7L22 7l-2.1.3L19 10l-.9-2.7L16 7l2.1-.3z"/></>,
+  refresh:<path d="M23 4v6h-6M1 20v-6h6M3.5 9A9 9 0 0121 15.5M20.5 15A9 9 0 013 8.5"/>,
+  monitor:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></>,
+  check:<path d="M5 12l5 5L20 7"/>,
+  externalLink:<><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>,
+  link2:<><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></>,
+};
+const Logo=()=>(<a href="CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const RoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>Content Marketer</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="recordings"})=>{const [menu,setMenu]=useState(false);const u={name:"Fizza Asad",role:"Content Marketer"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="CMDashboard.html"/><NavItem icon={I.ideation} label="Ideation" active={active==="ideation"} href="IdeationList.html"/><NavItem icon={I.mic} label="Episode Topics" active={active==="episodes"} href="EpisodeTopics.html"/><NavItem icon={I.brief} label="Brief Builder" active={active==="brief"} href="BriefList.html"/></div><SectionLabel>Production</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.video} label="Recordings" active={active==="recordings"} href="RecordingsList.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.sliders} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="relative"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>e.stopPropagation()}><Icon d={I.moreV} size={16}/></button></div>{menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}</div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}>{i>0&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}<span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span></React.Fragment>))}</nav>);
+const Topbar=({breadcrumb})=>(<header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0"><div className="flex-1 min-w-0"><Crumb items={breadcrumb}/></div><button className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink"><Icon d={I.bell} size={18}/></button><RoleBadge/></header>);
+</script>
+
+<script type="text/babel">
+const { useState } = React;
+
+const PAGE_SIZE = 5;
+
+const BRIEFS_DATA = {
+  "BR-006": { id:"BR-006", episode:"Inside the Procurement Black Box", segment:"Sweetspot",  brandVoice:"The Revenue Engine",       status:"Approved"  },
+  "BR-007": { id:"BR-007", episode:"AI Tooling at Series B Scale",     segment:"SaaS",       brandVoice:"The Revenue Engine",       status:"Approved"  },
+  "BR-008": { id:"BR-008", episode:"Building an AI Roadmap",           segment:"Startups",   brandVoice:"Founder Stories — Social", status:"In Review" },
+  "BR-009": { id:"BR-009", episode:"The Founder's Take on Procurement",segment:"Sweetspot",  brandVoice:"The Revenue Engine",       status:"Draft"     },
+};
+
+const INIT_RECORDINGS = [
+  { id:"REC-001", guest:"Alex Morgan",   title:"Inside the Procurement Black Box",             duration:"42:18", date:"2026-05-18", hasTranscript:true,  linkedBriefId:"BR-006", tag:"Procurement Bottleneck", tagSource:"agent" },
+  { id:"REC-002", guest:"Priya Nair",    title:"AI Tooling at Series B Scale",                 duration:"38:54", date:"2026-05-15", hasTranscript:true,  linkedBriefId:"BR-007", tag:"Series B AI Tooling", tagSource:"agent" },
+  { id:"REC-003", guest:"Marcus Rivera", title:"Building an AI Roadmap on a Shoestring",       duration:"51:23", date:"2026-05-12", hasTranscript:true,  linkedBriefId:"BR-008", tag:"Founder AI Roadmap", tagSource:"agent", pairingStatus:"mismatch" },
+  { id:"REC-004", guest:"Soo-Jin Park",  title:"Security Reviews for AI Vendors",              duration:"44:07", date:"2026-05-10", hasTranscript:false, transcriptStatus:"Transcript needed", linkedBriefId:null, tag:"Security Review Readiness", tagSource:"agent" },
+  { id:"REC-005", guest:"Carlos Fuentes",title:"The Founder's Take on Enterprise Procurement", duration:"29:45", date:"2026-05-08", hasTranscript:true,  linkedBriefId:"BR-009", tag:"Enterprise Procurement", tagSource:"user" },
+  { id:"REC-006", guest:"Sarah Kim",     title:"DevTools and Developer Productivity",           duration:"37:22", date:"2026-05-05", hasTranscript:true,  linkedBriefId:null, tag:"Developer Productivity", tagSource:"user" },
+  { id:"REC-007", guest:"Daniel Park",   title:"SaaS Pricing in the AI Era",                   duration:"45:18", date:"2026-05-02", hasTranscript:true,  linkedBriefId:null, tag:"AI SaaS Pricing", tagSource:"user" },
+  { id:"REC-008", guest:"Elena Torres",  title:"Open Source Eating SaaS from Below",            duration:"33:11", date:"2026-04-29", hasTranscript:false, linkedBriefId:null, tag:"Open Source GTM", tagSource:"user" },
+];
+
+const normalizeAssetName=(name)=>name
+  .toLowerCase()
+  .replace(/\.[^.]+$/,"")
+  .replace(/\b(recording|transcript|riverside|audio|video|final|export|raw|v[0-9]+)\b/g,"")
+  .replace(/[^a-z0-9]+/g,"")
+  .trim();
+const assetTokens=(name)=>name
+  .toLowerCase()
+  .replace(/\.[^.]+$/,"")
+  .split(/[^a-z0-9]+/)
+  .filter(token=>token.length>2&&!["recording","transcript","riverside","audio","video","final","export","raw"].includes(token));
+const hasAssetMismatch=(recordingName,transcriptName)=>{
+  if(!recordingName||!transcriptName) return false;
+  const recordingBase=normalizeAssetName(recordingName);
+  const transcriptBase=normalizeAssetName(transcriptName);
+  if(!recordingBase||!transcriptBase) return false;
+  if(recordingBase.includes(transcriptBase)||transcriptBase.includes(recordingBase)) return false;
+  const recordingTokens=assetTokens(recordingName);
+  const transcriptTokens=assetTokens(transcriptName);
+  const shared=recordingTokens.filter(token=>transcriptTokens.includes(token)).length;
+  return shared/Math.max(1,Math.min(recordingTokens.length,transcriptTokens.length))<0.5;
+};
+const briefLinkLabel=(briefId)=>{
+  const brief=briefId?BRIEFS_DATA[briefId]:null;
+  return brief?`${brief.id} · ${brief.episode}`:"Brief not linked";
+};
+
+const UploadPairModal=({open,onClose})=>{
+  const [hostVideoName,setHostVideoName]=useState("");
+  const [guestVideoName,setGuestVideoName]=useState("");
+  const [transcriptName,setTranscriptName]=useState("");
+  const [selectedBriefId,setSelectedBriefId]=useState("");
+  const anyVideo=hostVideoName||guestVideoName;
+  const pairingReady=anyVideo&&transcriptName;
+  const pairingTone=pairingReady?"#1E7E34":"#5F6368";
+  const pairingBg=pairingReady?"#EAF7EE":"#EEEEF8";
+  if(!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 bg-ink/35 backdrop-blur-[2px] flex items-center justify-center px-6" onClick={onClose}>
+      <div className="w-full max-w-[780px] bg-white rounded-card shadow-[0_18px_60px_rgba(26,26,46,0.18)] border border-border overflow-hidden" onClick={(e)=>e.stopPropagation()}>
+        <div className="px-6 py-5 border-b border-border flex items-start justify-between gap-4">
+          <div>
+            <div className="mono text-[10.5px] uppercase tracking-[0.18em] text-ink-3">Recording Intake</div>
+            <h2 className="text-[20px] font-bold display mt-1">Upload episode assets</h2>
+            <p className="text-[13px] text-ink-2 mt-1.5 max-w-[560px]">Upload the host and guest Riverside recordings along with the transcript. Link to a brief manually before uploading.</p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-lavender transition"><Icon d={I.x} size={16}/></button>
+        </div>
+
+        <div className="p-6 grid grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)] gap-5">
+          <div className="space-y-2.5">
+            {/* Host video */}
+            <label className="block rounded-card border border-dashed border-primary/35 bg-primary-soft/35 p-3.5 cursor-pointer hover:border-primary transition">
+              <input type="file" accept="video/*,audio/*" className="hidden" onChange={(e)=>setHostVideoName(e.target.files?.[0]?.name||"")}/>
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-8 rounded-input bg-primary text-white grid place-items-center shrink-0"><Icon d={I.video} size={14}/></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[12.5px] font-semibold text-ink">Host video</span>
+                  <span className="block text-[11.5px] text-ink-2 mt-0.5 truncate">{hostVideoName||"Upload .mp4, .mov, or .mp3 — host Riverside track"}</span>
+                </span>
+                {hostVideoName&&<span className="w-5 h-5 rounded-full bg-success grid place-items-center shrink-0"><Icon d={I.check} size={10} stroke={2.5} className="text-white"/></span>}
+              </div>
+            </label>
+
+            {/* Guest video */}
+            <label className="block rounded-card border border-dashed border-border bg-white p-3.5 cursor-pointer hover:border-primary/50 hover:bg-lavender/40 transition">
+              <input type="file" accept="video/*,audio/*" className="hidden" onChange={(e)=>setGuestVideoName(e.target.files?.[0]?.name||"")}/>
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-8 rounded-input bg-lavender text-primary grid place-items-center shrink-0"><Icon d={I.video} size={14}/></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[12.5px] font-semibold text-ink">Guest video</span>
+                  <span className="block text-[11.5px] text-ink-2 mt-0.5 truncate">{guestVideoName||"Upload .mp4, .mov, or .mp3 — guest Riverside track"}</span>
+                </span>
+                {guestVideoName&&<span className="w-5 h-5 rounded-full bg-success grid place-items-center shrink-0"><Icon d={I.check} size={10} stroke={2.5} className="text-white"/></span>}
+              </div>
+            </label>
+
+            {/* Screen share — disabled */}
+            <div className="block rounded-card border border-dashed border-border bg-lavender/20 p-3.5 opacity-50 cursor-not-allowed select-none">
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-8 rounded-input bg-lavender text-ink-3 grid place-items-center shrink-0"><Icon d={I.monitor} size={14}/></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[12.5px] font-semibold text-ink-2">Screen sharing</span>
+                  <span className="block text-[11.5px] text-ink-3 mt-0.5">Not available — screen share upload coming soon</span>
+                </span>
+                <span className="px-2 py-0.5 rounded-pill bg-lavender text-ink-3 text-[10px] font-semibold shrink-0">Soon</span>
+              </div>
+            </div>
+
+            {/* Transcript */}
+            <label className="block rounded-card border border-dashed border-border bg-white p-3.5 cursor-pointer hover:border-primary/50 hover:bg-lavender/40 transition">
+              <input type="file" accept=".txt,.vtt,.srt,.doc,.docx" className="hidden" onChange={(e)=>setTranscriptName(e.target.files?.[0]?.name||"")}/>
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-8 rounded-input bg-lavender text-primary grid place-items-center shrink-0"><Icon d={I.file} size={14}/></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[12.5px] font-semibold text-ink">Transcript file</span>
+                  <span className="block text-[11.5px] text-ink-2 mt-0.5 truncate">{transcriptName||"Attach .srt, .vtt, .txt, .doc, or .docx"}</span>
+                </span>
+                {transcriptName&&<span className="w-5 h-5 rounded-full bg-success grid place-items-center shrink-0"><Icon d={I.check} size={10} stroke={2.5} className="text-white"/></span>}
+              </div>
+            </label>
+
+            <div className="rounded-card border border-border bg-lavender/35 p-3.5">
+              <div className="flex items-center gap-2 text-[12px] font-semibold text-ink"><Icon d={I.sparkle} size={13} className="text-primary"/>Agent analysis after upload</div>
+              <p className="text-[11.5px] text-ink-2 leading-relaxed mt-1">The agent will generate an editorial title from the transcript. Brief link is set by you before upload.</p>
+            </div>
+          </div>
+
+          <div className="rounded-card border border-border bg-[#FAFAFE] p-4 space-y-3">
+            <div>
+              <label className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Generated title</label>
+              <input className="mt-1.5 w-full h-9 rounded-input border border-border bg-white px-3 text-[12.5px] text-ink" defaultValue="AI will generate after transcript analysis"/>
+            </div>
+            <div>
+              <label className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Brief link</label>
+              <select value={selectedBriefId} onChange={e=>setSelectedBriefId(e.target.value)}
+                className="mt-1.5 w-full h-9 rounded-input border border-border bg-white px-3 text-[12.5px] text-ink-2 appearance-none">
+                <option value="">Select a brief…</option>
+                {Object.values(BRIEFS_DATA).map(brief=><option key={brief.id} value={brief.id}>{brief.id} · {brief.episode}</option>)}
+              </select>
+            </div>
+            <div className="pt-2 border-t border-border">
+              <div className="text-[12px] font-semibold text-ink mb-2">AI pairing check</div>
+              <div className="space-y-1.5 text-[12px] text-ink-2">
+                <div className="flex items-center gap-2">
+                  <span className={["w-2 h-2 rounded-full shrink-0",hostVideoName?"bg-success":"bg-ink-3"].join(" ")}/>
+                  Host video {hostVideoName?"attached":"waiting"}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={["w-2 h-2 rounded-full shrink-0",guestVideoName?"bg-success":"bg-ink-3"].join(" ")}/>
+                  Guest video {guestVideoName?"attached":"waiting"}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={["w-2 h-2 rounded-full shrink-0",transcriptName?"bg-success":"bg-ink-3"].join(" ")}/>
+                  Transcript {transcriptName?"linked":"waiting"}
+                </div>
+                <div className="flex items-center gap-2 opacity-40">
+                  <span className="w-2 h-2 rounded-full shrink-0 bg-ink-3"/>Screen share — disabled
+                </div>
+              </div>
+              <div className="mt-3 rounded-input px-3 py-2 text-[11.5px] font-medium leading-relaxed" style={{background:pairingBg,color:pairingTone}}>
+                {pairingReady ? "Ready: video and transcript attached." : "Waiting for both assets before checking match."}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="px-6 py-4 border-t border-border bg-[#FAFAFE] flex items-center justify-between gap-3">
+          <div className="text-[12px] text-ink-2">All recordings stay grouped as one intake item.</div>
+          <div className="flex items-center gap-2">
+            <button onClick={onClose} className="h-9 px-4 rounded-pill border border-border bg-white text-[12.5px] font-medium text-ink-2 hover:text-ink transition">Cancel</button>
+            <button onClick={onClose} className="h-9 px-4 rounded-pill bg-primary hover:bg-primary-hover text-white text-[12.5px] font-semibold inline-flex items-center gap-1.5 transition"><Icon d={I.sparkle} size={13}/>Upload and analyze</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const RecordingsPage = () => {
+  const [recs, setRecs] = useState(INIT_RECORDINGS);
+  const [page, setPage] = useState(1);
+  const [uploadModal,setUploadModal]=useState(false);
+  const [editingBriefId,setEditingBriefId]=useState(null);
+
+  const totalPages = Math.ceil(recs.length / PAGE_SIZE);
+  const paginated = recs.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
+
+  const stats = {
+    total: recs.length,
+    ready: recs.filter(r=>r.hasTranscript && r.linkedBriefId).length,
+    withTranscript: recs.filter(r=>r.hasTranscript).length,
+    autoTagged: recs.filter(r=>r.tagSource==="agent").length,
+    thisMonth: recs.filter(r=>r.date.startsWith("2026-05")).length,
+  };
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar breadcrumb={["Workspace","Recordings"]}/>
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[1180px] mx-auto px-8 py-8">
+
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1.5">Content Marketer</div>
+              <h1 className="text-[28px] font-bold display leading-tight">Recordings</h1>
+              <p className="text-[13.5px] text-ink-2 mt-1">Upload Riverside exports and transcripts, then review AI-linked briefs.</p>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <button onClick={()=>setUploadModal(true)} className="h-9 px-4 rounded-pill bg-primary hover:bg-primary-hover text-white text-[12.5px] font-medium inline-flex items-center gap-1.5 transition cursor-pointer shadow-[0_3px_8px_-2px_rgba(107,78,255,0.45)]">
+                <Icon d={I.upload} size={13}/>Upload episode assets
+              </button>
+            </div>
+          </div>
+
+          <div className="mb-5 flex items-center gap-3 px-5 py-3.5 rounded-card" style={{background:"#F8F6FF",border:"1px solid #DDD8FF"}}>
+            <div className="w-8 h-8 rounded-input bg-primary-soft text-primary grid place-items-center shrink-0">
+              <Icon d={I.sparkle} size={15}/>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[13px] font-semibold text-ink">Agent has auto-linked 4 recordings to briefs based on transcript analysis.</div>
+              <div className="text-[12.5px] text-ink-2 mt-0.5">Review and correct if needed before opening the timeline workbench.</div>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-4 gap-3 mb-6">
+            {[
+              {label:"Total Recordings",value:stats.total,color:"#1A1A2E"},
+              {label:"Ready to Edit",value:stats.ready,color:"#6B4EFF"},
+              {label:"AI Linked",value:stats.autoTagged,color:"#6B4EFF"},
+              {label:"Transcript Ready",value:stats.withTranscript,color:"#34A853"},
+            ].map(s=>(
+              <div key={s.label} className="bg-white rounded-card shadow-card px-4 py-3">
+                <div className="text-[24px] font-bold display" style={{color:s.color}}>{s.value}</div>
+                <div className="text-[12px] text-ink-2 mt-0.5">{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Recordings list */}
+          <div className="bg-white rounded-card shadow-card overflow-hidden mb-4">
+            {paginated.map((rec, idx) => (
+              <div key={rec.id} onClick={()=>{window.location.href="RecordingDetail.html";}} className={`rec-row flex items-center gap-4 px-5 py-3.5 cursor-pointer ${idx<paginated.length-1?"border-b border-border":""}`}>
+
+                {/* Thumbnail */}
+                <div className="w-[72px] h-[42px] rounded-[6px] overflow-hidden shrink-0 flex items-center justify-center relative" style={{background:"#1A1A2E"}}>
+                  <Icon d={I.play} size={14} className="text-white opacity-70"/>
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13.5px] font-medium text-ink truncate">{rec.title}</div>
+                  <div className="flex items-center gap-3 mt-0.5">
+                    <span className="mono text-[11px] text-ink-3">{rec.id}</span>
+                    <span className="text-ink-3 text-[10px]">·</span>
+                    <span className="text-[12px] text-ink-2">{rec.guest}</span>
+                    <span className="text-ink-3 text-[10px]">·</span>
+                    <span className="text-[12px] text-ink-2 inline-flex items-center gap-1">
+                      <Icon d={I.clock} size={11} className="text-ink-3"/>{rec.duration}
+                    </span>
+                    <span className="text-ink-3 text-[10px]">·</span>
+                    <span className="text-[12px] text-ink-2">{new Date(rec.date).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-[11px] font-semibold text-white max-w-[320px]" style={{background:"#6B4EFF"}}>
+                      {rec.tagSource==="agent"&&<Icon d={I.sparkle} size={10} stroke={2.2} className="shrink-0"/>}
+                      <span className="truncate">{briefLinkLabel(rec.linkedBriefId)}</span>
+                    </span>
+                    {rec.tagSource==="agent"&&<span className="inline-flex items-center gap-1 text-[10.5px] font-medium text-primary"><Icon d={I.sparkle} size={10}/>AI linked</span>}
+                    {editingBriefId===rec.id ? (
+                      <select value={rec.linkedBriefId || ""} autoFocus onClick={(e)=>e.stopPropagation()} onBlur={()=>setEditingBriefId(null)}
+                        onChange={(e)=>{
+                          e.stopPropagation();
+                          const nextBriefId=e.target.value || null;
+                          setRecs(items=>items.map(item=>item.id===rec.id?{...item,linkedBriefId:nextBriefId,tagSource:"user"}:item));
+                          setEditingBriefId(null);
+                        }}
+                        className="h-7 min-w-[220px] rounded-pill border border-primary/40 bg-white px-3 text-[11px] font-medium text-ink-2 focus:border-primary">
+                        <option value="">Brief not linked</option>
+                        {Object.values(BRIEFS_DATA).map(brief=><option key={brief.id} value={brief.id}>{brief.id} · {brief.episode}</option>)}
+                      </select>
+                    ) : (
+                      <button onClick={(e)=>{e.stopPropagation();setEditingBriefId(rec.id);}} className="h-6 px-2.5 rounded-pill border border-border bg-white text-[11px] font-medium text-ink-2 hover:text-primary hover:border-primary/40 hover:bg-primary-soft/40 transition">Edit</button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Transcript badge */}
+                {rec.hasTranscript ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-pill text-[11px] font-semibold shrink-0" style={{background:"#D9F1E2",color:"#1E7E34"}}>
+                    <Icon d={I.file} size={11}/>Transcript
+                  </span>
+                ) : rec.transcriptStatus ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-pill text-[11px] font-semibold shrink-0" style={{background:"#FFE9C0",color:"#A86A00"}}>
+                    <Icon d={I.file} size={11}/>{rec.transcriptStatus}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-pill text-[11px] font-semibold shrink-0 bg-lavender text-ink-3">No Transcript</span>
+                )}
+                {rec.pairingStatus==="mismatch"&&(
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-pill text-[11px] font-semibold shrink-0" style={{background:"#FFF6E0",color:"#A86A00"}}>
+                    Pairing mismatch
+                  </span>
+                )}
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <a href="RecordingDetail.html" onClick={(e)=>e.stopPropagation()}
+                    className="h-8 px-3.5 rounded-pill text-[12px] font-medium bg-ink text-white hover:bg-primary inline-flex items-center gap-1.5 transition">
+                    Open<Icon d={I.chevR} size={12}/>
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <div className="flex items-center justify-between">
+            <div className="text-[12.5px] text-ink-2">
+              Showing <span className="font-medium text-ink">{(page-1)*PAGE_SIZE+1}–{Math.min(page*PAGE_SIZE,recs.length)}</span> of <span className="font-medium text-ink">{recs.length}</span> recordings
+            </div>
+            <div className="flex items-center gap-2">
+              <button disabled={page===1} onClick={()=>setPage(p=>p-1)}
+                className={["h-8 px-3.5 rounded-pill border text-[12.5px] font-medium inline-flex items-center gap-1.5 transition",
+                  page===1?"border-border text-ink-3 cursor-not-allowed":"border-border text-ink-2 hover:text-ink hover:border-ink-3"].join(" ")}>
+                <Icon d={I.chevL} size={13}/>Previous
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({length:totalPages},(_,i)=>i+1).map(p=>(
+                  <button key={p} onClick={()=>setPage(p)}
+                    className={["w-8 h-8 rounded-input text-[12.5px] font-medium transition",
+                      p===page?"bg-ink text-white":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{p}</button>
+                ))}
+              </div>
+              <button disabled={page===totalPages} onClick={()=>setPage(p=>p+1)}
+                className={["h-8 px-3.5 rounded-pill border text-[12.5px] font-medium inline-flex items-center gap-1.5 transition",
+                  page===totalPages?"border-border text-ink-3 cursor-not-allowed":"border-border text-ink-2 hover:text-ink hover:border-ink-3"].join(" ")}>
+                Next<Icon d={I.chevR} size={13}/>
+              </button>
+            </div>
+          </div>
+
+          <div className="text-[11px] text-ink-3 mono mt-8">podium · content marketer · recordings · manual riverside upload</div>
+        </div>
+      </main>
+      <UploadPairModal open={uploadModal} onClose={()=>setUploadModal(false)}/>
+    </div>
+  );
+};
+
+function App(){
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Recordings">
+      <Sidebar active="recordings"/>
+      <div className="flex-1 min-w-0 flex flex-col"><RecordingsPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+<script>window.parent.postMessage({type:'podium_navigate',page:'screens/RecordingsList.html'},'*');</script></body>
+</html>

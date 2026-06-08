@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Manager Review Detail</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  .agent-banner{background:radial-gradient(70% 130% at 0% 50%,rgba(107,78,255,0.14) 0%,transparent 72%),#F8F6FF;border:1px solid #DDD8FF}
+  .section-card{background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(26,26,46,0.04),0 4px 12px rgba(26,26,46,0.04)}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,
+  arrowL:<path d="M19 12H5M12 19l-7-7 7-7"/>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  check:<path d="M5 12l5 5L20 7"/>,
+  x:<path d="M18 6L6 18M6 6l12 12"/>,
+  message:<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>,
+  clock:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
+  send:<><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></>,
+};
+
+const Logo=()=>(<a href="MMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const MMRoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#E3ECFF",color:"#1D4ED8"}}><span className="w-1.5 h-1.5 rounded-full bg-blue-600"/>Marketing Manager</span>;
+const ScoreBadge=({kind,value})=>{const grad=kind==="rel"?"linear-gradient(90deg,#6B4EFF 0%,#B26BFF 100%)":"linear-gradient(90deg,#FF7A59 0%,#FFB572 100%)";return<span className="inline-flex items-center gap-1.5 rounded-pill text-white px-2 py-0.5" style={{background:grad}}><span className="mono uppercase tracking-wider opacity-95 text-[9px]">{kind==="rel"?"REL":"VIR"}</span><span className="font-bold leading-none text-[12px]">{value}</span></span>;};
+const EVIDENCE_LABELS={trending:{label:"Trending",bg:"#FFF3CD",fg:"#92600A"},viral:{label:"High virality",bg:"#FFE0DA",fg:"#B92E22"},search:{label:"Search demand",bg:"#D1E8FF",fg:"#0D5FAB"},pain:{label:"Pain point",bg:"#FFDDE1",fg:"#AD1F35"},emerging:{label:"Emerging",bg:"#D4EDDA",fg:"#1A5C2B"},evergreen:{label:"Evergreen",bg:"#D0F0EE",fg:"#0D6B62"},data:{label:"Data-backed",bg:"#E8E8F8",fg:"#3D3D8F"},contrarian:{label:"Contrarian",bg:"#EDE9FF",fg:"#5A3FE0"},community:{label:"Community signal",bg:"#FFF9C4",fg:"#7A6400"},gap:{label:"Competitor gap",bg:"#F0F0F0",fg:"#5F5F5F"}};
+const EvidencePill=({type})=>{const e=EVIDENCE_LABELS[type];if(!e)return null;return<span className="px-2 py-0.5 rounded-pill text-[10.5px] font-medium" style={{background:e.bg,color:e.fg}}>{e.label}</span>;};
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.18em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active})=>{const [menu,setMenu]=useState(false);const u={name:"Jen Mendoza",role:"Marketing Manager"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="MMDashboard.html"/><NavItem icon={I.ideation} label="Ideation Reviews" active={active==="ideation-reviews"} href="MMIdeations.html"/><NavItem icon={I.brief} label="Brief Reviews" active={active==="brief-reviews"} href="MMBriefs.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="relative"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>e.stopPropagation()}><Icon d={I.moreV} size={16}/></button></div>{menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}</div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}>{i>0&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}<span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span></React.Fragment>))}</nav>);
+const NOTIFS=[
+  {id:1,type:"action",title:"New ideation submitted",desc:"Fizza submitted 'AI Strategy Series' for review.",time:"2 hrs ago",read:false},
+  {id:2,type:"action",title:"Brief awaiting review",desc:"Episode 1 brief for AI Strategy Series is pending approval.",time:"3 hrs ago",read:false},
+  {id:3,type:"reminder",title:"Ideation review overdue",desc:"'Procurement Bottleneck' has been waiting 2 days for review.",time:"2 days ago",read:false},
+  {id:4,type:"approved",title:"Episodes now live",desc:"AI Cost Optimization topics moved to Episode Topics.",time:"3 days ago",read:true},
+  {id:5,type:"info",title:"Weekly summary",desc:"3 ideations reviewed this week — 2 approved, 1 rejected.",time:"5 days ago",read:true},
+];
+const NOTIF_STYLE={approved:{bg:"#D9F1E2",fg:"#1E7E34",path:<path d="M5 12l5 5L20 7"/>},rejected:{bg:"#FFE0DA",fg:"#B92E22",path:<path d="M18 6L6 18M6 6l12 12"/>},action:{bg:"#EDE9FF",fg:"#5A3FE0",path:<path d="M12 5v7M12 16h.01"/>},reminder:{bg:"#FFE9C0",fg:"#A86A00",path:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>},info:{bg:"#E8E8F8",fg:"#5F6368",path:<><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v5"/></>}};
+const NotifPanel=({notifs,onMarkAll,onClose})=>{const unread=notifs.filter(n=>!n.read).length;return(<><div className="fixed inset-0 z-40" onClick={onClose}/><div className="absolute right-0 top-full mt-2 w-[340px] bg-white rounded-card border border-border z-50 overflow-hidden" style={{boxShadow:"0 8px 32px rgba(26,26,46,0.14)"}}><div className="flex items-center justify-between px-4 py-3 border-b border-border"><div className="flex items-center gap-2"><span className="text-[14px] font-semibold text-ink">Notifications</span>{unread>0&&<span className="px-1.5 py-0.5 rounded-pill text-[10px] font-bold bg-primary text-white">{unread}</span>}</div>{unread>0&&<button onClick={onMarkAll} className="text-[11.5px] font-medium text-primary hover:underline">Mark all read</button>}</div><div className="divide-y divide-border/50 max-h-[420px] overflow-y-auto">{notifs.map(n=>{const s=NOTIF_STYLE[n.type]||NOTIF_STYLE.info;return(<div key={n.id} className={`flex items-start gap-3 px-4 py-3 cursor-pointer transition hover:bg-lavender/40 ${!n.read?"bg-primary-soft/20":""}`}><div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{background:s.bg}}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={s.fg} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">{s.path}</svg></div><div className="flex-1 min-w-0"><div className={`text-[12.5px] leading-snug ${!n.read?"font-semibold text-ink":"text-ink-2"}`}>{n.title}</div><div className="text-[11.5px] text-ink-3 mt-0.5 leading-snug">{n.desc}</div><div className="text-[10.5px] text-ink-3 mt-1">{n.time}</div></div>{!n.read&&<div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5"/>}</div>);})}</div><div className="px-4 py-3 border-t border-border text-center"><button className="text-[12px] font-medium text-ink-3 hover:text-primary transition">View all notifications</button></div></div></>);};
+const Topbar=({kind})=>{
+  const [notifOpen,setNotifOpen]=useState(false);
+  const [notifs,setNotifs]=useState(NOTIFS);
+  const unread=notifs.filter(n=>!n.read).length;
+  return(
+    <header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0">
+      <div className="flex-1 min-w-0"><Crumb items={["Workspace",kind==="brief"?"Brief Detail":"Ideation Detail"]}/></div>
+      <div className="relative">
+        <button onClick={()=>setNotifOpen(v=>!v)} className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink relative">
+          <Icon d={I.bell} size={18}/>
+          {unread>0&&<span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary border-2 border-white"/>}
+        </button>
+        {notifOpen&&<NotifPanel notifs={notifs} onMarkAll={()=>setNotifs(p=>p.map(n=>({...n,read:true})))} onClose={()=>setNotifOpen(false)}/>}
+      </div>
+      <MMRoleBadge/>
+    </header>
+  );
+};
+
+const REVIEW_DETAILS={
+  "ideation:ideation-1":{
+    kind:"ideation",icon:I.ideation,label:"Ideation Review",title:"AI Strategy Series",segment:"Enterprise segment",status:"Pending Review",priority:"High",submittedBy:"Fizza",age:"2 hrs ago",audience:"CIO / CTO / VP Engineering at enterprise accounts",confidence:"92%",
+    recommendation:"Multi-episode series",count:"4 episodes",reason:"The topic spans executive strategy, buying committee friction, operating model changes, and implementation risk. A series gives each decision layer enough room without turning the first episode into a generic overview.",
+    insight:"Strong executive relevance with enough depth for strategic, procurement, and implementation angles.",
+    topics:[
+      {id:"T-01",title:"AI strategy after the pilot",rel:92,vir:87,evidence:["trending","pain","data"],episodes:[
+        {title:"Why AI strategy fails after the first pilot",
+          host:{name:"Marcus Reid",role:"Pricing Strategist",fit:91,tone:"Calm, commercially sharp",why:"His pricing strategy background maps directly to this episode's tension — he can press on what actually breaks after the pilot without losing the executive framing.",strengths:["Deep enterprise AI strategy expertise","Can press on specific failure modes","Strong board-level framing"]},
+          persona:{title:"CIO / Head of AI",stage:"Enterprise",seniority:"12+ yrs exp",fit:91,why:"Owns the exact problem this episode covers — keeping AI programs alive after the first pilot stalls. The urgency is real and the decision authority is theirs.",signals:["Budget decision-maker","AI program owner","Board reporting pressure","Cross-functional authority"],interviewAngles:["Where AI strategy breaks after the first pilot","How CIOs frame AI ROI to the board","What makes an AI program worth continuing beyond experimentation"]}},
+        {title:"How teams decide which AI work belongs on the roadmap",
+          host:{name:"Priya Nair",role:"Revenue Operations Lead",fit:87,tone:"Analytical, data-driven",why:"Priya's RevOps lens keeps the conversation grounded in operational reality — she knows which AI investments connect to revenue and which don't.",strengths:["Revenue model fluency","Keeps guests concrete and specific","Translates data into decision logic"]},
+          persona:{title:"VP Engineering",stage:"Enterprise",seniority:"8–12 yrs exp",fit:87,why:"Sits at the intersection of AI ambition and execution reality — owns the roadmap tradeoffs between AI investment and core product work.",signals:["AI roadmap ownership","Engineering team lead","Build-vs-buy decision maker","Cross-team dependency manager"],interviewAngles:["How engineering leaders evaluate AI work against the core roadmap","Where AI projects create unexpected technical debt","What criteria make AI features worth prioritizing"]}},
+      ]},
+      {id:"T-02",title:"Enterprise operating model",rel:85,vir:71,evidence:["evergreen","pain","search"],episodes:[
+        {title:"The operating model shift behind enterprise AI adoption",
+          host:{name:"Tom Blake",role:"Product CEO",fit:85,tone:"Direct, narrative-led",why:"Tom's founder perspective gives him permission to ask the structural questions this episode needs — he's navigated the same operating model decisions himself.",strengths:["Founder-to-founder credibility","Strong market narrative framing","Draws out organizational decisions"]},
+          persona:{title:"Chief of Staff / Head of Ops",stage:"Enterprise",seniority:"6–10 yrs exp",fit:85,why:"The operating model shift lands hardest on the people who operationalize it. This persona sits across functions and owns the coordination layer where AI adoption either succeeds or stalls.",signals:["Cross-functional coordinator","Org design authority","Process owner","Executive proximity"],interviewAngles:["How operating models have to change for AI to scale","Where the coordination costs of AI adoption land","What the Chief of Staff sees that executives don't"]}},
+      ]},
+      {id:"T-03",title:"ROI and measurement",rel:88,vir:68,evidence:["data","evergreen","search"],episodes:[
+        {title:"Measuring ROI when AI changes the workflow, not just the tool",
+          host:{name:"Aisha Patel",role:"Enterprise Sales Leader",fit:88,tone:"Precise, enterprise-savvy",why:"Aisha's enterprise sales background means she's had to quantify AI ROI for skeptical buyers — she knows which metrics land and which get dismissed.",strengths:["Enterprise ROI credibility","Navigates procurement skepticism","Connects AI output to business metrics"]},
+          persona:{title:"CFO / Finance Lead",stage:"Enterprise",seniority:"10–15 yrs exp",fit:88,why:"The final gatekeeper for AI investment decisions. Needs ROI framed in terms they own — workflow cost reduction, output quality, and measurable revenue impact.",signals:["AI budget authority","ROI decision-maker","Board-level reporting","Enterprise finance"],interviewAngles:["How CFOs define AI ROI beyond cost savings","What makes AI investment credible to the board","Where workflow change makes ROI measurement harder"]}},
+      ]},
+    ],
+  },
+  "ideation:ideation-2":{
+    kind:"ideation",icon:I.ideation,label:"Ideation Review",title:"Procurement Bottleneck Deep Dive",segment:"Sweetspot segment",status:"Pending Review",priority:"Medium",submittedBy:"Fizza",age:"4 hrs ago",audience:"CIO / Head of AI evaluating enterprise AI vendors",confidence:"88%",
+    recommendation:"Multi-episode series",count:"3 episodes",reason:"The bottleneck is not one problem. It cuts across vendor evaluation, security review, stakeholder alignment, and budget ownership. A short series lets the team cover each blocker with specific examples.",
+    insight:"High pain-point clarity for enterprise buyers; strongest when framed through real decision failures.",
+    topics:[
+      {id:"T-01",title:"Procurement failure modes",rel:91,vir:83,evidence:["pain","trending","community"],episodes:[
+        {title:"Why great AI demos die in procurement",
+          host:{name:"Aisha Patel",role:"Enterprise Sales Leader",fit:91,tone:"Precise, enterprise-savvy",why:"Aisha has navigated the vendor approval loop from the selling side — she knows which questions reveal real procurement blockers versus surface-level objections.",strengths:["Enterprise procurement credibility","Navigates vendor approval language","Strong at drawing out process detail"]},
+          persona:{title:"Head of Procurement",stage:"Enterprise / Mid-market",seniority:"7–12 yrs exp",fit:91,why:"Holds the keys to AI vendor decisions and can explain exactly why great demos still fail — not because of the product, but because of how vendors present to the wrong people at the wrong time.",signals:["Vendor evaluation authority","Risk assessment owner","Budget gate","Compliance decision-maker"],interviewAngles:["What procurement actually needs to approve an AI vendor","Where vendor demos lose the room in procurement","How procurement teams assess AI risk versus value"]}},
+      ]},
+      {id:"T-02",title:"Security and stakeholder review",rel:86,vir:74,evidence:["pain","data","gap"],episodes:[
+        {title:"Security review traps that stall AI pilots",
+          host:{name:"Chris Yoon",role:"CISO / Security Advisor",fit:88,tone:"Technical, precise",why:"Chris speaks the language of security review from the inside — he knows which AI security concerns are genuine blockers versus which ones dissolve with the right documentation.",strengths:["Security review credibility","Separates real from surface blockers","Technical depth with business framing"]},
+          persona:{title:"CTO / CISO",stage:"Enterprise",seniority:"10+ yrs exp",fit:88,why:"Security review traps land squarely on this persona's desk. They have to sign off on AI vendors while managing genuine security risk — they know exactly where pilots stall and why.",signals:["Security sign-off authority","AI risk evaluator","Technical gatekeeper","Compliance owner"],interviewAngles:["Which security questions consistently stall AI vendor approvals","How CISOs distinguish real AI security risk from vendor red tape","What security documentation actually unblocks an AI pilot"]}},
+        {title:"How CIOs build internal urgency for AI vendor decisions",
+          host:{name:"Marcus Reid",role:"Pricing Strategist",fit:89,tone:"Calm, commercially sharp",why:"Marcus can frame the urgency problem through a commercial lens — what internal delay is actually costing the organization — which often unlocks more candid responses from CIO guests.",strengths:["Commercial urgency framing","Can quantify internal friction","Makes abstract problems concrete"]},
+          persona:{title:"CIO / Head of AI",stage:"Enterprise",seniority:"12+ yrs exp",fit:89,why:"The internal champion who has to generate urgency without direct budget authority over every stakeholder. Has lived the political work of moving AI decisions forward.",signals:["Internal champion role","Cross-stakeholder influencer","AI strategy owner","Vendor relationship manager"],interviewAngles:["How CIOs build urgency for AI vendor decisions without mandate","Where internal politics slow down AI procurement","What makes a CIO's internal case for an AI vendor compelling"]}},
+      ]},
+    ],
+  },
+  "brief:brief-1":{
+    kind:"brief",icon:I.brief,label:"Brief Review",title:"Episode 1: AI Adoption Brief",segment:"Enterprise segment",status:"Pending Review",priority:"High",submittedBy:"Fizza",age:"45 mins ago",host:"Haseeb",audience:"Enterprise CTOs moving AI from pilots to production",confidence:"94%",
+    recommendation:"Ready for manager review",count:"6 questions",reason:"The brief is focused, executive-friendly, and has a clear arc from adoption pressure to implementation tradeoffs. The strongest approval check is whether the questions push for concrete operating detail.",
+    insight:"Good fit for a strategic guest; questions should keep pulling toward lived examples and tradeoffs.",
+    episode:{id:"EP-001",topic:"AI Adoption at Enterprise Scale",objective:"Help enterprise leaders understand what changes when AI moves from experimentation into operating workflows.",angle:"Strategic, executive, implementation-focused"},
+    hostProfile:{name:"Haseeb",role:"Host",fit:88,focus:"Push for concrete operating lessons, board-level metrics, and examples from real adoption programs.",tone:"Calm, strategic, commercially sharp",why:"Haseeb's enterprise strategy background gives him the range to press for specific operating detail without losing the executive framing that makes this episode land.",strengths:["Draws out concrete failure modes","Board-level framing fluency","Keeps guests grounded in real examples"]},
+    guest:{name:"Sarah Chen",title:"CTO at DataFlow Inc.",company:"DataFlow Inc.",expertise:"Scaling AI programs from pilot to production across enterprise infrastructure teams.",context:"Sarah has led AI infrastructure rollout across 3 enterprise orgs. Questions should respect technical depth while surfacing business tradeoffs."},
+    questions:["Where do AI adoption plans usually break after leadership alignment?","What changes when teams move from pilot budgets to production ownership?","How should CTOs decide between internal tooling and vendor-led AI workflows?","Which metrics make AI adoption credible to the board?"],
+    talkingPoints:["Adoption pressure from competitors and internal teams","Governance tension between speed and risk","What production readiness means beyond model quality","How to make AI progress measurable without overclaiming"],
+  },
+};
+
+const AgentMark=()=>(
+  <div className="w-8 h-8 rounded-full bg-ink grid place-items-center shrink-0">
+    <svg viewBox="0 0 40 40" width="18" height="18" fill="none"><rect x="10" y="9" width="5" height="22" rx="1.5" fill="#FFF"/><path d="M15 9h7a7 7 0 010 14h-7" stroke="#FFF" strokeWidth="5" strokeLinejoin="round" fill="none"/><circle cx="27.5" cy="30.5" r="2.4" fill="#6B4EFF"/></svg>
+  </div>
+);
+const AgentBanner=({item})=>(
+  <div className="agent-banner rounded-card px-5 py-4 flex items-center gap-4">
+    <AgentMark/>
+    <div className="flex-1 min-w-0">
+      <div className="text-[13px] font-semibold text-ink">Podium Agent</div>
+      <div className="text-[13px] text-ink-2 mt-0.5">{item.recommendation}. {item.reason}</div>
+    </div>
+    <span className="px-2.5 py-1 rounded-pill text-[10.5px] font-semibold shrink-0" style={{background:"#EDE9FF",color:"#5A3FE0"}}>{item.confidence} AI fit</span>
+  </div>
+);
+
+const MetaTile=({label,value})=>(
+  <div className="rounded-input bg-lavender/60 px-3 py-2">
+    <div className="mono text-[9.5px] uppercase tracking-[0.14em] text-ink-3">{label}</div>
+    <div className="text-[12.5px] font-semibold text-ink mt-1 leading-snug">{value}</div>
+  </div>
+);
+
+const EpModal=({onClose,children})=>(
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{background:"rgba(26,26,46,0.5)"}} onClick={onClose}>
+    <div className="bg-white rounded-card w-full max-w-[420px] overflow-hidden shadow-[0_24px_48px_-12px_rgba(26,26,46,0.3)]" onClick={e=>e.stopPropagation()}>
+      {children}
+    </div>
+  </div>
+);
+
+const HostDetailModal=({host,episodeTitle,onClose})=>(
+  <EpModal onClose={onClose}>
+    <div className="flex items-start gap-3 px-5 py-4 border-b border-border">
+      <Avatar name={host.name} size={38}/>
+      <div className="flex-1 min-w-0">
+        <div className="mono text-[9.5px] uppercase tracking-[0.14em] text-ink-3">Suggested Host Fit · {episodeTitle}</div>
+        <div className="text-[15px] font-semibold text-ink mt-0.5 leading-tight">{host.name}</div>
+        <div className="text-[12px] text-ink-2">{host.role}</div>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <span className="px-2.5 py-1 rounded-pill text-[11px] font-semibold" style={{background:"#EDE9FF",color:"#5A3FE0"}}>{host.fit}% fit</span>
+        <button onClick={onClose} className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-lavender transition"><Icon d={I.x} size={14}/></button>
+      </div>
+    </div>
+    <div className="px-5 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+      <div>
+        <div className="mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3 mb-2">Fit score</div>
+        <div className="h-1.5 rounded-full bg-lavender overflow-hidden">
+          <div className="h-full rounded-full bg-primary" style={{width:`${host.fit}%`}}/>
+        </div>
+      </div>
+      {host.tone&&<div>
+        <div className="mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3 mb-1.5">Tone</div>
+        <div className="text-[12.5px] text-ink-2 italic">"{host.tone}"</div>
+      </div>}
+      <div>
+        <div className="mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3 mb-1.5">Why this host fits</div>
+        <p className="text-[12.5px] text-ink-2 leading-relaxed">{host.why}</p>
+      </div>
+      {host.strengths&&<div>
+        <div className="mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3 mb-2">Strengths</div>
+        <ul className="space-y-2">
+          {host.strengths.map(s=>(
+            <li key={s} className="flex items-start gap-2 text-[12.5px] text-ink-2">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B4EFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0"><path d="M5 12l5 5L20 7"/></svg>
+              {s}
+            </li>
+          ))}
+        </ul>
+      </div>}
+    </div>
+    <div className="px-5 py-3 border-t border-border">
+      <button onClick={onClose} className="h-9 px-4 rounded-pill border border-border text-[12.5px] font-medium text-ink-2 hover:text-ink transition">Close</button>
+    </div>
+  </EpModal>
+);
+
+const PersonaDetailModal=({persona,episodeTitle,onClose})=>(
+  <EpModal onClose={onClose}>
+    <div className="flex items-start gap-3 px-5 py-4 border-b border-border">
+      <span className="w-[38px] h-[38px] rounded-full shrink-0 flex items-center justify-center" style={{background:"#D9F1E2"}}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E7E34" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </span>
+      <div className="flex-1 min-w-0">
+        <div className="mono text-[9.5px] uppercase tracking-[0.14em] text-ink-3">Guest Persona Fit · {episodeTitle}</div>
+        <div className="text-[15px] font-semibold text-ink mt-0.5 leading-tight">{persona.title}</div>
+        {persona.stage&&<div className="text-[12px] text-ink-2">{persona.stage}{persona.seniority?` · ${persona.seniority}`:""}</div>}
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <span className="px-2.5 py-1 rounded-pill text-[11px] font-semibold" style={{background:"#D9F1E2",color:"#1E7E34"}}>{persona.fit}% fit</span>
+        <button onClick={onClose} className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-lavender transition"><Icon d={I.x} size={14}/></button>
+      </div>
+    </div>
+    <div className="px-5 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+      <div>
+        <div className="mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3 mb-2">Fit score</div>
+        <div className="h-1.5 rounded-full bg-lavender overflow-hidden">
+          <div className="h-full rounded-full bg-success" style={{width:`${persona.fit}%`}}/>
+        </div>
+      </div>
+      <div>
+        <div className="mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3 mb-1.5">Why this persona fits</div>
+        <p className="text-[12.5px] text-ink-2 leading-relaxed">{persona.why}</p>
+      </div>
+      {persona.signals&&<div>
+        <div className="mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3 mb-2">Audience signals</div>
+        <div className="flex flex-wrap gap-1.5">
+          {persona.signals.map(s=><span key={s} className="px-2 py-0.5 rounded-pill text-[11px] font-medium" style={{background:"#EEEEF8",color:"#5F6368"}}>{s}</span>)}
+        </div>
+      </div>}
+      {persona.interviewAngles&&<div>
+        <div className="mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3 mb-2">Interview angles</div>
+        <ul className="space-y-2">
+          {persona.interviewAngles.map(a=>(
+            <li key={a} className="flex items-start gap-2 text-[12.5px] text-ink-2">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0"><path d="M5 12l5 5L20 7"/></svg>
+              {a}
+            </li>
+          ))}
+        </ul>
+      </div>}
+    </div>
+    <div className="px-5 py-3 border-t border-border">
+      <button onClick={onClose} className="h-9 px-4 rounded-pill border border-border text-[12.5px] font-medium text-ink-2 hover:text-ink transition">Close</button>
+    </div>
+  </EpModal>
+);
+
+const GuestDetailModal=({guest,episodeTitle,onClose})=>(
+  <EpModal onClose={onClose}>
+    <div className="flex items-start gap-3 px-5 py-4 border-b border-border">
+      <Avatar name={guest.name} size={38}/>
+      <div className="flex-1 min-w-0">
+        <div className="mono text-[9.5px] uppercase tracking-[0.14em] text-ink-3">Confirmed Guest · {episodeTitle}</div>
+        <div className="text-[15px] font-semibold text-ink mt-0.5 leading-tight">{guest.name}</div>
+        <div className="text-[12px] text-ink-2">{guest.title}</div>
+      </div>
+      <button onClick={onClose} className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-lavender transition"><Icon d={I.x} size={14}/></button>
+    </div>
+    <div className="px-5 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+      <div>
+        <div className="mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3 mb-1.5">Company</div>
+        <div className="text-[12.5px] font-semibold text-ink">{guest.company}</div>
+      </div>
+      <div>
+        <div className="mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3 mb-1.5">Expertise</div>
+        <p className="text-[12.5px] text-ink-2 leading-relaxed">{guest.expertise}</p>
+      </div>
+      <div>
+        <div className="mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3 mb-1.5">Context for this episode</div>
+        <p className="text-[12.5px] text-ink-2 leading-relaxed">{guest.context}</p>
+      </div>
+    </div>
+    <div className="px-5 py-3 border-t border-border">
+      <button onClick={onClose} className="h-9 px-4 rounded-pill border border-border text-[12.5px] font-medium text-ink-2 hover:text-ink transition">Close</button>
+    </div>
+  </EpModal>
+);
+
+const IdeationContent=({item,episodeStatuses,setEpisodeStatus,setTopicStatus})=>{
+  const [episodeFeedback,setEpisodeFeedback]=useState({});
+  const [hostModal,setHostModal]=useState(null);
+  const [personaModal,setPersonaModal]=useState(null);
+
+  return (
+    <div className="space-y-5">
+      <section className="section-card p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-[3px] h-3.5 rounded-full bg-primary shrink-0"/>
+          <span className="mono text-[10.5px] uppercase tracking-[0.16em] text-ink-2 font-semibold">AI Recommendation</span>
+        </div>
+        <div className="grid sm:grid-cols-4 gap-3">
+          <MetaTile label="Format" value={item.recommendation}/>
+          <MetaTile label="Episode Count" value={item.count}/>
+          <MetaTile label="Approval Scope" value="Topics and episodes"/>
+          <MetaTile label="Host &amp; Persona Fits" value={<span className="inline-flex items-center gap-1" style={{color:"#34A853"}}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>Suggested fits</span>}/>
+        </div>
+        <p className="text-[13.5px] text-ink-2 leading-relaxed mt-4">{item.insight}</p>
+      </section>
+      <section className="section-card overflow-hidden">
+        <div className="px-5 py-4 border-b border-border">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-[3px] h-3.5 rounded-full bg-primary shrink-0"/>
+                <span className="mono text-[10.5px] uppercase tracking-[0.16em] text-ink-2 font-semibold">Topic Plan Approval</span>
+              </div>
+              <h2 className="text-[17px] font-semibold display mt-1">Review topics episode-by-episode</h2>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-pill text-[11.5px] font-semibold shrink-0" style={{background:"#D9F1E2",color:"#1E7E34"}}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1E7E34" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+              Suggested host &amp; persona fits included per episode
+            </span>
+          </div>
+        </div>
+        <div className="px-5 py-5 space-y-4">
+          {item.topics.map((topic)=>(
+            <div key={topic.id} className="rounded-input border border-border/80 overflow-hidden">
+              <div className="flex items-start justify-between gap-4 px-4 py-3.5" style={{background:"rgba(238,238,248,0.55)"}}>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                    <span className="mono text-[9.5px] uppercase tracking-[0.14em] text-ink-3 font-semibold">{topic.id}</span>
+                    {topic.rel&&<ScoreBadge kind="rel" value={topic.rel}/>}
+                    {topic.vir&&<ScoreBadge kind="vir" value={topic.vir}/>}
+                    {topic.evidence?.map(e=><EvidencePill key={e} type={e}/>)}
+                  </div>
+                  <h3 className="text-[14.5px] font-semibold text-ink display leading-snug">{topic.title}</h3>
+                </div>
+                <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                  <button onClick={()=>setTopicStatus(topic,"Approved")} className="h-7 px-3 rounded-pill border border-success/40 text-success text-[11.5px] font-medium hover:bg-success/10 transition">Approve all</button>
+                  <button onClick={()=>setTopicStatus(topic,"Rejected")} className="h-7 px-3 rounded-pill border border-danger/40 text-danger text-[11.5px] font-medium hover:bg-danger/10 transition">Reject all</button>
+                </div>
+              </div>
+              <div className="p-4 space-y-3">
+                {topic.episodes.map((episode,idx)=>{
+                  const status=episodeStatuses[`${topic.id}-${idx}`]||"Pending";
+                  const style=status==="Approved"?{background:"#D9F1E2",color:"#1E7E34"}:status==="Rejected"?{background:"#FFE0DA",color:"#B92E22"}:{background:"#FFE9C0",color:"#A86A00"};
+                  return (
+                    <div key={idx} className="rounded-input border border-border bg-white overflow-hidden">
+                      {/* Episode title + approval row */}
+                      <div className="flex items-center gap-3 px-3 py-2.5 bg-lavender/70">
+                        <span className="mono text-[10px] font-bold text-primary w-8 shrink-0">E{idx+1}</span>
+                        <div className="flex-1 min-w-0 text-[13px] font-semibold text-ink leading-snug">{episode.title}</div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button onClick={()=>setEpisodeStatus(topic.id,idx,"Approved")} className={["w-7 h-7 rounded grid place-items-center transition",status==="Approved"?"bg-success text-white":"bg-white border border-border text-ink-3 hover:text-success hover:border-success/40"].join(" ")}><Icon d={I.check} size={12} stroke={2.5}/></button>
+                          <button onClick={()=>setEpisodeStatus(topic.id,idx,"Rejected")} className={["w-7 h-7 rounded grid place-items-center transition",status==="Rejected"?"bg-danger text-white":"bg-white border border-border text-ink-3 hover:text-danger hover:border-danger/40"].join(" ")}><Icon d={I.x} size={12} stroke={2.5}/></button>
+                          <span className="w-[72px] text-center px-2 py-0.5 rounded-pill text-[10.5px] font-semibold" style={style}>{status}</span>
+                        </div>
+                      </div>
+                      {/* Host + Persona panels */}
+                      <div className="grid grid-cols-2 divide-x divide-border/60">
+                        <button onClick={()=>setHostModal({episode})} className="px-3 py-2.5 text-left hover:bg-primary-soft/30 group transition w-full">
+                          <div className="mono text-[9px] uppercase tracking-[0.1em] text-ink-3 mb-1.5">Suggested Host Fit</div>
+                          <div className="flex items-center gap-2">
+                            <Avatar name={episode.host.name} size={24}/>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-[12px] font-semibold text-ink leading-tight">{episode.host.name}</div>
+                              <div className="text-[10.5px] text-ink-3 leading-tight">{episode.host.role}</div>
+                            </div>
+                            <span className="text-[10.5px] font-semibold text-primary transition shrink-0">View details →</span>
+                          </div>
+                        </button>
+                        <button onClick={()=>setPersonaModal({episode})} className="px-3 py-2.5 text-left hover:bg-success/5 group transition w-full">
+                          <div className="mono text-[9px] uppercase tracking-[0.1em] text-ink-3 mb-1.5">Guest Persona Fit</div>
+                          <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center" style={{background:"#D9F1E2"}}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1E7E34" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-[12px] font-semibold text-ink leading-tight">{episode.persona.title}</div>
+                              <div className="mono text-[10px] font-bold text-success">{episode.persona.fit}% fit</div>
+                            </div>
+                            <span className="text-[10.5px] font-semibold text-success transition shrink-0">View details →</span>
+                          </div>
+                        </button>
+                      </div>
+                      {status==="Rejected"&&(
+                        <div className="px-3 pb-3 pt-2 border-t border-danger/10" style={{background:"#FFFDF7"}}>
+                          <textarea value={episodeFeedback[`${topic.id}-${idx}`]||""} onChange={e=>setEpisodeFeedback(prev=>({...prev,[`${topic.id}-${idx}`]:e.target.value}))}
+                            placeholder="Optional note for content team..." rows={2}
+                            className="w-full resize-none text-[12px] border border-border/60 rounded-input px-3 py-2 outline-none focus:border-primary/40 bg-white text-ink-2 placeholder:text-ink-3"/>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+      {hostModal&&<HostDetailModal host={hostModal.episode.host} episodeTitle={hostModal.episode.title} onClose={()=>setHostModal(null)}/>}
+      {personaModal&&<PersonaDetailModal persona={personaModal.episode.persona} episodeTitle={personaModal.episode.title} onClose={()=>setPersonaModal(null)}/>}
+    </div>
+  );
+};
+
+const BriefContent=({item})=>{
+  const [hostModal,setHostModal]=useState(false);
+  const [guestModal,setGuestModal]=useState(false);
+  return (
+    <div className="space-y-5">
+      <section className="section-card overflow-hidden">
+        <div className="px-5 py-4 border-b border-border">
+          <div className="mono text-[10.5px] uppercase tracking-[0.16em] text-ink-3">Approval Context</div>
+          <h2 className="text-[17px] font-semibold display mt-1">Episode, host, and guest</h2>
+        </div>
+        <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border/70">
+          <div className="p-5">
+            <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">Episode</div>
+            <h3 className="text-[14px] font-semibold text-ink">{item.episode.id} · {item.episode.topic}</h3>
+            <p className="text-[12.5px] text-ink-2 leading-relaxed mt-2">{item.episode.objective}</p>
+            <div className="mt-3 px-2.5 py-2 rounded-input bg-primary-soft text-primary text-[11.5px] font-semibold leading-snug">{item.episode.angle}</div>
+          </div>
+          <button onClick={()=>setHostModal(true)} className="p-5 text-left hover:bg-primary-soft/30 group transition w-full">
+            <div className="flex items-center justify-between mb-2">
+              <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Host</div>
+              <span className="text-[10.5px] font-semibold text-primary transition">View details →</span>
+            </div>
+            <div className="flex items-center gap-2 mb-2">
+              <Avatar name={item.hostProfile.name} size={28}/>
+              <h3 className="text-[14px] font-semibold text-ink leading-tight">{item.hostProfile.name}</h3>
+            </div>
+            <p className="text-[12.5px] text-ink-2 leading-relaxed">{item.hostProfile.focus}</p>
+            <div className="mt-3 text-[11.5px] text-ink-3"><span className="font-semibold text-ink-2">Tone:</span> {item.hostProfile.tone}</div>
+          </button>
+          <button onClick={()=>setGuestModal(true)} className="p-5 text-left hover:bg-success/5 group transition w-full">
+            <div className="flex items-center justify-between mb-2">
+              <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Guest</div>
+              <span className="text-[10.5px] font-semibold text-success transition">View details →</span>
+            </div>
+            <div className="flex items-center gap-2 mb-2">
+              <Avatar name={item.guest.name} size={28}/>
+              <div className="min-w-0">
+                <h3 className="text-[14px] font-semibold text-ink leading-tight">{item.guest.name}</h3>
+                <div className="text-[11.5px] text-ink-2 leading-tight">{item.guest.title}</div>
+              </div>
+            </div>
+            <p className="text-[12.5px] text-ink-2 leading-relaxed">{item.guest.expertise}</p>
+            <div className="mt-3 text-[11.5px] text-ink-3"><span className="font-semibold text-ink-2">Context:</span> {item.guest.context}</div>
+          </button>
+        </div>
+      </section>
+      <section className="section-card p-5">
+        <div className="mono text-[10.5px] uppercase tracking-[0.16em] text-ink-3">Brief Assessment</div>
+        <div className="grid sm:grid-cols-2 gap-3 mt-4">
+          <MetaTile label="Status" value={item.recommendation}/>
+          <MetaTile label="Review Surface" value={`${item.count} + guest confirmed`}/>
+        </div>
+        <p className="text-[13.5px] text-ink-2 leading-relaxed mt-4">{item.insight}</p>
+      </section>
+      <section className="section-card overflow-hidden">
+        <div className="px-5 py-4 border-b border-border">
+          <div className="mono text-[10.5px] uppercase tracking-[0.16em] text-ink-3">Generated Talking Points</div>
+          <h2 className="text-[17px] font-semibold display mt-1">Questions and discussion areas</h2>
+        </div>
+        <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/70">
+          <div className="p-5">
+            <div className="text-[13px] font-semibold text-ink mb-3">Key Questions</div>
+            <div className="space-y-3">{item.questions.map((q,idx)=><div key={q} className="flex gap-3 text-[13px] leading-relaxed text-ink-2"><span className="mono text-[10px] font-semibold text-primary mt-1">Q{idx+1}</span><span>{q}</span></div>)}</div>
+          </div>
+          <div className="p-5">
+            <div className="text-[13px] font-semibold text-ink mb-3">Talking Points</div>
+            <div className="space-y-3">{item.talkingPoints.map((p,idx)=><div key={p} className="flex gap-3 text-[13px] leading-relaxed text-ink-2"><span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0"/><span>{p}</span></div>)}</div>
+          </div>
+        </div>
+      </section>
+      {hostModal&&<HostDetailModal host={item.hostProfile} episodeTitle={item.title} onClose={()=>setHostModal(false)}/>}
+      {guestModal&&<GuestDetailModal guest={item.guest} episodeTitle={item.title} onClose={()=>setGuestModal(false)}/>}
+    </div>
+  );
+};
+
+const DecisionPanel=({item,episodeStatuses})=>{
+  const [decision,setDecision]=useState(null);
+  const [feedback,setFeedback]=useState("");
+  const [generalNotes,setGeneralNotes]=useState("");
+  const [mode,setMode]=useState("idle");
+
+  // Brief mode — keep simple approve/reject flow
+  if(item.kind==="brief"){
+    if(decision){
+      return(
+        <aside className="section-card p-5 lg:sticky lg:top-6">
+          <div className="w-10 h-10 rounded-full grid place-items-center mb-4" style={{background:decision==="approved"?"#D9F1E2":"#FFE0DA",color:decision==="approved"?"#1E7E34":"#B92E22"}}><Icon d={decision==="approved"?I.check:I.x} size={18} stroke={2.5}/></div>
+          <h2 className="text-[17px] font-semibold display">{decision==="approved"?"Approved":"Feedback sent"}</h2>
+          <p className="text-[12.5px] text-ink-2 mt-2">The review decision is recorded for the content team.</p>
+          <a href="MMDashboard.html" className="mt-5 h-10 px-4 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13px] font-medium inline-flex items-center gap-2 transition">Back to dashboard</a>
+        </aside>
+      );
+    }
+    return(
+      <aside className="section-card p-5 lg:sticky lg:top-6">
+        <div className="mono text-[10.5px] uppercase tracking-[0.16em] text-ink-3">Manager Decision</div>
+        <h2 className="text-[17px] font-semibold display mt-1">Review outcome</h2>
+        <div className="mt-4 grid gap-2">
+          <button onClick={()=>setDecision("approved")} className="h-10 rounded-pill bg-success hover:bg-success/90 text-white text-[13px] font-semibold inline-flex items-center justify-center gap-2 transition shadow-[0_5px_12px_-5px_rgba(52,168,83,0.7)]"><Icon d={I.check} size={14} stroke={2.5}/>Approve Brief &amp; Guest</button>
+          <button onClick={()=>setMode("reject")} className="h-10 rounded-pill border border-border text-[13px] font-semibold text-ink-2 hover:text-danger hover:border-danger/30 hover:bg-[#FFF4F3] inline-flex items-center justify-center gap-2 transition"><Icon d={I.message} size={14}/>Reject + Feedback</button>
+        </div>
+        {mode==="reject"&&(
+          <div className="mt-4 rounded-input border border-border bg-lavender/60 p-3">
+            <label className="text-[11.5px] font-medium text-ink-2 mb-2 block">Why are you rejecting this?</label>
+            <textarea value={feedback} onChange={e=>setFeedback(e.target.value)} autoFocus rows={4}
+              className="w-full resize-none bg-white border border-border rounded-input px-3 py-2.5 text-[13px] leading-relaxed outline-none focus:border-primary"
+              placeholder="Add clear feedback for the content team..."/>
+            <button onClick={()=>feedback.trim()&&setDecision("rejected")} disabled={!feedback.trim()}
+              className={`mt-3 h-9 px-4 rounded-pill text-[12.5px] font-medium inline-flex items-center gap-1.5 transition ${feedback.trim()?"bg-danger hover:bg-danger/90 text-white":"bg-ink-3 text-white cursor-not-allowed opacity-60"}`}>
+              <Icon d={I.x} size={13} stroke={2.5}/>Send feedback
+            </button>
+          </div>
+        )}
+        <div className="mt-5 pt-4 border-t border-border space-y-3">
+          <MetaTile label="Submitted By" value={item.submittedBy}/>
+          <MetaTile label="Waiting" value={item.age}/>
+          <MetaTile label="Priority" value={item.priority}/>
+          <MetaTile label="Host" value={item.hostProfile.name}/>
+          <MetaTile label="Guest" value={item.guest.name}/>
+        </div>
+      </aside>
+    );
+  }
+
+  // Ideation mode — episode-driven submit flow
+  const statuses=Object.values(episodeStatuses||{});
+  const approvedCount=statuses.filter(s=>s==="Approved").length;
+  const rejectedCount=statuses.filter(s=>s==="Rejected").length;
+  const pendingCount=statuses.filter(s=>s==="Pending").length;
+
+  if(decision==="submitted"){
+    return(
+      <aside className="section-card p-5 lg:sticky lg:top-6">
+        <div className="w-10 h-10 rounded-full bg-primary/10 grid place-items-center mb-4"><Icon d={I.check} size={18} stroke={2.5} className="text-primary"/></div>
+        <h2 className="text-[17px] font-semibold display">Review submitted</h2>
+        <p className="text-[12.5px] text-ink-2 mt-2 mb-4">Your decisions and notes have been sent to the content team.</p>
+        <div className="grid grid-cols-3 gap-2 mb-5">
+          <div className="rounded-input bg-success/8 p-2.5 text-center" style={{background:"#D9F1E2"}}><div className="text-[18px] font-bold text-success">{approvedCount}</div><div className="text-[10px] text-success/80 font-medium mt-0.5">Approved</div></div>
+          <div className="rounded-input p-2.5 text-center" style={{background:"#FFE0DA"}}><div className="text-[18px] font-bold" style={{color:"#B92E22"}}>{rejectedCount}</div><div className="text-[10px] font-medium mt-0.5" style={{color:"#B92E22"}}>Rejected</div></div>
+          <div className="rounded-input p-2.5 text-center" style={{background:"#FFE9C0"}}><div className="text-[18px] font-bold" style={{color:"#A86A00"}}>{pendingCount}</div><div className="text-[10px] font-medium mt-0.5" style={{color:"#A86A00"}}>Pending</div></div>
+        </div>
+        <a href="MMDashboard.html" className="w-full h-10 px-4 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13px] font-medium inline-flex items-center justify-center gap-2 transition">Back to dashboard</a>
+      </aside>
+    );
+  }
+
+  return(
+    <aside className="section-card p-5 lg:sticky lg:top-6 space-y-5">
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-[3px] h-3.5 rounded-full bg-primary shrink-0"/>
+          <span className="mono text-[10.5px] uppercase tracking-[0.16em] text-ink-2 font-semibold">Manager Decision</span>
+        </div>
+        <h2 className="text-[17px] font-semibold display mt-1">Review outcome</h2>
+      </div>
+
+      {/* Live episode decision summary */}
+      <div className="grid grid-cols-3 gap-2">
+        <div className="rounded-input p-2.5 text-center border border-success/20" style={{background:"#D9F1E2"}}><div className="text-[20px] font-bold text-success leading-none">{approvedCount}</div><div className="text-[10px] text-success/80 font-medium mt-1">Approved</div></div>
+        <div className="rounded-input p-2.5 text-center border border-danger/20" style={{background:"#FFE0DA"}}><div className="text-[20px] font-bold leading-none" style={{color:"#B92E22"}}>{rejectedCount}</div><div className="text-[10px] font-medium mt-1" style={{color:"#B92E22"}}>Rejected</div></div>
+        <div className="rounded-input p-2.5 text-center border border-warning/20" style={{background:"#FFE9C0"}}><div className="text-[20px] font-bold leading-none" style={{color:"#A86A00"}}>{pendingCount}</div><div className="text-[10px] font-medium mt-1" style={{color:"#A86A00"}}>Pending</div></div>
+      </div>
+      <p className="text-[11.5px] text-ink-3 -mt-2">Approve or reject each episode in the topic plan. Per-episode notes are optional.</p>
+
+      {/* General notes */}
+      <div>
+        <label className="text-[12px] font-medium text-ink-2 block mb-1.5">Overall notes <span className="text-ink-3 font-normal">(optional)</span></label>
+        <textarea value={generalNotes} onChange={e=>setGeneralNotes(e.target.value)} rows={3}
+          className="w-full resize-none bg-white border border-border rounded-input px-3 py-2.5 text-[12.5px] leading-relaxed outline-none focus:border-primary text-ink-2 placeholder:text-ink-3"
+          placeholder="Any overall comments for the content team..."/>
+      </div>
+
+      {/* Submit */}
+      <button onClick={()=>setDecision("submitted")}
+        className="w-full h-10 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13px] font-semibold inline-flex items-center justify-center gap-2 transition shadow-[0_5px_14px_-4px_rgba(107,78,255,0.5)]">
+        <Icon d={I.send} size={14} stroke={2}/>Submit Review
+      </button>
+
+      <div className="pt-4 border-t border-border space-y-3">
+        <MetaTile label="Submitted By" value={item.submittedBy}/>
+        <MetaTile label="Waiting" value={item.age}/>
+        <MetaTile label="Priority" value={item.priority}/>
+      </div>
+    </aside>
+  );
+};
+
+const DetailPage=()=>{
+  const params=new URLSearchParams(window.location.search);
+  const kind=params.get("kind")||"ideation";
+  const id=params.get("id")||(kind==="brief"?"brief-1":"ideation-1");
+  const item=REVIEW_DETAILS[`${kind}:${id}`]||REVIEW_DETAILS["ideation:ideation-1"];
+  const active=item.kind==="brief"?"brief-reviews":"ideation-reviews";
+
+  const initialStatuses=item.kind==="ideation"
+    ?Object.fromEntries(item.topics.flatMap(t=>t.episodes.map((_,idx)=>[`${t.id}-${idx}`,"Pending"])))
+    :{};
+  const [episodeStatuses,setEpisodeStatuses]=useState(initialStatuses);
+  const setEpisodeStatus=(topicId,idx,status)=>setEpisodeStatuses(prev=>({...prev,[`${topicId}-${idx}`]:status}));
+  const setTopicStatus=(topic,status)=>setEpisodeStatuses(prev=>{const next={...prev};topic.episodes.forEach((_,idx)=>{next[`${topic.id}-${idx}`]=status;});return next;});
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar kind={item.kind}/>
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[1180px] mx-auto px-8 py-8">
+          <a href={item.kind==="brief"?"MMBriefs.html":"MMIdeations.html"} className="text-[12.5px] font-medium text-ink-2 hover:text-primary inline-flex items-center gap-1.5 mb-5"><Icon d={I.arrowL} size={14}/>{item.kind==="brief"?"Back to brief reviews":"Back to ideation reviews"}</a>
+          <div className="mb-5">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="px-2.5 py-1 rounded-pill text-[11px] font-semibold" style={{background:item.kind==="brief"?"#D9F1E2":"#EDE9FF",color:item.kind==="brief"?"#1E7E34":"#5A3FE0"}}>{item.label}</span>
+              <span className="inline-flex items-center gap-1 text-[11.5px] text-ink-3"><Icon d={I.clock} size={12}/>{item.age}</span>
+            </div>
+            <h1 className="text-[28px] font-bold display leading-tight">{item.title}</h1>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12.5px] text-ink-2">
+              <span>{item.segment}</span>
+              {item.kind==="brief" ? (
+                <>
+                  <span>{item.episode.id}</span>
+                  <span>Host: <span className="font-medium text-ink">{item.host}</span></span>
+                  <span>Guest: <span className="font-medium text-ink">{item.guest.name}</span></span>
+                </>
+              ) : (
+                <>
+                  <span>Submitted by <span className="font-medium text-ink">{item.submittedBy}</span></span>
+                  <span>{item.count}</span>
+                </>
+              )}
+              <span>{item.audience}</span>
+            </div>
+          </div>
+          <AgentBanner item={item}/>
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_320px] gap-6 mt-6 items-start">
+            <div>{item.kind==="brief"?<BriefContent item={item}/>:<IdeationContent item={item} episodeStatuses={episodeStatuses} setEpisodeStatus={setEpisodeStatus} setTopicStatus={setTopicStatus}/>}</div>
+            <DecisionPanel item={item} episodeStatuses={episodeStatuses}/>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+function App(){
+  const params=new URLSearchParams(window.location.search);
+  const kind=params.get("kind")||"ideation";
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Manager Review Detail">
+      <Sidebar active={kind==="brief"?"brief-reviews":"ideation-reviews"}/>
+      <div className="flex-1 min-w-0 flex flex-col"><DetailPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+<script>window.parent.postMessage({type:'podium_navigate',page:'screens/MMReviewDetail.html'},'*');</script></body>
+</html>

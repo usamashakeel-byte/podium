@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Podium — Approval</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+  tailwind.config={theme:{extend:{colors:{lavender:'#EEEEF8',primary:'#6B4EFF','primary-hover':'#5A3FE0','primary-soft':'#EDE9FF',success:'#34A853',warning:'#F9AB00',danger:'#EA4335',ink:'#1A1A2E','ink-2':'#5F6368','ink-3':'#ADADBE',border:'#E2E2EE'},fontFamily:{sans:['Inter','system-ui','sans-serif']},boxShadow:{card:'0 1px 2px rgba(26,26,46,0.04), 0 4px 12px rgba(26,26,46,0.04)'},borderRadius:{card:'12px',input:'8px',pill:'999px'}}}}
+</script>
+<style>
+  html,body,#root{height:100%}body{font-family:'Inter',sans-serif;color:#1A1A2E;background:#EEEEF8}.mono{font-family:'Inter',sans-serif}.display{letter-spacing:-0.02em}
+  .approved-card{background:linear-gradient(180deg,#FFFFFF 0%,#FBFFFC 100%);border:1px solid rgba(52,168,83,0.28);box-shadow:0 1px 2px rgba(26,26,46,0.04),0 6px 16px rgba(52,168,83,0.07)}
+  @keyframes successPop{0%{transform:scale(0.8);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+  .success-pop{animation:successPop .4s ease both}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const Icon=({d,size=18,stroke=1.75,className="",fill})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill||"none"} stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>);
+const I={
+  home:<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></>,
+  ideation:<path d="M9 18h6M10 21h4M12 3a6 6 0 014 10.5c-.7.7-1 1.5-1 2.5H9c0-1-.3-1.8-1-2.5A6 6 0 0112 3z"/>,
+  brief:<><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></>,
+  settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1A2 2 0 117 5.9l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></>,
+  chevR:<path d="M9 6l6 6-6 6"/>,chevDown:<path d="M6 9l6 6 6-6"/>,check:<path d="M5 12l5 5L20 7"/>,
+  bell:<><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></>,
+  moreV:<><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></>,sliders:<><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></>,
+  mic:<><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></>,video:<><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/></>,share2:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8-3M8.6 10.5l6.8 3"/></>,studio:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 8l5 3-5 3V8z"/></>,voice:<><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></>,
+  clock:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
+  send:<><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></>,
+  x:<path d="M18 6L6 18M6 6l12 12"/>,refresh:<><path d="M21 12a9 9 0 01-15.5 6.2L3 15"/><path d="M3 21v-6h6"/><path d="M3 12A9 9 0 0118.5 5.8L21 9"/><path d="M21 3v6h-6"/></>,
+};
+const Logo=()=>(<a href="CMDashboard.html" className="flex items-center gap-2.5 hover:opacity-90 transition"><div className="relative w-10 h-10 rounded-[11px] overflow-hidden" style={{background:"#1A1A2E"}}><svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect width="40" height="40" rx="11" fill="#1A1A2E"/><rect x="16" y="8" width="8" height="15" rx="4" fill="#FFFFFF"/><path d="M11 19a9 9 0 0018 0" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M20 28v4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/><path d="M16 32h8" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/></svg></div><div className="text-[20px] tracking-[-0.02em] text-ink" style={{fontWeight:700}}>Podium AI<span style={{color:"#6B4EFF"}}>.</span></div></a>);
+const TINTS=[{bg:"#6B4EFF",fg:"#FFF"},{bg:"#FFE0DA",fg:"#B92E22"},{bg:"#D9F1E2",fg:"#1E7E34"},{bg:"#FFE9C0",fg:"#A86A00"},{bg:"#E3DCFF",fg:"#5A3FE0"},{bg:"#1A1A2E",fg:"#FFF"}];
+const tintFor=n=>{if((n||"").trim()==="Fizza Asad")return TINTS[0];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return TINTS[h%TINTS.length]};
+const Avatar=({name,size=32})=>{const t=tintFor(name);return <span className="inline-flex items-center justify-center font-semibold rounded-full shrink-0" style={{width:size,height:size,background:t.bg,color:t.fg,fontSize:size<=32?11:13,letterSpacing:"0.02em"}}>{name.split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0]).join("").toUpperCase()}</span>};
+const RoleBadge=()=><span className="inline-flex items-center gap-1.5 rounded-pill font-medium px-2.5 py-1 text-[11.5px]" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>Content Marketer</span>;
+const NavItem=({icon,label,active,href})=>(<a href={href} className={["relative w-full flex items-center gap-3 px-3 py-2 rounded-input text-[13px] transition",active?"bg-primary-soft text-primary font-medium":"text-ink-2 hover:bg-lavender hover:text-ink"].join(" ")}>{active&&<span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary"/>}<Icon d={icon} size={16}/><span className="flex-1 text-left">{label}</span></a>);
+const SectionLabel=({children})=>(<div className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 px-3 mt-5 mb-2">{children}</div>);
+const Sidebar=({active="ideation"})=>{const [menu,setMenu]=useState(false);const u={name:"Fizza Asad",role:"Content Marketer"};return(<aside className="bg-white border-r border-border flex flex-col h-full" style={{width:220,minWidth:220}}><div className="px-5 pt-6 pb-4"><Logo/></div><div className="flex-1 overflow-y-auto pb-2"><div className="px-2"><div className="space-y-0.5 px-1"><NavItem icon={I.home} label="Dashboard" active={active==="dashboard"} href="CMDashboard.html"/><NavItem icon={I.ideation} label="Ideation" active={active==="ideation"} href="IdeationList.html"/><NavItem icon={I.mic} label="Episode Topics" active={active==="episodes"} href="EpisodeTopics.html"/><NavItem icon={I.brief} label="Brief Builder" active={active==="brief"} href="BriefList.html"/></div><SectionLabel>Production</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.video} label="Recordings" active={active==="recordings"} href="RecordingsList.html"/></div><SectionLabel>Account</SectionLabel><div className="space-y-0.5 px-1"><NavItem icon={I.sliders} label="Configuration" active={["configuration","voice","hosts"].includes(active)} href="Configuration.html"/><div className="ml-4 pl-4 border-l border-border space-y-0.5"><a href="BrandVoice.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="voice"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Brand Library</a><a href="Hosts.html" className={["block rounded-input px-3 py-1.5 text-[12px] transition",active==="hosts"?"bg-primary-soft text-primary font-medium":"text-ink-3 hover:text-ink hover:bg-lavender"].join(" ")}>Hosts</a></div><NavItem icon={I.settings} label="Settings" active={active==="settings"} href="Settings.html"/></div></div></div><div className="border-t border-border px-3 py-3"><div className="relative"><div className="flex items-center gap-2.5 px-2 py-2 rounded-input hover:bg-lavender cursor-pointer" onClick={()=>setMenu(v=>!v)}><Avatar name={u.name} size={32}/><div className="min-w-0 flex-1"><div className="text-[12.5px] font-semibold text-ink truncate leading-tight">{u.name}</div><div className="text-[10.5px] text-ink-2 truncate leading-tight">{u.role}</div></div><button className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-white" onClick={e=>e.stopPropagation()}><Icon d={I.moreV} size={16}/></button></div>{menu&&<div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-card border border-border shadow-card z-50 overflow-hidden"><a href="Login.html" className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-danger hover:bg-[#FFF4F3] transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</a></div>}</div></div></aside>)};
+const Crumb=({items})=>(<nav className="flex items-center gap-1.5 text-[13px]">{items.map((it,i)=>(<React.Fragment key={i}><span className={i===items.length-1?"text-ink font-medium":"text-ink-2 hover:text-ink cursor-pointer"}>{it}</span>{i<items.length-1&&<Icon d={I.chevR} size={14} className="text-ink-3"/>}</React.Fragment>))}</nav>);
+const NOTIFS=[
+  {id:1,type:"approved",title:"Topic plan approved",desc:"Jen Mendoza approved your AI Strategy Series ideation.",time:"2 hrs ago",read:false},
+  {id:2,type:"action",title:"Brief ready to build",desc:"Episode 1 of AI Strategy Series is now unlocked for a brief.",time:"4 hrs ago",read:false},
+  {id:3,type:"rejected",title:"Ideation needs revision",desc:"Procurement Bottleneck was returned with feedback.",time:"Yesterday",read:true},
+  {id:4,type:"info",title:"Recording linked",desc:"Recording from 14 May was linked to Brief #EP-003.",time:"2 days ago",read:true},
+  {id:5,type:"reminder",title:"2 pending briefs",desc:"You have 2 draft briefs that haven't been submitted yet.",time:"3 days ago",read:true},
+];
+const NOTIF_STYLE={approved:{bg:"#D9F1E2",fg:"#1E7E34",path:<path d="M5 12l5 5L20 7"/>},rejected:{bg:"#FFE0DA",fg:"#B92E22",path:<path d="M18 6L6 18M6 6l12 12"/>},action:{bg:"#EDE9FF",fg:"#5A3FE0",path:<path d="M12 5v7M12 16h.01"/>},reminder:{bg:"#FFE9C0",fg:"#A86A00",path:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>},info:{bg:"#E8E8F8",fg:"#5F6368",path:<><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v5"/></>}};
+const NotifPanel=({notifs,onMarkAll,onClose})=>{const unread=notifs.filter(n=>!n.read).length;return(<><div className="fixed inset-0 z-40" onClick={onClose}/><div className="absolute right-0 top-full mt-2 w-[340px] bg-white rounded-card border border-border z-50 overflow-hidden" style={{boxShadow:"0 8px 32px rgba(26,26,46,0.14)"}}><div className="flex items-center justify-between px-4 py-3 border-b border-border"><div className="flex items-center gap-2"><span className="text-[14px] font-semibold text-ink">Notifications</span>{unread>0&&<span className="px-1.5 py-0.5 rounded-pill text-[10px] font-bold bg-primary text-white">{unread}</span>}</div>{unread>0&&<button onClick={onMarkAll} className="text-[11.5px] font-medium text-primary hover:underline">Mark all read</button>}</div><div className="divide-y divide-border/50 max-h-[420px] overflow-y-auto">{notifs.map(n=>{const s=NOTIF_STYLE[n.type]||NOTIF_STYLE.info;return(<div key={n.id} className={`flex items-start gap-3 px-4 py-3 cursor-pointer transition hover:bg-lavender/40 ${!n.read?"bg-primary-soft/20":""}`}><div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{background:s.bg}}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={s.fg} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">{s.path}</svg></div><div className="flex-1 min-w-0"><div className={`text-[12.5px] leading-snug ${!n.read?"font-semibold text-ink":"text-ink-2"}`}>{n.title}</div><div className="text-[11.5px] text-ink-3 mt-0.5 leading-snug">{n.desc}</div><div className="text-[10.5px] text-ink-3 mt-1">{n.time}</div></div>{!n.read&&<div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5"/>}</div>);})}</div><div className="px-4 py-3 border-t border-border text-center"><button className="text-[12px] font-medium text-ink-3 hover:text-primary transition">View all notifications</button></div></div></>);};
+const Topbar=({breadcrumb})=>{
+  const [notifOpen,setNotifOpen]=useState(false);
+  const [notifs,setNotifs]=useState(NOTIFS);
+  const unread=notifs.filter(n=>!n.read).length;
+  return(
+    <header className="h-[64px] bg-white border-b border-border flex items-center px-8 gap-4 shrink-0">
+      <div className="flex-1 min-w-0"><Crumb items={breadcrumb}/></div>
+      <div className="relative">
+        <button onClick={()=>setNotifOpen(v=>!v)} className="w-9 h-9 rounded-input grid place-items-center text-ink-2 hover:bg-lavender hover:text-ink relative">
+          <Icon d={I.bell} size={18}/>
+          {unread>0&&<span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary border-2 border-white"/>}
+        </button>
+        {notifOpen&&<NotifPanel notifs={notifs} onMarkAll={()=>setNotifs(p=>p.map(n=>({...n,read:true})))} onClose={()=>setNotifOpen(false)}/>}
+      </div>
+      <RoleBadge/>
+    </header>
+  );
+};
+</script>
+
+<script type="text/babel">
+const { useState } = React;
+
+const SELECTED_TOPICS = [
+  { idx:1, rel:92, vir:87, title:"Why SaaS is dead — and what replaces it", evidence:["trending","viral","contrarian"], episodes:3,
+    subtopics:[
+      { title:"The pricing-page rebellion: what founders actually changed and why",
+        host:{ name:"Marcus Reid", role:"Pricing Strategist", tone:"Calm, commercially sharp", fit:91,
+          why:"Selected because his pricing strategy background maps directly to the episode's core tension — he can push founders on contract specifics without losing the executive framing.",
+          strengths:["Deep SaaS pricing expertise","Can press guests on contract specifics","Strong board-level framing"],
+          alternatives:[{ name:"Priya Nair", role:"Revenue Operations Lead", tone:"Analytical, data-driven", fit:83,
+            why:"Strong fallback. Priya's RevOps lens keeps the conversation grounded in operational reality rather than theory, which often unlocks more candid answers.",
+            strengths:["Revenue model fluency","Keeps guests concrete","Can translate data into story"] }]
+        },
+        persona:{ title:"Series B CFO", stage:"Growth-stage SaaS", seniority:"8–12 yrs exp", fit:94,
+          why:"Best match because this persona owns the exact pricing tension the story needs — urgency from the board, pressure from customers, and the practical work of renegotiating SaaS contracts at scale.",
+          signals:["Budget decision-maker","Pricing authority","SaaS contract ownership","Board-level pressure"],
+          interviewAngles:["Where pricing models break under growth pressure","How CFOs approach renegotiating seat-based contracts","What internal signals trigger a pricing-page overhaul"],
+          alternatives:[{ title:"VP Finance", stage:"Mid-market SaaS", seniority:"6–10 yrs exp", fit:87,
+            why:"Strong fallback. Owns unit economics and pricing sign-off without needing board-level authority. Can speak directly to CFO math and deal structure decisions without the C-suite constraints.",
+            signals:["Unit economics owner","Deal structure sign-off","Pricing model evaluator","Mid-market fit"],
+            interviewAngles:["How VP Finance models usage vs seat trade-offs","Where pricing decisions create internal tension","What data drives renegotiation timing"] }]
+        }},
+      { title:"Usage-based vs seat-based: the CFO math that's reshaping deals",
+        host:{ name:"Priya Nair", role:"Revenue Operations Lead", tone:"Analytical, data-driven", fit:88,
+          why:"Priya's RevOps background means she can interrogate the CFO math in detail — she knows exactly which numbers matter and can pull concrete answers from guests who normally speak in abstractions.",
+          strengths:["Revenue model fluency","Can translate data into story","Keeps guests concrete and specific"],
+          alternatives:[{ name:"Tom Blake", role:"Product CEO", tone:"Direct, narrative-led", fit:78,
+            why:"Useful when Priya isn't available. Tom can frame the usage vs seat debate as a market narrative rather than a finance exercise, which opens different guest angles.",
+            strengths:["Market narrative framing","Draws out strategic decisions","Makes finance topics accessible"] }]
+        },
+        persona:{ title:"VP Finance", stage:"Mid-market SaaS", seniority:"6–10 yrs exp", fit:89,
+          why:"This persona owns the financial modeling decisions at the heart of the episode. They're actively running usage vs seat-based scenarios and know exactly where the math breaks — which is the story.",
+          signals:["Unit economics owner","Contract modeling","Revenue forecasting","Deal structure authority"],
+          interviewAngles:["How finance teams model usage vs seat scenarios","Where the CFO math changes deal outcomes","What makes usage-based pricing predictable enough to sell"],
+          alternatives:[{ title:"RevOps Lead", stage:"Series B–C SaaS", seniority:"5–8 yrs exp", fit:81,
+            why:"Good fallback when a VP Finance is unavailable. RevOps sits at the intersection of sales, finance, and product — they feel the usage vs seat tension from the operational side.",
+            signals:["Revenue modeling","Sales-finance bridge","Contract operations","Pricing ops experience"],
+            interviewAngles:["How RevOps manages usage-based contract tracking","Where seat-based assumptions break in RevOps systems","What data makes finance comfortable with usage models"] }]
+        }},
+      { title:"When SaaS becomes a service: the blurring line with managed offerings",
+        host:{ name:"Tom Blake", role:"Product CEO", tone:"Direct, narrative-led", fit:84,
+          why:"Tom's founder angle gives him permission to ask the blunt positioning questions this episode needs — he's navigated the same product-vs-service tension himself.",
+          strengths:["Founder-to-founder credibility","Strong market narrative framing","Draws out positioning decisions"],
+          alternatives:[{ name:"Marcus Reid", role:"Pricing Strategist", tone:"Calm, commercially sharp", fit:76,
+            why:"Useful when Tom isn't available. Marcus can reframe the product-to-service discussion through a commercial lens — what it means for pricing and revenue, not just positioning.",
+            strengths:["Commercial reframing","SaaS pricing expertise","Keeps conversation outcome-oriented"] }]
+        },
+        persona:{ title:"Founder / CEO", stage:"Series A–B", seniority:"5–8 yrs exp", fit:82,
+          why:"The best voice for a story about blurring product lines is someone who lived the decision. This persona is actively navigating whether to productize or serve — making the tension real and specific.",
+          signals:["Founder perspective","Product-to-service pivot","Market positioning","Series A–B stage"],
+          interviewAngles:["Why SaaS companies drift into managed services","How founders frame the productize-vs-serve tradeoff","What the blurring line means for pricing and positioning"],
+          alternatives:[{ title:"VP Product", stage:"Growth-stage SaaS", seniority:"6–10 yrs exp", fit:76,
+            why:"Useful when a founder isn't available. VP Product owns the boundary between product capability and service delivery and navigates the line between what the platform does and what the team does.",
+            signals:["Product strategy owner","Feature vs service tradeoff","Customer success overlap","Roadmap positioning"],
+            interviewAngles:["How product teams define where software ends and service begins","Where managed features blur into professional services","What customers ask for that blurs the line"] }]
+        }},
+    ]},
+  { idx:2, rel:88, vir:71, title:"The procurement bottleneck: why your AI POC died", evidence:["pain","data","search"], episodes:2,
+    subtopics:[
+      { title:"The 9-month vendor approval loop killing AI momentum",
+        host:{ name:"Aisha Patel", role:"Enterprise Sales Leader", tone:"Precise, enterprise-savvy", fit:89,
+          why:"Aisha's enterprise sales experience means she's lived the vendor approval loop from the selling side — she knows which questions reveal the real blockers and which surface the workarounds.",
+          strengths:["Enterprise sales credibility","Navigates procurement language","Strong at drawing out process detail"],
+          alternatives:[{ name:"Marcus Reid", role:"Pricing Strategist", tone:"Calm, commercially sharp", fit:80,
+            why:"Good fallback if Aisha isn't available. Marcus can frame the procurement delay through a commercial lens — what it's costing the business — which often unlocks more candid responses.",
+            strengths:["Commercial framing","Can quantify process friction","Makes abstract problems concrete"] }]
+        },
+        persona:{ title:"Head of Procurement", stage:"Enterprise / Mid-market", seniority:"7–12 yrs exp", fit:91,
+          why:"This persona directly controls the vendor intake and approval timelines the episode is about. They know exactly where AI tools stall — and why — because they're the ones who slow them down or push them through.",
+          signals:["Vendor intake control","Approval timeline owner","Enterprise procurement","AI tool experience"],
+          interviewAngles:["Why vendor approval loops take 9+ months","What kills AI momentum in procurement","How to make a POC survive the intake process"],
+          alternatives:[{ title:"VP Operations", stage:"Mid-market", seniority:"7–11 yrs exp", fit:84,
+            why:"Strong fallback when a procurement head isn't available. VP Operations owns the systems and vendor relationships that procurement feeds into — they feel the approval friction from the operator side.",
+            signals:["Operational systems owner","Vendor management","Process efficiency","AI adoption pressure"],
+            interviewAngles:["How operations teams are impacted by slow vendor approval","Where procurement friction blocks operational AI adoption","What process changes could unlock faster AI intake"] }]
+        }},
+      { title:"Security reviews that block every LLM vendor — and how to navigate them",
+        host:{ name:"Chris Yoon", role:"CISO / Security Advisor", tone:"Technical, authoritative", fit:92,
+          why:"Chris brings native fluency in security reviews — he can speak the CISO's language and get past surface-level answers to what actually blocks LLM vendor approval at each stage.",
+          strengths:["Security-native credibility","Can press on technical specifics","Fluent in risk and compliance language"],
+          alternatives:[{ name:"Aisha Patel", role:"Enterprise Sales Leader", tone:"Precise, enterprise-savvy", fit:81,
+            why:"Useful if Chris isn't available. Aisha can approach the security review topic from the vendor's perspective — what it looks like to navigate the review process from outside the organization.",
+            strengths:["Vendor-side perspective","Humanizes the review experience","Strong at drawing out workaround stories"] }]
+        },
+        persona:{ title:"CTO / CISO", stage:"Series B–D", seniority:"10+ yrs exp", fit:88,
+          why:"The persona that writes the security policy also knows exactly what it takes to get through it. A CTO/CISO can speak from both sides — why the reviews exist and what vendors need to do to clear them.",
+          signals:["Security review authority","AI risk sign-off","LLM vendor evaluation","Series B–D fit"],
+          interviewAngles:["What triggers a security block on LLM vendors","How CISOs assess AI risk before approving tools","What proof moves a security review from stalled to cleared"],
+          alternatives:[{ title:"Head of Security Engineering", stage:"Series B–C", seniority:"8–12 yrs exp", fit:80,
+            why:"Useful when a CISO isn't available. Security engineering runs the actual review process — they know the technical blockers and specific data handling concerns that stop LLM vendors at the gate.",
+            signals:["Security review operator","LLM data handling","Vendor technical assessment","Compliance validation"],
+            interviewAngles:["What technical red flags block LLM vendor approval","How security engineering evaluates data handling","Where most LLM vendors fail the security checklist"] }]
+        }},
+    ]},
+];
+
+const ScoreBadge = ({ kind, value }) => {
+  const grad = kind==="rel" ? "linear-gradient(90deg,#6B4EFF 0%,#B26BFF 100%)" : "linear-gradient(90deg,#FF7A59 0%,#FFB572 100%)";
+  return <span className="inline-flex items-center gap-1.5 rounded-pill text-white px-2 py-0.5" style={{background:grad}}><span className="mono uppercase tracking-wider opacity-95 text-[9px]">{kind==="rel"?"REL":"VIR"}</span><span className="font-bold leading-none text-[12px]">{value}</span></span>;
+};
+const EVIDENCE_LABELS={trending:{label:"Trending",bg:"#FFF3CD",fg:"#92600A"},viral:{label:"High virality",bg:"#FFE0DA",fg:"#B92E22"},search:{label:"Search demand",bg:"#D1E8FF",fg:"#0D5FAB"},pain:{label:"Pain point",bg:"#FFDDE1",fg:"#AD1F35"},emerging:{label:"Emerging",bg:"#D4EDDA",fg:"#1A5C2B"},evergreen:{label:"Evergreen",bg:"#D0F0EE",fg:"#0D6B62"},data:{label:"Data-backed",bg:"#E8E8F8",fg:"#3D3D8F"},contrarian:{label:"Contrarian",bg:"#EDE9FF",fg:"#5A3FE0"},community:{label:"Community signal",bg:"#FFF9C4",fg:"#7A6400"},gap:{label:"Competitor gap",bg:"#F0F0F0",fg:"#5F5F5F"}};
+const EvidencePill=({type})=>{const e=EVIDENCE_LABELS[type];if(!e)return null;return<span className="px-2 py-0.5 rounded-pill text-[10.5px] font-medium" style={{background:e.bg,color:e.fg}}>{e.label}</span>;};
+
+const StepBar = () => {
+  const steps = ["Configure","Topic Plan","Approval"];
+  return (
+    <div className="bg-white rounded-card shadow-card px-6 py-4 mb-6">
+      <div className="flex items-center">
+        {steps.map((s,i) => {
+          const done = i < 2; const active = i === 2;
+          return (
+            <React.Fragment key={s}>
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-pill text-[12px] font-medium whitespace-nowrap ${active?"bg-primary text-white":done?"bg-success/10 text-success":"text-ink-3"}`}>
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${active?"bg-white text-primary":done?"bg-success text-white":"bg-lavender text-ink-3"}`}>
+                  {done ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg> : i+1}
+                </span>
+                {s}
+              </div>
+              {i < steps.length-1 && <div className={`flex-1 h-px mx-1.5 ${done?"bg-success":"bg-border"}`}/>}
+            </React.Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const fitColor=s=>s>=80?{bg:"#D9F1E2",fg:"#1E7E34",bar:"#34A853"}:s>=65?{bg:"#FFE9C0",fg:"#A86A00",bar:"#F9AB00"}:{bg:"#FFE0DA",fg:"#B92E22",bar:"#EA4335"};
+
+const DetailModal=({onClose,children})=>(
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={onClose}>
+    <div className="absolute inset-0" style={{background:"rgba(26,26,46,0.42)",backdropFilter:"blur(3px)"}}/>
+    <div className="relative bg-white rounded-card w-full max-w-[560px] overflow-hidden" style={{boxShadow:"0 24px 64px rgba(26,26,46,0.24)"}} onClick={e=>e.stopPropagation()}>
+      {children}
+    </div>
+  </div>
+);
+
+const ModalHeader=({label,title,sub,badge,avatar,onClose})=>(
+  <div className="px-6 py-5 border-b border-border">
+    <div className="flex items-start gap-3">
+      {avatar}
+      <div className="flex-1 min-w-0">
+        <div className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 mb-0.5 truncate">{label}</div>
+        <h2 className="text-[18px] font-semibold text-ink display leading-snug">{title}</h2>
+        {sub&&<div className="text-[12.5px] text-ink-2 mt-0.5">{sub}</div>}
+      </div>
+      <div className="flex flex-col items-end gap-2 shrink-0">
+        <button onClick={onClose} className="w-7 h-7 rounded-input grid place-items-center text-ink-3 hover:text-ink hover:bg-lavender transition"><Icon d={I.x} size={14} stroke={2.4}/></button>
+        {badge}
+      </div>
+    </div>
+  </div>
+);
+
+const FitBar=({score,color})=>(
+  <div className="h-1.5 rounded-full overflow-hidden" style={{background:"#E8E8F0"}}>
+    <div className="h-full rounded-full transition-all" style={{width:score+"%",background:color}}/>
+  </div>
+);
+
+const CheckRow=({children,color="#34A853"})=>(
+  <li className="flex gap-2 text-[12.5px] text-ink-2 leading-relaxed">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5"><path d="M5 12l5 5L20 7"/></svg>
+    <span>{children}</span>
+  </li>
+);
+
+
+const PersonaModal=({persona,episodeTitle,onClose})=>{
+  const fc=fitColor(persona.fit);
+  return(
+  <DetailModal onClose={onClose}>
+    <ModalHeader
+      label={`Guest Persona · ${episodeTitle}`}
+      title={persona.title}
+      sub={`${persona.stage} · ${persona.seniority}`}
+      badge={<span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-[11px] font-bold" style={{background:fc.bg,color:fc.fg}}><span className="w-1.5 h-1.5 rounded-full" style={{background:fc.bar}}/>{persona.fit}% fit</span>}
+      avatar={<span className="inline-flex items-center justify-center rounded-input shrink-0" style={{width:42,height:42,background:fc.bg}}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={fc.fg} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>}
+      onClose={onClose}
+    />
+    <div className="px-6 pt-4 pb-1"><FitBar score={persona.fit} color={fc.bar}/></div>
+    <div className="px-6 py-5 space-y-4 overflow-y-auto" style={{maxHeight:"50vh"}}>
+      <p className="text-[13px] text-ink-2 leading-relaxed">{persona.why}</p>
+      <div>
+        <div className="mono text-[10px] uppercase tracking-[0.12em] text-ink-3 mb-2">Selection Signals</div>
+        <div className="flex flex-wrap gap-1.5">
+          {persona.signals.map(s=><span key={s} className="text-[10.5px] px-2.5 py-1 rounded-pill bg-lavender text-ink-2 font-medium">{s}</span>)}
+        </div>
+      </div>
+      <div className="pt-4 border-t border-border">
+        <div className="text-[13px] font-semibold text-ink mb-2.5">How this guest shapes the brief</div>
+        <ul className="space-y-2">{persona.interviewAngles.map(a=><CheckRow key={a} color="#34A853">{a}</CheckRow>)}</ul>
+      </div>
+    </div>
+    <div className="px-6 py-4 border-t border-border flex items-center justify-between gap-3">
+      <span className="text-[11.5px] text-ink-3">AI-recommended persona</span>
+      <span className="text-[11px] text-ink-3 italic">Persona refinement coming in v2</span>
+    </div>
+  </DetailModal>
+);};
+
+const AVAILABLE_HOSTS = [
+  { name:"Marcus Reid", role:"Pricing Strategist", tone:"Calm, commercially sharp",
+    bio:"Marcus brings a pricing strategy lens that anchors conversations in real commercial outcomes, making abstract topics concrete for executive audiences.",
+    strengths:["Deep SaaS pricing expertise","Commercial framing for complex topics","Draws out concrete decision logic"] },
+  { name:"Priya Nair", role:"Revenue Operations Lead", tone:"Analytical, data-driven",
+    bio:"Priya's RevOps background keeps conversations grounded in operational reality, unlocking the kind of candid answers that abstract discussions rarely surface.",
+    strengths:["Revenue model fluency","Translates data into clear narrative","Keeps guests specific and concrete"] },
+  { name:"Tom Blake", role:"Product CEO", tone:"Direct, narrative-led",
+    bio:"Tom's founder perspective gives him permission to ask the structural questions most hosts can't — he's navigated the same market and positioning decisions himself.",
+    strengths:["Founder-to-founder credibility","Strong market narrative framing","Draws out positioning decisions"] },
+  { name:"Aisha Patel", role:"Enterprise Sales Leader", tone:"Precise, enterprise-savvy",
+    bio:"Aisha brings enterprise sales credibility that unlocks candid answers on procurement, buying committees, and the real blockers behind vendor decisions.",
+    strengths:["Enterprise procurement credibility","Navigates vendor approval language","Draws out process detail"] },
+  { name:"Chris Yoon", role:"CISO / Security Advisor", tone:"Technical, authoritative",
+    bio:"Chris speaks the language of security review from the inside — he knows which AI security concerns are genuine blockers versus which dissolve with the right documentation.",
+    strengths:["Security-native credibility","Can press on technical specifics","Fluent in risk and compliance language"] },
+  { name:"Yasir Ahmed", role:"Growth Strategist", tone:"Energetic, insight-driven",
+    bio:"Yasir's growth strategy background helps push guests toward specific decisions and experiments that produced results, not just strategic positioning.",
+    strengths:["Growth narrative framing","Strong at surfacing tactical specifics","Keeps momentum in fast conversations"] },
+  { name:"Haseeb Khan", role:"B2B Marketing Lead", tone:"Conversational, strategic",
+    bio:"Haseeb is a strong choice when executive framing matters — his B2B marketing depth lets him anchor conversations in commercial outcomes without losing strategic altitude.",
+    strengths:["Executive-level framing","Strong follow-up discipline","Keeps complex topics commercially grounded"] },
+];
+
+const HostModal=({host,originalHost,episodeTitle,onChangeHost,onClose})=>{
+  const profile=AVAILABLE_HOSTS.find(h=>h.name===host.name)||{};
+  const displayTone=host.tone||profile.tone||"";
+  const displayWhy=host.why||profile.bio||"";
+  const displayStrengths=host.strengths||profile.strengths||[];
+  return(
+  <DetailModal onClose={onClose}>
+    <ModalHeader
+      label={`Configured Host · ${episodeTitle}`}
+      title={host.name}
+      sub={host.role}
+      badge={host.fit
+        ?<span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-[11px] font-bold" style={{background:"#EDE9FF",color:"#5A3FE0"}}><span className="w-1.5 h-1.5 rounded-full bg-primary"/>{host.fit}% fit</span>
+        :host.manualPick?<span className="px-2.5 py-1 rounded-pill text-[11px] font-semibold" style={{background:"#EEEEF8",color:"#5F6368"}}>Manual pick</span>:null}
+      avatar={<Avatar name={host.name} size={42}/>}
+      onClose={onClose}
+    />
+    {host.fit&&<div className="px-6 pt-4 pb-1"><FitBar score={host.fit} color="#6B4EFF"/></div>}
+    <div className="px-6 py-5 space-y-4 overflow-y-auto" style={{maxHeight:"38vh"}}>
+      {displayTone&&<div className="flex items-center gap-2 px-3 py-2.5 rounded-input bg-lavender">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ADADBE" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <span className="text-[12px] text-ink-2 italic">"{displayTone}"</span>
+      </div>}
+      {displayWhy&&<p className="text-[13px] text-ink-2 leading-relaxed">{displayWhy}</p>}
+      {displayStrengths.length>0&&<div className="pt-4 border-t border-border">
+        <div className="text-[13px] font-semibold text-ink mb-2.5">Why this host fits</div>
+        <ul className="space-y-2">{displayStrengths.map(s=><CheckRow key={s} color="#6B4EFF">{s}</CheckRow>)}</ul>
+      </div>}
+    </div>
+    <div className="px-6 pt-4 pb-5 border-t border-border">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[12.5px] font-semibold text-ink">Select from configured hosts</span>
+        <a href="Hosts.html" target="_blank" className="text-[11px] font-medium text-primary hover:underline">Host database →</a>
+      </div>
+      <p className="text-[11.5px] text-ink-3 mb-3">Manual override for availability or better fit.</p>
+      <div className="relative">
+        <div className="flex items-center gap-2.5 border border-border rounded-input px-3 py-2.5 bg-white hover:border-primary/40 transition cursor-pointer select-none">
+          <Avatar name={host.name} size={22}/>
+          <span className="flex-1 text-[12.5px] font-medium text-ink truncate">{host.name} · {host.role}</span>
+          {host.manualPick&&originalHost&&(
+            <button onClick={e=>{e.stopPropagation();onChangeHost(originalHost);}} title="Reset to AI recommendation"
+              className="w-5 h-5 rounded grid place-items-center text-ink-3 hover:text-ink hover:bg-lavender transition shrink-0 z-10 relative">
+              <Icon d={I.x} size={11} stroke={2.5}/>
+            </button>
+          )}
+          <Icon d={I.chevDown} size={14} className="text-ink-3 shrink-0 pointer-events-none"/>
+        </div>
+        <select value={host.name} onChange={e=>{const p=AVAILABLE_HOSTS.find(h=>h.name===e.target.value);if(p)onChangeHost(p);}}
+          className="absolute inset-0 opacity-0 cursor-pointer w-full" style={{fontSize:16}}>
+          {AVAILABLE_HOSTS.map(h=><option key={h.name} value={h.name}>{h.name} · {h.role}</option>)}
+        </select>
+      </div>
+    </div>
+  </DetailModal>
+);}
+
+const IdeationSubmitPage = () => {
+  const [submitted, setSubmitted] = useState(false);
+  const [personaModal, setPersonaModal] = useState(null);
+  const [hostModal, setHostModal] = useState(null);
+  const [selectedHosts, setSelectedHosts] = useState({});
+  const [note, setNote] = useState("");
+  const getCurrentPersona=(ep)=>ep.persona;
+  const getCurrentHost=(ep,ti,ei)=>{const manual=selectedHosts[`${ti}-${ei}`];if(!manual)return ep.host;return{...manual,manualPick:manual.name!==ep.host.name};};
+  const handleSelectHost=(ti,ei,host)=>{setSelectedHosts(prev=>({...prev,[`${ti}-${ei}`]:host}));};
+
+  const totalEpisodes = SELECTED_TOPICS.reduce((a,t)=>a+t.episodes,0);
+
+  if (submitted) {
+    return (
+      <div className="h-full flex flex-col bg-lavender">
+        <Topbar breadcrumb={["Workspace","Ideation","New Ideation","Sent for Approval"]}/>
+        <main className="flex-1 overflow-y-auto">
+          <div className="text-center max-w-[520px] px-8 py-12 mx-auto success-pop">
+            <div className="w-20 h-20 rounded-full bg-success/10 grid place-items-center mx-auto mb-6">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+            </div>
+            <h1 className="text-[24px] font-bold display mb-2">Submitted</h1>
+            <p className="text-[14px] text-ink-2 mb-3">Jen Mendoza will review your topics.</p>
+            <div className="flex items-center justify-center gap-2 flex-wrap mb-6">
+              <span className="px-2.5 py-1 rounded-pill text-[12px] font-semibold" style={{background:"#EDE9FF",color:"#5A3FE0"}}>{SELECTED_TOPICS.length} topics</span>
+              <span className="text-ink-3 text-[11px]">·</span>
+              <span className="px-2.5 py-1 rounded-pill text-[12px] font-semibold" style={{background:"#EDE9FF",color:"#5A3FE0"}}>{totalEpisodes} episodes</span>
+              <span className="text-ink-3 text-[11px]">·</span>
+              <span className="px-2.5 py-1 rounded-pill text-[12px] font-semibold" style={{background:"#EEEEF8",color:"#5F6368"}}>Sweetspot segment</span>
+              <span className="text-ink-3 text-[11px]">·</span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-pill text-[12px] font-semibold" style={{background:"#D9F1E2",color:"#1E7E34"}}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1E7E34" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                Host &amp; persona fits included
+              </span>
+            </div>
+
+            {/* Submission summary */}
+            <div className="bg-white rounded-card shadow-card mb-4 text-left overflow-hidden">
+              <div className="px-4 py-3 border-b border-border">
+                <div className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3">Submission</div>
+              </div>
+              <div className="divide-y divide-border/60">
+                {SELECTED_TOPICS.map((topic,ti)=>topic.subtopics.map((ep,ei)=>{
+                  const h=ep.host;
+                  const p=ep.persona;
+                  return (
+                    <div key={`${ti}-${ei}`} className="px-4 py-2.5 flex items-start gap-3">
+                      <span className="mono text-[9.5px] font-bold text-primary bg-primary-soft px-1.5 py-0.5 rounded shrink-0 mt-0.5">E{ei+1}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] font-medium text-ink leading-snug truncate">{ep.title}</div>
+                        <div className="flex items-center gap-3 mt-1 flex-wrap">
+                          <div className="flex items-center gap-1.5">
+                            <span className="mono text-[9px] uppercase tracking-[0.08em] text-ink-3">Host</span>
+                            <Avatar name={h.name} size={14}/>
+                            <span className="text-[11px] font-medium text-ink-2">{h.name}</span>
+                            <span className="mono text-[9.5px] font-bold" style={{color:"#5A3FE0"}}>{h.fit}%</span>
+                          </div>
+                          <span className="w-px h-3 bg-border shrink-0"/>
+                          <div className="flex items-center gap-1.5">
+                            <span className="mono text-[9px] uppercase tracking-[0.08em] text-ink-3">Persona</span>
+                            <span className="text-[11px] font-medium text-ink-2">{p.title}</span>
+                            <span className="mono text-[9.5px] font-bold text-success">{p.fit}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }))}
+              </div>
+            </div>
+
+            {/* What happens next */}
+            <div className="bg-white rounded-card shadow-card px-5 py-4 mb-6 text-left">
+              <div className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mb-3">What happens next</div>
+              <div className="space-y-2.5">
+                {[
+                  "Marketing Manager reviews your topics, suggested hosts, and guest persona fits",
+                  "Approved topics and episodes become Episode Topics",
+                  "Approved episodes appear in Episode Topics",
+                  "You can then build briefs for each approved episode",
+                ].map((step,i)=>(
+                  <div key={i} className="flex items-start gap-2.5 text-[13px] text-ink-2">
+                    <span className="w-5 h-5 rounded-full bg-lavender grid place-items-center text-[10px] font-bold text-ink-3 shrink-0 mt-0.5">{i+1}</span>
+                    {step}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-3">
+              <a href="IdeationList.html" className="h-10 px-5 rounded-pill bg-primary hover:bg-primary-hover text-white text-[13.5px] font-medium inline-flex items-center gap-2 transition shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]">
+                Back to Ideation
+              </a>
+              <a href="EpisodeTopics.html" className="h-10 px-5 rounded-pill border border-border text-ink text-[13.5px] font-medium inline-flex items-center gap-2 hover:bg-lavender transition">
+                View Episode Topics
+              </a>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full flex flex-col bg-lavender">
+      <Topbar breadcrumb={["Workspace","Ideation","New Ideation","Approval"]}/>
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-[1180px] mx-auto px-8 py-8">
+          <StepBar/>
+
+          <div className="mb-6">
+            <div className="mono text-[11px] uppercase tracking-[0.18em] text-ink-2 mb-1.5">Step 3 of 3</div>
+            <h1 className="text-[24px] font-bold display leading-tight">Review &amp; Submit</h1>
+            <p className="text-[13.5px] text-ink-2 mt-1">Review your topic plan before sending to your manager.</p>
+          </div>
+
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_300px] gap-6 items-start">
+            <div className="min-w-0 space-y-4">
+              {/* Selected topics */}
+              <section className="bg-white rounded-card shadow-card p-5">
+                <div className="text-[13px] font-semibold display mb-1 flex items-start justify-between gap-3">
+                  <span>Selected Topics</span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <a href="TopicGeneration.html" className="text-[12px] text-primary font-medium hover:underline">Edit</a>
+                    <span className="px-2 py-0.5 rounded-pill text-[10.5px] font-semibold" style={{background:"#EDE9FF",color:"#5A3FE0"}}>{SELECTED_TOPICS.length} topics · {totalEpisodes} episodes</span>
+                  </div>
+                </div>
+                <p className="text-[12px] text-ink-2 mb-4"></p>
+                <div className="space-y-3">
+                  {SELECTED_TOPICS.map(t => (
+                    <div key={t.idx} className="approved-card rounded-card p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                            <span className="mono text-[10.5px] uppercase tracking-[0.12em] font-semibold text-ink-2">#{String(t.idx).padStart(2,"0")}</span>
+                            <ScoreBadge kind="rel" value={t.rel}/>
+                            <ScoreBadge kind="vir" value={t.vir}/>
+                            {t.evidence?.map(e=><EvidencePill key={e} type={e}/>)}
+                          </div>
+                          <div className="text-[14px] font-semibold display">{t.title}</div>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <div className="text-[11px] text-ink-3 mono mb-0.5">Episode count</div>
+                          <div className="text-[22px] font-bold text-primary">{t.episodes}</div>
+                          <div className="text-[11px] text-ink-3">episodes</div>
+                        </div>
+                      </div>
+                      <div className="mt-3 pt-3 border-t border-success/20 space-y-2">
+                        <div className="text-[10px] mono uppercase tracking-[0.14em] text-ink-3 mb-0.5">Episodes</div>
+                        {t.subtopics.map((ep, ei) => {const cp=getCurrentPersona(ep);const ch=getCurrentHost(ep,t.idx,ei);return(
+                          <div key={ei} className="rounded-input border border-success/10 bg-white/80 p-3">
+                            <div className="flex items-center gap-2 mb-2.5">
+                              <span className="mono text-[9.5px] font-bold text-success bg-success/10 px-2 py-0.5 rounded-pill shrink-0">E{ei+1}</span>
+                              <span className="text-[12.5px] font-semibold text-ink leading-snug">{ep.title}</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="rounded-input bg-lavender/60 border border-transparent hover:border-primary/20 hover:bg-primary-soft/20 px-3 py-2.5 cursor-pointer transition" onClick={()=>setHostModal({ti:t.idx,ei,ep})}>
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3">Suggested Host Fit</div>
+                                  <button onClick={e=>{e.stopPropagation();setHostModal({ti:t.idx,ei,ep});}} className="text-[10px] text-primary font-medium hover:underline transition">Change</button>
+                                </div>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                  <Avatar name={ch.name} size={26}/>
+                                  <div className="min-w-0">
+                                    <div className="text-[12px] font-semibold text-ink leading-tight truncate">{ch.name}</div>
+                                    <div className="text-[10.5px] text-ink-3 leading-tight truncate">{ch.role}</div>
+                                  </div>
+                                </div>
+                                <div className="text-[10.5px] text-ink-2 italic mb-2 truncate">"{ch.tone}"</div>
+                                {ch.manualPick?<div className="flex items-center gap-1.5 py-0.5"><span className="w-1.5 h-1.5 rounded-full bg-ink-3"/><span className="text-[10px] text-ink-3 font-medium">Manually selected</span></div>:<FitBar score={ch.fit} color="rgba(107,78,255,0.55)"/>}
+                                <div className="flex items-center justify-between mt-1">
+                                  <span className="mono text-[9px] font-bold text-primary/70">{ch.manualPick?"":ch.fit+"% fit"}</span>
+                                  <span className="text-[10px] text-primary font-medium inline-flex items-center gap-0.5">View details<Icon d={I.chevR} size={9}/></span>
+                                </div>
+                              </div>
+                              <div className="rounded-input bg-lavender/60 border border-transparent hover:border-primary/20 hover:bg-primary-soft/20 px-3 py-2.5 cursor-pointer transition" onClick={()=>setPersonaModal({ti:t.idx,ei,ep})}>
+                                <div className="mb-2">
+                                  <div className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3">Guest Persona</div>
+                                </div>
+                                <div className="mb-1.5">
+                                  <div className="text-[12px] font-semibold text-ink leading-tight">{cp.title}</div>
+                                  <div className="text-[10.5px] text-ink-3 leading-tight mt-0.5">{cp.stage} · {cp.seniority}</div>
+                                </div>
+                                <div className="text-[10.5px] text-ink-2 leading-snug mb-2" style={{display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{cp.why}</div>
+                                <FitBar score={cp.fit} color={fitColor(cp.fit).bar}/>
+                                <div className="flex items-center justify-between mt-1">
+                                  <span className="mono text-[9px] font-bold" style={{color:fitColor(cp.fit).fg}}>{cp.fit}% fit</span>
+                                  <span className="text-[10px] text-primary font-medium inline-flex items-center gap-0.5">View details<Icon d={I.chevR} size={9}/></span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );})}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            {/* Submit sidebar */}
+            <aside className="bg-white rounded-card shadow-card p-5 self-start sticky top-6 space-y-4">
+              <div>
+                <div className="text-[10px] mono uppercase tracking-[0.12em] text-ink-3 mb-1">Approval Request</div>
+                <div className="text-[16px] font-semibold display">Send to Marketing Manager</div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-input bg-lavender">
+                <Avatar name="Jen Mendoza" size={36}/>
+                <div>
+                  <div className="text-[13px] font-semibold text-ink">Jen Mendoza</div>
+                  <div className="text-[11.5px] text-ink-2">Marketing Manager</div>
+                </div>
+              </div>
+              <div className="space-y-2 text-[12.5px]">
+                <div className="flex justify-between"><span className="text-ink-3">Topics</span><span className="font-semibold text-ink">{SELECTED_TOPICS.length}</span></div>
+                <div className="flex justify-between"><span className="text-ink-3">Total episodes</span><span className="font-semibold text-primary">{totalEpisodes}</span></div>
+                <div className="flex justify-between"><span className="text-ink-3">Segment</span><span className="font-semibold text-ink">Sweetspot</span></div>
+              </div>
+              <div className="rounded-input border border-success/30 bg-success/5 px-3 py-2.5 space-y-1.5">
+                <div className="text-[10px] mono uppercase tracking-[0.12em] text-success/80 font-semibold">What's Included</div>
+                <div className="flex items-center gap-2 text-[11.5px] text-ink-2">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                  Suggested host fit per episode
+                </div>
+                <div className="flex items-center gap-2 text-[11.5px] text-ink-2">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                  Guest persona + fit score per episode
+                </div>
+              </div>
+              <div>
+                <label className="text-[11px] mono uppercase tracking-[0.12em] text-ink-3 mb-1.5 block">Note for Jen <span className="normal-case not-mono font-normal tracking-normal text-ink-3">(optional)</span></label>
+                <textarea
+                  rows={3}
+                  value={note}
+                  onChange={e=>setNote(e.target.value)}
+                  placeholder="Add context for the manager — priorities, deadlines, or anything to flag…"
+                  className="w-full px-3 py-2.5 rounded-input border border-border text-[12.5px] bg-white resize-none leading-relaxed placeholder:text-ink-3 focus:outline-none focus:border-primary transition"
+                />
+              </div>
+              <button onClick={() => setSubmitted(true)}
+                className="w-full h-11 rounded-pill bg-primary hover:bg-primary-hover transition text-white text-[13.5px] font-medium inline-flex items-center justify-center gap-2 shadow-[0_6px_14px_-4px_rgba(107,78,255,0.55)]">
+                <Icon d={I.send} size={15} stroke={2}/>Submit for Approval
+              </button>
+              <a href="TopicGeneration.html" className="w-full h-10 rounded-pill border border-border text-[13px] font-medium text-ink hover:bg-lavender transition inline-flex items-center justify-center">
+                Back to Topic Plan
+              </a>
+            </aside>
+          </div>
+          <div className="text-[11px] text-ink-3 mono mt-8"></div>
+        </div>
+      </main>
+      {personaModal&&<PersonaModal persona={getCurrentPersona(personaModal.ep)} episodeTitle={personaModal.ep.title} onClose={()=>setPersonaModal(null)}/>}
+      {hostModal&&<HostModal host={getCurrentHost(hostModal.ep,hostModal.ti,hostModal.ei)} originalHost={hostModal.ep.host} episodeTitle={hostModal.ep.title} onChangeHost={host=>handleSelectHost(hostModal.ti,hostModal.ei,host)} onClose={()=>setHostModal(null)}/>}
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <div className="h-screen w-screen flex" data-screen-label="Ideation Submit">
+      <Sidebar active="ideation"/>
+      <div className="flex-1 min-w-0 flex flex-col"><IdeationSubmitPage/></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+<script>window.parent.postMessage({type:'podium_navigate',page:'screens/IdeationSubmit.html'},'*');</script></body>
+</html>
